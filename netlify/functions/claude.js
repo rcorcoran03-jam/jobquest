@@ -1,35 +1,35 @@
 // Netlify Function — proxies requests to Anthropic API
-// Sits between the browser app and api.anthropic.com to bypass CORS
-// API key is passed from the browser via x-user-api-key header
+// CommonJS format required for netlify/functions directory
 
-export default async (req, context) => {
+exports.handler = async function(event, context) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, x-user-api-key',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
 
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers: corsHeaders, body: '' };
   }
 
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers: corsHeaders, body: 'Method not allowed' };
   }
 
   try {
-    const body = await req.json();
+    const body = JSON.parse(event.body || '{}');
 
-    // Accept key from browser header, fall back to env var if set
-    const apiKey = req.headers.get('x-user-api-key')
+    const apiKey = (event.headers['x-user-api-key'] || event.headers['X-User-Api-Key'])
       || process.env.ANTHROPIC_API_KEY
       || process.env.ANTHROPIC
       || '';
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'No API key provided. Add your Anthropic API key in the Excel sync tab.' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      return {
+        statusCode: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'No API key provided. Add your Anthropic API key in the Excel sync tab.' })
+      };
     }
 
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -44,20 +44,17 @@ export default async (req, context) => {
 
     const data = await resp.text();
 
-    return new Response(data, {
-      status: resp.status,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': resp.headers.get('Content-Type') || 'application/json',
-      },
-    });
+    return {
+      statusCode: resp.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      body: data,
+    };
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
+    return {
+      statusCode: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+      body: JSON.stringify({ error: err.message }),
+    };
   }
 };
-
-export const config = { path: '/api/claude' };
