@@ -1,12 +1,17 @@
-// Cloudflare Pages Function — proxies requests to Anthropic API
-// File location: functions/api/claude.js → serves at /api/claude
-
-export async function onRequestPost(context) {
+export async function onRequest(context) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type, x-user-api-key',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
   };
+
+  if (context.request.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  if (context.request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  }
 
   try {
     const body = await context.request.json();
@@ -45,14 +50,4 @@ export async function onRequestPost(context) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-}
-
-export async function onRequestOptions() {
-  return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, x-user-api-key',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    }
-  });
 }
