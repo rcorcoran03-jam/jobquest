@@ -249,7 +249,28 @@ const PRESETS = [
   {l:'PM – HealthTech Startup',    qs:['product manager healthtech startup remote', '"senior product manager" "Series" health', '"product manager" "digital health" startup equity']},
 ];
 
-const STAGES = ['Saved','Coffee / Networking','Applied','Phone Screen','Interview','Final Round','Offer','Rejected','Ghosted'];
+const COMPANY_CATEGORIES = {
+  'Healthcare Startups': ['unite us','reema health','oasis health','included health','transcarent','spring health','lyra health','modern health','develop health','accolade','gravie','omada','cityblock','arcadia','aledade','innovaccer','komodo','datavant','particle health','health catalyst','nomi health','turquoise','oscar health','inovalon'],
+  'Healthcare Enterprise': ['unitedhealthgroup','uhg','optum','surest','cvs','aetna','cigna','evernorth','humana','elevance','prime therapeutics','novu health','anthem'],
+  'Medtech Enterprise': ['medtronic','boston scientific','bsc','abbott','stryker'],
+  'Medtech Startups': ['anteris','nalu','cardiovalve','shockwave','penumbra'],
+};
+
+function detectCategory(company) {
+  if (!company) return '';
+  const lower = company.toLowerCase();
+  for (const [cat, keywords] of Object.entries(COMPANY_CATEGORIES)) {
+    if (keywords.some(k => lower.includes(k))) return cat;
+  }
+  return '';
+}
+
+const CAT_COLORS = {
+  'Healthcare Startups': {bg:'var(--teal-bg)',color:'var(--teal)',border:'var(--teal-dim)'},
+  'Healthcare Enterprise': {bg:'var(--blue-bg)',color:'var(--blue)',border:'#B5D4F4'},
+  'Medtech Enterprise': {bg:'var(--rose-pale)',color:'var(--rose)',border:'var(--rose-border)'},
+  'Medtech Startups': {bg:'var(--purple-bg)',color:'#4A2870',border:'#C4A8E8'},
+};
 const STAGE_COL = {Saved:'purple',Applied:'blue','Coffee / Networking':'teal','Phone Screen':'amber',Interview:'amber','Final Round':'green',Offer:'green',Rejected:'red',Ghosted:'purple'};
 const STAGE_CARD_BG = {
   Saved:'var(--card-saved)', Applied:'var(--card-applied)',
@@ -306,12 +327,12 @@ let state = {
   jobHidden: [],    // per-session hidden posting IDs (resets on new search)
   jobSaved: {},
   analyzed: {}, analyzing: {},
-  appFilter: 'all', appEditing: null, appShowAdd: false, appSort: 'updated',
+  appFilter: 'all', appCatFilter: 'all', appEditing: null, appShowAdd: false, appSort: 'updated', appExpanded: {},
   coverCo: '', coverTone: 'professional', coverJD: '', coverOut: '', coverLoading: false,
   intRole: '', intCo: '', intQtype: 'behavioral', intQs: [], intAns: {}, intFb: {}, intLoading: false, intFbLoading: {},
   pomMode: 0, pomSecs: 25*60, pomTotal: 25*60, pomRunning: false,
   pomSessions: 0, pomTask: POM_TASKS[0], pomCustomTask: '', pomCustomMins: '', pomLog: [],
-  netShowAdd: false, netDraft: '', netDraftFor: null, netDraftLoading: false,
+  netShowAdd: false, netEditing: null, netDraft: '', netDraftFor: null, netDraftLoading: false,
   tasks: JSON.parse(localStorage.getItem('tasks')||'null') || [
     {id:1,  text:'Import full application history via CSV',           done:false, cat:'today',   due:'2026-05-05', priority:'high'},
     {id:4,  text:'Follow up with Clare MesserSchmidt – Oasis',        done:false, cat:'followup',due:'2026-05-07', priority:'high'},
@@ -550,111 +571,111 @@ const LINKEDIN_BASE = 'https://www.linkedin.com/jobs/search/';
 const LINKEDIN_EXP  = {any:'',mid:'3',senior:'4',director:'5'};
 const LINKEDIN_TIME = {any:'','24h':'r86400','week':'r604800','month':'r2592000'};
 
-const QUICK_LAUNCHES = [
+// 3-tile board data
+const BOARD_TILES = [
   {
-    label: 'Digital Health PM', icon: '🏥',
-    desc: 'Sr PM / digital health / care navigation — across all major boards',
-    urls: [
-      {name:'LinkedIn',   url:'https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+digital+health&f_E=4&f_TPR=r2592000'},
-      {name:'Wellfound',  url:'https://wellfound.com/jobs', clipboard:true},
-      {name:'Glassdoor',  url:'https://www.glassdoor.com/Job/jobs.htm?sc.keyword=senior+product+manager+digital+health&locT=N'},
+    id: 'healthtech',
+    label: 'Digital Health & Care Navigation',
+    icon: '🏥',
+    searches: [
+      {name:'LinkedIn', url:'https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+digital+health+care+navigation&f_E=4&f_TPR=r2592000'},
+      {name:'Wellfound', url:'https://wellfound.com/jobs', clipboard:'senior product manager digital health care navigation'},
+      {name:'Glassdoor', url:'https://www.glassdoor.com/Job/jobs.htm?sc.keyword=senior+product+manager+digital+health&locT=N'},
+    ],
+    companies: [
+      {name:'Unite Us', url:'https://uniteus.com/company/careers/'},
+      {name:'Reema Health', url:'https://www.reemahealth.com/careers'},
+      {name:'Oasis Health', url:'https://oasishealthpartners.com/careers'},
+      {name:'Included Health', url:'https://includedhealth.com/careers/'},
+      {name:'Transcarent', url:'https://transcarent.com/careers'},
+      {name:'UHG / Optum', url:'https://careers.unitedhealthgroup.com/search-jobs?keywords=product+manager'},
+      {name:'CVS / Aetna', url:'https://jobs.cvshealth.com/us/en/search-results?keywords=product%20manager'},
+      {name:'Cigna / Evernorth', url:'https://jobs.thecignagroup.com/search-jobs?keywords=product+manager'},
+      {name:'Humana', url:'https://careers.humana.com/search-jobs?keywords=product+manager'},
     ]
   },
   {
-    label: 'Behavioral Health Tech', icon: '🧠',
-    desc: 'PM roles in behavioral health, EAP, mental health platforms',
-    urls: [
-      {name:'LinkedIn',   url:'https://www.linkedin.com/jobs/search/?keywords=product+manager+behavioral+health&f_E=4&f_TPR=r2592000'},
-      {name:'Wellfound',  url:'https://wellfound.com/jobs', clipboard:true},
-      {name:'Indeed',     url:'https://www.indeed.com/jobs?q=senior+product+manager+behavioral+health&sort=date'},
-    ]
-  },
-  {
-    label: 'Value-Based Care PM', icon: '📊',
-    desc: 'Population health, VBC, care navigation, Medicaid/Medicare platforms',
-    urls: [
-      {name:'LinkedIn',   url:'https://www.linkedin.com/jobs/search/?keywords=product+manager+value-based+care&f_E=4&f_TPR=r2592000'},
-      {name:'Indeed',     url:'https://www.indeed.com/jobs?q=senior+product+manager+%22value-based+care%22&sort=date'},
-      {name:'Wellfound',  url:'https://wellfound.com/jobs', clipboard:true},
-    ]
-  },
-  {
-    label: 'Minneapolis / Remote PM', icon: '🌲',
-    desc: 'Local Twin Cities + remote health tech PM roles',
-    urls: [
-      {name:'LinkedIn',   url:'https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+health&location=Minneapolis%2C+MN&f_E=4&f_TPR=r2592000'},
-      {name:'Indeed',     url:'https://www.indeed.com/jobs?q=senior+product+manager+health&l=Minneapolis%2C+MN&sort=date'},
-      {name:'BuiltIn MN', url:'https://www.builtinminneapolis.com/jobs/product?remote=true&seniority=senior'},
-    ]
-  },
-  {
-    label: 'Medtech / Device PM', icon: '🫀',
-    desc: 'Downstream PM, upstream PM, product marketing — BSC, MDT ecosystem',
-    urls: [
-      {name:'LinkedIn',   url:'https://www.linkedin.com/jobs/search/?keywords=product+manager+medical+device&location=Minneapolis%2C+MN&f_E=4&f_TPR=r2592000'},
-      {name:'BSC Careers',url:'https://www.bostonscientific.com/en-US/careers/job-search.html?keyword=product+manager'},
-      {name:'Medtronic',  url:'https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers?q=product+manager'},
-    ]
-  },
-  {
-    label: 'Health Analytics PM', icon: '📈',
-    desc: 'Data platform PM, analytics product, health data / interoperability',
-    urls: [
-      {name:'LinkedIn',   url:'https://www.linkedin.com/jobs/search/?keywords=product+manager+healthcare+analytics&f_E=4&f_TPR=r2592000'},
-      {name:'Wellfound',  url:'https://wellfound.com/jobs', clipboard:true},
-      {name:'Indeed',     url:'https://www.indeed.com/jobs?q=senior+product+manager+%22health+analytics%22&sort=date'},
+    id: 'behavioral',
+    label: 'Behavioral & Mental Health',
+    icon: '🧠',
+    searches: [
+      {name:'LinkedIn', url:'https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+behavioral+health+EAP&f_E=4&f_TPR=r2592000'},
+      {name:'Wellfound', url:'https://wellfound.com/jobs', clipboard:'senior product manager behavioral health mental health EAP'},
+      {name:'Indeed', url:'https://www.indeed.com/jobs?q=senior+product+manager+behavioral+health+EAP&sort=date'},
+    ],
+    companies: [
+      {name:'Spring Health', url:'https://www.springhealth.com/careers'},
+      {name:'Lyra Health', url:'https://www.lyrahealth.com/company/careers/'},
+      {name:'Modern Health', url:'https://www.modernhealth.com/careers'},
+      {name:'Develop Health', url:'https://www.develophealth.com/careers'},
+      {name:'Accolade', url:'https://www.accolade.com/careers/'},
     ]
   },
 ];
 
-const TARGET_CAREER_PAGES = [
-  {name:'UnitedHealth Group',  url:'https://careers.unitedhealthgroup.com/search-jobs?keywords=product+manager'},
-  {name:'CVS / Aetna',         url:'https://jobs.cvshealth.com/us/en/search-results?keywords=product%20manager'},
-  {name:'Medtronic',           url:'https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers?q=product+manager'},
-  {name:'Boston Scientific',   url:'https://www.bostonscientific.com/en-US/careers/job-search.html?keyword=product+manager'},
-  {name:'Elevance Health',     url:'https://elevancehealth.jobs/search/?q=product+manager'},
-  {name:'Humana',              url:'https://careers.humana.com/search-jobs?keywords=product+manager'},
-  {name:'Cigna / Evernorth',   url:'https://jobs.thecignagroup.com/search-jobs?keywords=product+manager'},
-  {name:'Prime Therapeutics',  url:'https://careers.primetherapeutics.com/search-jobs?keywords=product'},
-  {name:'Gravie',              url:'https://www.gravie.com/careers'},
+const MEDTECH_COMPANIES = [
+  {name:'Boston Scientific', url:'https://www.bostonscientific.com/en-US/careers/job-search.html?keyword=product+manager'},
+  {name:'Medtronic', url:'https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers?q=product+manager'},
+  {name:'Abbott', url:'https://www.abbott.com/careers/search-jobs.html?keywords=product+manager'},
+  {name:'Anteris Medical', url:'https://anterismedical.com/careers/'},
+  {name:'Stryker', url:'https://careers.stryker.com/jobs?keywords=product+manager&page=1'},
 ];
+const MEDTECH_LI_CLIP = 'Senior Product Manager medical device downstream upstream cardiovascular Minneapolis';
 
 function renderBoard(el) {
   const liURL = buildLinkedInURL();
 
-  const launchCards = QUICK_LAUNCHES.map((ql,i) => `
-    <div class="card" style="margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div>
-          <div style="font-size:15px;margin-bottom:2px">${ql.icon} <strong style="color:var(--jade)">${esc(ql.label)}</strong></div>
-          <div style="font-size:12px;color:var(--muted)">${esc(ql.desc)}</div>
-        </div>
-        <button onclick="openAll(${i})" style="font-size:11px;background:var(--jade);color:#fff;border-color:var(--jade);white-space:nowrap;flex-shrink:0">Open all ${ql.urls.length} ↗</button>
+  // Top 2 tiles side by side
+  const topTiles = BOARD_TILES.map(tile => `
+    <div class="card" style="flex:1;min-width:0">
+      <div style="font-size:15px;font-weight:600;color:var(--jade);margin-bottom:12px">${tile.icon} ${esc(tile.label)}</div>
+      <div style="font-size:11px;color:var(--jade);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Search boards</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        ${tile.searches.map(s => s.clipboard
+          ? `<button onclick="openWithClip('${esc(s.url)}','${esc(s.clipboard)}')" style="font-size:11px;color:var(--amber);border-color:var(--amber-dim)">${esc(s.name)} 📋↗</button>`
+          : `<button onclick="window.open('${esc(s.url)}','_blank')" style="font-size:11px">${esc(s.name)} ↗</button>`
+        ).join('')}
+        <button onclick="openAllTile('${tile.id}')" style="font-size:11px;background:var(--jade);color:#fff;border-color:var(--jade)">Open all ↗</button>
       </div>
+      <div style="font-size:11px;color:var(--jade);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Target companies</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${ql.urls.map(u => u.clipboard
-          ? `<button onclick="openBoardWithClip('${esc(u.url)}',event)" style="font-size:11px;color:var(--amber);border-color:var(--amber)">${esc(u.name)} 📋↗</button>`
-          : `<button onclick="window.open('${esc(u.url)}','_blank')" style="font-size:11px">${esc(u.name)} ↗</button>`).join('')}
+        ${tile.companies.map(c =>
+          `<button onclick="window.open('${esc(c.url)}','_blank')" style="font-size:11px;background:var(--jade-pale);color:var(--jade);border-color:var(--jade-mid)">${esc(c.name)} ↗</button>`
+        ).join('')}
       </div>
     </div>`).join('');
 
-  const targetLinks = TARGET_CAREER_PAGES.map(t =>
-    `<button onclick="window.open('${esc(t.url)}','_blank')" style="font-size:11px">${esc(t.name)} ↗</button>`
+  // Medtech full-width tile
+  const medtechCompanyBtns = MEDTECH_COMPANIES.map(c =>
+    `<button onclick="window.open('${esc(c.url)}','_blank')" style="font-size:11px;background:var(--rose-pale);color:var(--rose);border-color:var(--rose-border)">${esc(c.name)} ↗</button>`
   ).join('');
 
   el.innerHTML = secHead('Job board') + `
 
-    <div class="card" style="border-left:3px solid var(--jade);border-radius:0 10px 10px 0;margin-bottom:20px;background:var(--jade-pale)">
-      <div style="font-size:13px;color:var(--jade);line-height:1.7">
-        <strong>Strategy:</strong> LinkedIn and company career pages produce the best results for your search. Use the quick launchers below to open pre-filtered searches across multiple boards at once, then save anything interesting back here with the tracker.
+    <div class="card" style="margin-bottom:16px;border-left:3px solid var(--jade);background:var(--jade-pale)">
+      <div style="font-size:14px;color:var(--jade);line-height:1.8;font-weight:500">
+        Senior PM with 7+ years building digital health platforms in regulated environments. Led 0-to-1 care navigation launch (Access Plus) cutting time-to-care to 48 hours, double-digit NPS gains. Built behavioral health analytics platform serving national payer clients. Drawn to teams building at the intersection of clinical complexity and consumer experience, where the stakes are real and the product craft has to match.
       </div>
     </div>
 
-    <div style="margin-bottom:24px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-size:12px;font-weight:600;color:var(--tx);letter-spacing:.03em;text-transform:uppercase">Quick launch — multi-board searches</div>
+    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      ${topTiles}
+    </div>
+
+    <div class="card" style="margin-bottom:24px;border-top:3px solid var(--rose)">
+      <div style="font-size:15px;font-weight:600;color:var(--rose);margin-bottom:12px">🫀 Medtech</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:11px;color:var(--jade);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Career pages</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${medtechCompanyBtns}
+          </div>
+        </div>
+        <div style="flex-shrink:0">
+          <div style="font-size:11px;color:var(--jade);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-weight:600">LinkedIn search</div>
+          <button onclick="openMedtechLinkedIn()" style="font-size:11px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue);white-space:nowrap">LinkedIn 📋↗ (copies keywords)</button>
+        </div>
       </div>
-      ${launchCards}
     </div>
 
     <div style="margin-bottom:24px">
@@ -673,20 +694,32 @@ function renderBoard(el) {
         <div id="li-url-preview" style="font-size:10px;color:var(--faint);margin-top:8px;word-break:break-all">${esc(liURL)}</div>
       </div>
     </div>
-
-    <div>
-      <div style="font-size:12px;font-weight:600;color:var(--tx);letter-spacing:.03em;text-transform:uppercase;margin-bottom:12px">Target company career pages</div>
-      <div class="card">
-        <div style="display:flex;gap:6px;flex-wrap:wrap">${targetLinks}</div>
-        <div style="font-size:11px;color:var(--faint);margin-top:10px">All links open the PM search results page directly — no navigation needed.</div>
-      </div>
-    </div>
   `;
 
   document.getElementById('li-keywords').addEventListener('input', updateLiPreview);
   document.getElementById('li-location').addEventListener('input', updateLiPreview);
   document.getElementById('li-time').addEventListener('change', updateLiPreview);
   document.getElementById('li-exp').addEventListener('change', updateLiPreview);
+}
+
+function openAllTile(id) {
+  const tile = BOARD_TILES.find(t => t.id === id);
+  if (!tile) return;
+  const cbSearch = tile.searches.find(s => s.clipboard);
+  if (cbSearch) { navigator.clipboard?.writeText(cbSearch.clipboard); showToast('Search term copied for boards that need it'); }
+  tile.searches.forEach(s => window.open(s.url, '_blank'));
+}
+
+function openWithClip(url, term) {
+  navigator.clipboard?.writeText(term);
+  window.open(url, '_blank');
+  showToast('Search term copied — paste it on the page that opens');
+}
+
+function openMedtechLinkedIn() {
+  navigator.clipboard?.writeText(MEDTECH_LI_CLIP);
+  window.open('https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+medical+device+downstream+upstream&location=Minneapolis%2C+MN&f_E=4&f_TPR=r2592000', '_blank');
+  showToast('Keywords copied — paste into LinkedIn search if needed');
 }
 
 function buildLinkedInURL() {
@@ -718,34 +751,9 @@ function copyLinkedInURL() {
   setTimeout(() => btn.textContent = orig, 1500);
 }
 
-function openAll(idx) {
-  const ql = QUICK_LAUNCHES[idx];
-  const hasCB = ql.urls.some(u => u.clipboard);
-  if (hasCB) {
-    const firstUrl = ql.urls.find(u => !u.clipboard);
-    let term = ql.label;
-    if (firstUrl) { try { term = new URL(firstUrl.url).searchParams.get('keywords') || ql.label; } catch(e) {} }
-    navigator.clipboard?.writeText(term);
-  }
-  ql.urls.forEach(u => window.open(u.url, '_blank'));
-  if (hasCB) showToast('Search term copied — paste on any board that opens');
-}
-
-function openBoardWithClip(url, e) {
-  const btn = e.target;
-  let term = 'senior product manager';
-  try {
-    const card = btn.closest('.card') || btn.parentElement.parentElement;
-    const otherBtns = card.querySelectorAll('button[onclick*="window.open"]');
-    for (const ob of otherBtns) {
-      const m = ob.getAttribute('onclick').match(/keywords=([^&'"]+)/);
-      if (m) { term = decodeURIComponent(m[1].replace(/\+/g,' ')); break; }
-    }
-  } catch(err) {}
-  navigator.clipboard?.writeText(term);
-  window.open(url, '_blank');
-  showToast('Search term copied — paste it on the page that opens');
-}
+// Legacy kept for safety
+function openAll(idx) { showToast('Use the new tile buttons to launch searches'); }
+function openBoardWithClip(url, e) { openWithClip(url, 'senior product manager'); }
 
 function showToast(msg) {
   let t = document.getElementById('clip-toast');
@@ -822,22 +830,75 @@ function readAppForm(prefix) {
 }
 
 function renderTracker(el) {
-  const today = new Date().toISOString().slice(0,10);
+  const ACTIVE_STAGES = ['Saved','Coffee / Networking','Applied','Phone Screen','Interview','Final Round','Offer'];
+  const HIDDEN_STAGES = ['Rejected','Ghosted'];
 
-  let list = state.appFilter==='all' ? [...state.apps] : state.apps.filter(a=>a.stage===state.appFilter);
-  if(state.appSort === 'updated') {
-    list.sort((a,b) => (b.updatedAt||b.date||'').localeCompare(a.updatedAt||a.date||''));
-  } else if(state.appSort === 'date') {
-    list.sort((a,b) => (b.date||'').localeCompare(a.date||''));
-  } else if(state.appSort === 'priority') {
-    const p = {High:3,Medium:2,Low:1};
-    list.sort((a,b) => (p[b.priority]||0)-(p[a.priority]||0));
+  // Category filter
+  let list = state.apps.map(a => ({...a, _cat: a.category || detectCategory(a.company)}));
+
+  // Stage filter (hide ghosted/rejected by default unless explicitly selected)
+  if (state.appFilter === 'all') {
+    list = list.filter(a => !HIDDEN_STAGES.includes(a.stage));
+  } else if (state.appFilter === 'hidden') {
+    list = list.filter(a => HIDDEN_STAGES.includes(a.stage));
+  } else {
+    list = list.filter(a => a.stage === state.appFilter);
   }
 
-  const counts = STAGES.reduce((acc,s)=>({...acc,[s]:state.apps.filter(x=>x.stage===s).length}),{});
+  // Category filter
+  if (state.appCatFilter && state.appCatFilter !== 'all') {
+    list = list.filter(a => a._cat === state.appCatFilter);
+  }
 
-  const filterBtns = ['all',...STAGES].map(s =>
-    `<button class="tag ${state.appFilter===s?'on':''}" onclick="setAppFilter('${s}')">${s==='all'?`all (${state.apps.length})`:`${s} (${counts[s]||0})`}</button>`
+  // Sort
+  if (state.appSort === 'updated') list.sort((a,b) => (b.updatedAt||b.date||'').localeCompare(a.updatedAt||a.date||''));
+  else if (state.appSort === 'date') list.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  else if (state.appSort === 'priority') { const p={High:3,Medium:2,Low:1}; list.sort((a,b)=>(p[b.priority]||0)-(p[a.priority]||0)); }
+
+  const counts = STAGES.reduce((acc,s)=>({...acc,[s]:state.apps.filter(x=>x.stage===s).length}),{});
+  const activeCount = state.apps.filter(a=>!HIDDEN_STAGES.includes(a.stage)).length;
+  const hiddenCount = state.apps.filter(a=>HIDDEN_STAGES.includes(a.stage)).length;
+
+  // Top 5 priorities
+  const topPriority = state.apps
+    .filter(a => a.priority === 'High' && !HIDDEN_STAGES.includes(a.stage))
+    .sort((a,b) => (b.updatedAt||b.date||'').localeCompare(a.updatedAt||a.date||''))
+    .slice(0, 5);
+
+  const topPriorityHTML = topPriority.length ? `
+    <div class="card" style="margin-bottom:16px;border-left:3px solid var(--amber);background:var(--gold-pale)">
+      <div style="font-size:11px;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:10px">Top priorities</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${topPriority.map(a => {
+          const cat = a.category || detectCategory(a.company);
+          const catStyle = CAT_COLORS[cat] || {};
+          return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;background:var(--surf);border-radius:6px;border:1px solid var(--gold-border)">
+            <div style="flex:1;min-width:0">
+              <span style="font-size:13px;font-weight:600;color:var(--tx)">${esc(a.company)}</span>
+              <span style="font-size:11px;color:var(--muted);margin-left:6px">${esc(a.role||'')}</span>
+            </div>
+            <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
+              ${cat?`<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${catStyle.bg||'var(--cream)'};color:${catStyle.color||'var(--muted)'};border:1px solid ${catStyle.border||'var(--brd)'}">${cat}</span>`:''}
+              ${badge(a.stage, STAGE_COL[a.stage]||'amber')}
+              <button onclick="togglePriority(${a.id})" title="Remove from top priorities" style="font-size:10px;padding:1px 5px;color:var(--faint);border-color:transparent;background:transparent">✕</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
+  // Stage filter buttons
+  const stageFilterBtns = [
+    {v:'all', l:`Active (${activeCount})`},
+    ...STAGES.filter(s=>!HIDDEN_STAGES.includes(s)).map(s=>({v:s,l:`${s} (${counts[s]||0})`})),
+    {v:'hidden', l:`Ghosted / Rejected (${hiddenCount})`}
+  ].map(s =>
+    `<button class="tag ${state.appFilter===s.v?'on':''}" onclick="setAppFilter('${s.v}')">${s.l}</button>`
+  ).join('');
+
+  // Category filter buttons
+  const catFilterBtns = ['all',...Object.keys(COMPANY_CATEGORIES)].map(c =>
+    `<button class="tag ${state.appCatFilter===c?'on':''}" onclick="state.appCatFilter='${c}';render('tracker')" style="font-size:10px">${c==='all'?'All categories':c}</button>`
   ).join('');
 
   const sortBtns = [{v:'updated',l:'Recently updated'},{v:'date',l:'Date applied'},{v:'priority',l:'Priority'}].map(s =>
@@ -855,7 +916,7 @@ function renderTracker(el) {
     </div>` : '';
 
   const cards = list.map(app => {
-    if(state.appEditing === app.id) {
+    if (state.appEditing === app.id) {
       return `<div class="card" style="margin-bottom:8px;border-left:3px solid var(--amber)">
         <div style="font-size:12px;font-weight:500;color:var(--amber);margin-bottom:10px">Editing: ${esc(app.company)}</div>
         ${appFormHTML(`e-${app.id}`, app)}
@@ -866,72 +927,119 @@ function renderTracker(el) {
       </div>`;
     }
 
-    const borderCol = {
-      Offer:'var(--green)', Rejected:'var(--red)', Ghosted:'var(--purple)',
-      'Coffee / Networking':'var(--teal)', Applied:'var(--blue)',
-      'Phone Screen':'var(--amber)', Interview:'var(--amber)', 'Final Round':'var(--green)',
-    }[app.stage] || 'var(--brd2)';
-
+    const isExpanded = state.appExpanded[app.id];
+    const borderCol = {Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--teal)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[app.stage]||'var(--brd2)';
     const cardBg = STAGE_CARD_BG[app.stage] || 'var(--card-default)';
 
-    const details = [
-      app.salary    && pill(app.salary),
-      app.location  && pill(app.location),
-      app.date      && pill('applied: ' + app.date),
-      app.fit       && pill('fit: ' + app.fit + '/10'),
-    ].filter(Boolean).join('');
+    const cat = app.category || detectCategory(app.company);
+    const catStyle = CAT_COLORS[cat] || {};
+    const catBtn = cat ? `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${catStyle.bg||'var(--cream)'};color:${catStyle.color||'var(--muted)'};border:1px solid ${catStyle.border||'var(--brd)'};cursor:pointer" onclick="showCatOverride(${app.id})">${cat} ▾</span>` : `<button onclick="showCatOverride(${app.id})" style="font-size:10px;padding:2px 7px;color:var(--faint);border-style:dashed">+ category</button>`;
+
+    const appliedDate = app.date ? `applied: ${app.date}` : '';
+    const updatedLabel = app.updatedAt ? `updated: ${app.updatedAt.slice(0,10)}` : '';
 
     const contactLine = [app.contact, app.netContact].filter(s=>s&&s!=='—').map(esc).join(' · ');
-    const nextLine    = [app.nextStep, app.nextDate].filter(s=>s&&s!=='—').map(esc).join(' → ');
-    const keyReqs     = app.keyReqs && app.keyReqs !== '—' ? app.keyReqs : '';
-    const gaps        = app.gaps || app.notes || '';
-    const netRel      = app.netRel && app.netRel !== '—' ? app.netRel : '';
-    const updatedLabel = app.updatedAt ? `updated ${app.updatedAt.slice(0,10)}` : '';
-    const prepText    = `Company: ${app.company}\nRole: ${app.role||''}\nMy background: Senior PM, digital health, Aetna behavioral health analytics, care navigation (Access Plus 0-1 launch), MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences, Minneapolis MN.\nNotes: ${app.gaps||''}\n\nPlease produce a structured interview prep guide using the company profile and interview prep approach.`;
+    const nextLine = [app.nextStep, app.nextDate].filter(s=>s&&s!=='—').map(esc).join(' → ');
+    const netRel = app.netRel && app.netRel !== '—' ? app.netRel : '';
 
-    return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid ${borderCol};border-left:3px solid ${borderCol};background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
+    // Condensed view
+    const condensed = `
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
         <div style="flex:1;min-width:0">
           <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
             <span style="font-size:14px;font-weight:600;color:var(--tx)">${esc(app.company)}</span>
             ${badge(app.stage, STAGE_COL[app.stage]||'amber')}
             ${app.priority==='High'?badge('high priority','green'):''}
+            ${catBtn}
           </div>
-          <div style="color:var(--muted);margin-bottom:5px;font-size:12px">${esc(app.role||'')}</div>
-          ${details?`<div style="margin-bottom:5px">${details}</div>`:''}
-          ${contactLine?`<div style="font-size:11px;color:var(--faint);margin-bottom:3px">👤 ${contactLine}</div>`:''}
-          ${netRel?`<div style="font-size:11px;color:var(--faint);margin-bottom:3px">🤝 ${esc(netRel)}</div>`:''}
-          ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:3px">→ ${nextLine}</div>`:''}
-          ${keyReqs?`<div style="font-size:11px;color:var(--faint);margin-bottom:2px"><span style="color:var(--muted)">match:</span> ${esc(keyReqs)}</div>`:''}
-          ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint)"><span style="color:var(--muted)">notes:</span> ${esc(gaps)}</div>`:''}
-          ${updatedLabel?`<div style="font-size:10px;color:var(--faint);margin-top:4px">${updatedLabel}</div>`:''}
+          <div style="color:var(--muted);margin-bottom:4px;font-size:12px">${esc(app.role||'')}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">
+            ${app.salary?pill(app.salary):''}
+            ${app.location?pill(app.location):''}
+            ${appliedDate?pill(appliedDate):''}
+            ${app.fit?pill('fit: '+app.fit+'/10'):''}
+          </div>
+          ${contactLine?`<div style="font-size:11px;color:var(--faint);margin-bottom:2px">👤 ${contactLine}</div>`:''}
+          ${netRel?`<div style="font-size:11px;color:var(--faint);margin-bottom:2px">🤝 ${esc(netRel)}</div>`:''}
+          ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:2px">→ ${nextLine}</div>`:''}
+          ${updatedLabel?`<div style="font-size:10px;color:var(--faint)">${updatedLabel}</div>`:''}
         </div>
         <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
           ${sel(`stg-${app.id}`,STAGES,app.stage)}
           <div class="row" style="gap:4px">
-            <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">↑ Move</button>
+            <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">Update</button>
             <button onclick="openProfilePanel(${app.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢 Profile</button>
             <button onclick="copyPrepPrompt(${app.id})" style="font-size:11px;color:var(--blue);border-color:var(--blue-bg)">📋 Prep</button>
             <button onclick="state.appEditing=${app.id};render('tracker')" style="font-size:11px">Edit</button>
+            <button onclick="state.appExpanded[${app.id}]=true;render('tracker')" style="font-size:11px;color:var(--muted)">▾</button>
             <button class="danger" onclick="delApp(${app.id})" style="font-size:11px">✕</button>
           </div>
         </div>
-      </div>
+      </div>`;
+
+    // Expanded extra details
+    const expanded = isExpanded ? `
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
+        ${app.keyReqs&&app.keyReqs!=='—'?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">match:</span> ${esc(app.keyReqs)}</div>`:''}
+        ${(app.gaps||app.notes)&&(app.gaps||app.notes)!=='—'?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">notes:</span> ${esc(app.gaps||app.notes||'')}</div>`:''}
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+          <label style="font-size:11px;color:var(--muted)">Applied on:</label>
+          <input type="date" value="${esc(app.date||'')}" onchange="updateAppField(${app.id},'date',this.value)" style="font-size:11px;padding:3px 8px;width:auto">
+          <button onclick="state.appExpanded[${app.id}]=false;render('tracker')" style="font-size:10px;color:var(--faint);border-color:transparent;margin-left:auto">▴ collapse</button>
+        </div>
+      </div>` : '';
+
+    return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid ${borderCol};border-left:3px solid ${borderCol};background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
+      ${condensed}${expanded}
     </div>`;
   }).join('');
 
   el.innerHTML = secHead('Applications') + `
-    <div class="stage-filters" style="margin-bottom:8px">${filterBtns}
+    ${topPriorityHTML}
+    <div class="stage-filters" style="margin-bottom:6px">${stageFilterBtns}
       <button class="amber" onclick="state.appShowAdd=!state.appShowAdd;render('tracker')" style="margin-left:auto">+ Add</button>
       <button onclick="openAnalyzeModal()" style="font-size:12px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue)">🔍 Analyze JD</button>
     </div>
+    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">${catFilterBtns}</div>
     <div style="display:flex;gap:6px;margin-bottom:14px;align-items:center">
-      <span style="font-size:11px;color:var(--faint)">Sort:</span>
-      ${sortBtns}
+      <span style="font-size:11px;color:var(--faint)">Sort:</span>${sortBtns}
     </div>
     ${addForm}
-    ${cards || '<div class="empty">No applications in this stage.</div>'}
+    ${cards || '<div class="empty">No applications in this view.</div>'}
+    <div id="cat-override-modal"></div>
   `;
+}
+
+function togglePriority(id) {
+  state.apps = state.apps.map(a => a.id===id ? {...a, priority: a.priority==='High'?'Medium':'High', updatedAt: new Date().toISOString()} : a);
+  save(); render('tracker');
+}
+
+function updateAppField(id, field, val) {
+  state.apps = state.apps.map(a => a.id===id ? {...a, [field]:val, updatedAt:new Date().toISOString()} : a);
+  save();
+}
+
+function showCatOverride(id) {
+  const app = state.apps.find(a=>a.id===id); if(!app) return;
+  const current = app.category || detectCategory(app.company) || '';
+  const modal = document.getElementById('cat-override-modal');
+  if (!modal) return;
+  modal.innerHTML = `
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:flex;align-items:center;justify-content:center" onclick="document.getElementById('cat-override-modal').innerHTML=''">
+      <div style="background:var(--surf);border-radius:10px;padding:20px;min-width:240px;border:1px solid var(--brd2)" onclick="event.stopPropagation()">
+        <div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:12px">Set category for ${esc(app.company)}</div>
+        ${['Healthcare Startups','Healthcare Enterprise','Medtech Enterprise','Medtech Startups',''].map(c=>
+          `<button onclick="setCat(${id},'${c}')" style="display:block;width:100%;margin-bottom:6px;text-align:left;padding:7px 12px;font-size:12px;${c===current?'background:var(--jade-pale);color:var(--jade);border-color:var(--jade-mid)':''}">${c||'Clear category'}</button>`
+        ).join('')}
+        <button onclick="document.getElementById('cat-override-modal').innerHTML=''" style="font-size:11px;color:var(--faint);border-color:transparent;width:100%;margin-top:4px">Cancel</button>
+      </div>
+    </div>`;
+}
+
+function setCat(id, cat) {
+  state.apps = state.apps.map(a => a.id===id ? {...a, category:cat, updatedAt:new Date().toISOString()} : a);
+  save(); render('tracker');
 }
 
 function setAppFilter(f) { state.appFilter=f; state.appEditing=null; render('tracker'); }
@@ -1156,6 +1264,27 @@ function renderNetwork(el) {
   const cards = state.contacts.map(c => {
     const ov=overdue(c.next), sn=soon(c.next);
     const brdCol=ov?'var(--red)':sn?'var(--amber)':'var(--brd)';
+    const isEditing = state.netEditing === c.id;
+
+    if (isEditing) {
+      return `<div class="card" style="margin-bottom:8px;border-left:3px solid var(--amber)">
+        <div style="font-size:12px;font-weight:500;color:var(--amber);margin-bottom:10px">Editing: ${esc(c.name)}</div>
+        <div class="g2" style="margin-bottom:8px;gap:8px">
+          <div>${lbl('Name')}${inp('net-edit-name',c.name,'Name')}</div>
+          <div>${lbl('Company')}${inp('net-edit-co',c.company,'Company')}</div>
+          <div>${lbl('Their role')}${inp('net-edit-role',c.role||'','Their role')}</div>
+          <div>${lbl('Relationship')}${sel('net-edit-rel',['Warm','Alumni','Cold','Recruiter'],c.rel||'Warm')}</div>
+          <div>${lbl('Last contact')}${inp('net-edit-last',c.last||'','YYYY-MM-DD')}</div>
+          <div>${lbl('Next follow-up')}${inp('net-edit-next',c.next||'','YYYY-MM-DD')}</div>
+        </div>
+        <div style="margin-bottom:8px">${lbl('Notes')}${inp('net-edit-notes',c.notes||'','How you know them, recent interaction...')}</div>
+        <div class="row" style="margin-top:8px">
+          <button class="amber" onclick="saveContactEdit(${c.id})">Save</button>
+          <button onclick="state.netEditing=null;render('network')">Cancel</button>
+        </div>
+      </div>`;
+    }
+
     return `<div class="card" style="margin-bottom:8px;border-left:3px solid ${brdCol};border-radius:0 10px 10px 0">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
         <div style="flex:1;min-width:0">
@@ -1164,7 +1293,7 @@ function renderNetwork(el) {
             ${badge(c.rel,REL_COL[c.rel]||'amber')}
             ${ov?badge('follow up overdue','red'):''}${!ov&&sn?badge('due soon','amber'):''}
           </div>
-          <div style="color:var(--muted);font-size:12px">${esc(c.role)} · ${esc(c.company)}</div>
+          <div style="color:var(--muted);font-size:12px">${esc(c.role||'')} · ${esc(c.company||'')}</div>
           ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-top:2px">${esc(c.notes)}</div>`:''}
           <div style="font-size:11px;color:var(--faint);margin-top:2px">${c.last?`last: ${c.last}`:''}${c.next?` · next: ${c.next}`:''}</div>
         </div>
@@ -1172,6 +1301,7 @@ function renderNetwork(el) {
           <button onclick="copyNetPrompt('linkedin','${esc(c.id)}')" style="font-size:11px;color:var(--jade);border-color:var(--jade-mid);background:var(--jade-pale);white-space:nowrap">📋 LinkedIn msg</button>
           <button onclick="copyNetPrompt('followup','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Follow-up</button>
           <button onclick="copyNetPrompt('intro','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Referral ask</button>
+          <button onclick="state.netEditing=${c.id};render('network')" style="font-size:11px;color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);white-space:nowrap">Edit</button>
         </div>
       </div>
     </div>`;
@@ -1191,6 +1321,21 @@ function renderNetwork(el) {
     </div>
     ${addForm}${cards || '<div class="empty">No contacts yet. Add people from your network above.</div>'}
   `;
+}
+
+function saveContactEdit(id) {
+  state.contacts = state.contacts.map(c => c.id===id ? {
+    ...c,
+    name:    document.getElementById('net-edit-name')?.value.trim() || c.name,
+    company: document.getElementById('net-edit-co')?.value.trim()   || c.company,
+    role:    document.getElementById('net-edit-role')?.value.trim() || c.role,
+    rel:     document.getElementById('net-edit-rel')?.value         || c.rel,
+    last:    document.getElementById('net-edit-last')?.value        || c.last,
+    next:    document.getElementById('net-edit-next')?.value        || c.next,
+    notes:   document.getElementById('net-edit-notes')?.value       || c.notes,
+  } : c);
+  state.netEditing = null;
+  save(); render('network');
 }
 
 function addContact() {
