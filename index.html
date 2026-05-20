@@ -3,578 +3,1260 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ryan Corcoran — Product Leader</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23E8F1F8'/%3E%3Cpolygon points='16,3 17.8,10.2 24.5,7.5 20.5,13.5 27.5,15.5 20.5,17.5 24.5,23.5 17.8,20.8 16,28 14.2,20.8 7.5,23.5 11.5,17.5 4.5,15.5 11.5,13.5 7.5,7.5 14.2,10.2' fill='%231C3347'/%3E%3C/svg%3E">
+<title>Ryan's Hunt · 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:wght@300;400&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:     #E8F1F8;
-  --bg2:    #F4F8FC;
-  --bg3:    #EDF4FA;
-  --bg4:    #DDEAF4;
+  :root {
+    --bg: #0d1117; --surf: #161b22; --surf2: #1c2330;
+    --brd: #21262d; --brd2: #30363d;
+    --tx: #e6edf3; --muted: #7d8590; --faint: #484f58;
+    --amber: #f0a500; --amber-dim: #7a5200; --amber-bg: #1a1200;
+    --green: #3fb950; --green-bg: #0d1f12; --green-dim: #1a3a20;
+    --red: #f85149; --red-bg: #1f0d0d;
+    --blue: #58a6ff; --blue-bg: #0d1f3a;
+    --purple: #bc8cff; --purple-bg: #1a0d2e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--tx); font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.5; }
+  a { color: var(--amber); }
+  input, textarea, select, button { font-family: 'DM Mono', monospace; font-size: 12px; }
+  input, textarea, select {
+    background: var(--surf); color: var(--tx); border: 1px solid var(--brd);
+    border-radius: 6px; padding: 7px 11px; outline: none; width: 100%;
+  }
+  input::placeholder, textarea::placeholder { color: var(--faint); }
+  textarea { resize: vertical; }
+  select { cursor: pointer; }
+  button {
+    cursor: pointer; border-radius: 6px; border: 1px solid var(--brd);
+    background: transparent; color: var(--tx); padding: 6px 14px;
+    transition: all .15s; letter-spacing: .03em;
+  }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.amber { background: var(--amber); color: #000; border-color: var(--amber); font-weight: 500; }
+  button.amber:hover:not(:disabled) { opacity: .88; }
+  button.ghost { color: var(--muted); border-color: transparent; }
+  button.danger { color: var(--red); border-color: var(--red); }
+  button.full { width: 100%; padding: 9px 0; font-size: 13px; }
 
-  --steel:  #5B8FB9;
-  --steel2: #1C3347;
-  --steel3: #C8DFF0;
+  /* NAV */
+  #nav {
+    border-bottom: 1px solid var(--brd); height: 50px; display: flex;
+    align-items: center; justify-content: space-between; padding: 0 24px;
+    position: sticky; top: 0; background: var(--bg); z-index: 100;
+  }
+  #nav .brand { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 300; letter-spacing: -.5px; }
+  #nav .brand span { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--faint); margin-left: 8px; letter-spacing: .08em; }
+  #nav .tabs { display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
+  #nav .tabs button { font-size: 11px; padding: 5px 10px; }
+  #nav .tabs button.active { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-dim); }
+  #sync-status { font-size: 10px; color: var(--faint); letter-spacing: .04em; padding: 0 8px; white-space: nowrap; }
 
-  --rust:   #C8694A;
-  --rust2:  #E8A890;
-  --rust3:  #F7EDE9;
+  /* MAIN */
+  #main { max-width: 820px; margin: 0 auto; padding: 28px 24px; }
 
-  --amber:  #C98A0E;
-  --amber3: #FDF6E3;
+  /* SECTION HEAD */
+  .sec-head { margin-bottom: 24px; }
+  .sec-head h1 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 300; letter-spacing: -.5px; margin-bottom: 6px; }
+  .sec-head .bar { width: 28px; height: 2px; background: var(--amber); border-radius: 1px; }
 
-  --tx:     #1C3347;
-  --tx2:    #3D6078;
-  --tx3:    #7A9AAE;
+  /* CARD */
+  .card { background: var(--surf); border: 1px solid var(--brd); border-radius: 8px; padding: 1rem 1.25rem; animation: fadeIn .2s ease; margin-bottom: 10px; }
+  .card:last-child { margin-bottom: 0; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:none } }
+  @keyframes spin { to { transform: rotate(360deg) } }
 
-  --border:  rgba(91,143,185,0.18);
-  --border2: rgba(91,143,185,0.32);
+  /* GRID */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  --serif: 'DM Serif Display', Georgia, serif;
-  --sans:  'DM Sans', system-ui, sans-serif;
-}
+  /* LABEL */
+  .lbl { font-size: 11px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
 
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { background:var(--bg); color:var(--tx); font-family:var(--sans); font-size:16px; line-height:1.6; overflow-x:hidden; }
+  /* BADGE */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; letter-spacing: .03em; white-space: nowrap; }
+  .badge.amber { background: var(--amber-bg); color: var(--amber); }
+  .badge.green { background: var(--green-bg); color: var(--green); }
+  .badge.red { background: var(--red-bg); color: var(--red); }
+  .badge.blue { background: var(--blue-bg); color: var(--blue); }
+  .badge.purple { background: var(--purple-bg); color: var(--purple); }
 
-/* ── NAV ── */
-nav {
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  background:rgba(232,241,248,0.96); backdrop-filter:blur(12px);
-  border-bottom:0.5px solid var(--border2);
-  padding:0 48px; height:56px;
-  display:flex; align-items:center; justify-content:space-between;
-}
-.nav-name { font-family:var(--serif); font-size:17px; color:var(--steel2); display:flex; align-items:center; gap:10px; }
-.nav-links { display:flex; gap:28px; }
-.nav-links a { font-size:12px; color:var(--rust); text-decoration:none; letter-spacing:.06em; text-transform:uppercase; transition:color .2s; }
-.nav-links a:hover { color:var(--rust2); }
+  /* PILL */
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--bg); border: 1px solid var(--brd); color: var(--muted); margin: 2px; }
 
-/* ── HERO ── */
-.hero {
-  min-height:100vh; padding:120px 48px 80px;
-  display:grid; grid-template-columns:1fr 380px; gap:64px; align-items:center;
-  position:relative; overflow:hidden;
-}
-.hero::before {
-  content:''; position:absolute; top:-100px; right:-100px;
-  width:600px; height:600px; border-radius:50%;
-  background:radial-gradient(circle, rgba(91,143,185,0.10) 0%, transparent 70%);
-  pointer-events:none;
-}
-.hero-eyebrow {
-  display:flex; align-items:center; gap:10px;
-  font-size:11px; color:var(--rust); letter-spacing:.12em; text-transform:uppercase; margin-bottom:20px;
-}
-.hero-eyebrow::before { content:''; display:inline-block; width:24px; height:1px; background:var(--rust); }
-.hero-headline { font-family:var(--serif); font-size:clamp(44px,5vw,68px); line-height:1.05; color:var(--tx); margin-bottom:20px; letter-spacing:-.01em; }
-.hero-headline em { font-style:italic; color:var(--steel); }
-.hero-sub { font-size:16px; color:var(--tx2); line-height:1.7; margin-bottom:32px; max-width:500px; }
-.hero-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:40px; }
-.htag { font-size:11px; padding:5px 12px; border-radius:20px; letter-spacing:.04em; }
-.htag.muted { background:rgba(91,143,185,0.12); color:var(--tx2); border:0.5px solid var(--border2); }
-.hero-cta { display:flex; gap:12px; flex-wrap:wrap; }
-.btn {
-  font-family:var(--sans); font-size:12px; padding:10px 22px; border-radius:6px;
-  cursor:pointer; text-decoration:none; letter-spacing:.05em;
-  transition:all .2s; display:inline-flex; align-items:center; gap:6px;
-}
-.btn-primary { background:var(--steel); color:#fff; border:none; }
-.btn-primary:hover { background:var(--steel2); }
-.btn-ghost { background:transparent; color:var(--tx2); border:0.5px solid var(--border2); }
-.btn-ghost:hover { border-color:var(--rust); color:var(--rust); }
+  /* TAGS */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--brd); background: transparent; color: var(--muted); }
+  .tag:hover { border-color: var(--brd2); }
+  .tag.on { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-dim); }
 
-.hero-photo-col { display:flex; flex-direction:column; gap:16px; }
-.hero-photo {
-  width:100%; aspect-ratio:4/5; background:var(--bg3); border-radius:12px;
-  border:0.5px solid var(--border2);
-  display:flex; align-items:center; justify-content:center; flex-direction:column;
-  gap:8px; color:var(--tx3); font-size:12px; position:relative; overflow:hidden;
-}
-.hero-stat-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.hstat { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:14px; text-align:center; }
-.hstat-num { font-family:var(--serif); font-size:26px; color:var(--steel); line-height:1; margin-bottom:4px; }
-.hstat-label { font-size:10px; color:var(--tx3); letter-spacing:.05em; line-height:1.4; }
+  /* SPINNER */
+  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--brd); border-top-color: var(--amber); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
 
-/* ── SECTIONS ── */
-section { padding:80px 48px; border-top:0.5px solid var(--border); max-width:1200px; margin:0 auto; }
-.section-eyebrow {
-  font-size:10px; color:var(--rust); letter-spacing:.12em; text-transform:uppercase;
-  margin-bottom:16px; display:flex; align-items:center; gap:10px;
-}
-.section-eyebrow::before { content:''; display:inline-block; width:16px; height:1px; background:var(--rust); }
-.section-title { font-family:var(--serif); font-size:clamp(28px,3vw,38px); color:var(--tx); margin-bottom:12px; line-height:1.15; }
-.section-title em { font-style:italic; color:var(--steel); }
-.section-lead { font-size:16px; color:var(--tx2); max-width:580px; line-height:1.8; margin-bottom:48px; }
+  /* ROW */
+  .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-/* ── STORY ── */
-.story-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
-.story-text { font-size:17px; color:var(--tx2); line-height:1.9; }
-.story-text strong { color:var(--rust); font-weight:500; }
-.story-text strong.plain { color:var(--tx); font-weight:500; }
-.story-text .accent { color:var(--steel); }
+  /* EMPTY */
+  .empty { text-align: center; padding: 3rem 0; color: var(--faint); }
 
-.timeline { padding-left:24px; position:relative; }
-.timeline::before { content:''; position:absolute; left:0; top:8px; bottom:8px; width:1px; background:rgba(200,105,74,.3); }
-.tl-item { position:relative; margin-bottom:28px; }
-.tl-dot { position:absolute; left:-29px; top:7px; width:10px; height:10px; border-radius:50%; background:var(--steel); box-shadow:0 0 0 3px rgba(91,143,185,.2); }
-.tl-dot.amber { background:var(--amber); box-shadow:0 0 0 3px rgba(201,138,14,.2); }
-.tl-dot.dim { background:var(--bg4); box-shadow:none; border:1px solid var(--border2); }
-.tl-year { font-size:10px; color:var(--tx3); letter-spacing:.08em; margin-bottom:3px; }
-.tl-role { font-size:14px; font-weight:500; color:var(--tx); margin-bottom:2px; }
-.tl-co { font-size:12px; color:var(--tx3); }
+  /* FEEDBACK BOX */
+  .fb-box { margin-top: 10px; padding: 10px 12px; border-radius: 6px; background: var(--bg); border: 1px solid var(--green-dim); font-size: 12px; color: var(--muted); line-height: 1.7; white-space: pre-wrap; }
+  .fb-box .fb-lbl { color: var(--green); font-size: 11px; display: block; margin-bottom: 4px; }
 
-/* ── WORK CARDS ── */
-.cases-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.case-card {
-  background:var(--bg2); border:0.5px solid var(--border); border-radius:12px; padding:28px;
-  cursor:pointer; transition:border-color .25s, background .25s;
-  position:relative; overflow:hidden;
-}
-.case-card::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background:var(--rust); transform:scaleX(0); transform-origin:left; transition:transform .3s;
-}
-.case-card:hover { border-color:var(--border2); background:var(--bg3); }
-.case-card:hover::before, .case-card.open::before { transform:scaleX(1); }
-.case-card.open { border-color:rgba(91,143,185,.35); background:var(--bg3); }
-.case-card.wide { grid-column:1/-1; }
-.case-tag {
-  display:inline-block; font-size:10px; letter-spacing:.08em; padding:3px 9px; border-radius:10px;
-  background:rgba(200,105,74,.10); color:var(--rust); border:0.5px solid rgba(200,105,74,.28); margin-bottom:14px;
-}
-.case-title { font-family:var(--serif); font-size:22px; color:var(--tx); margin-bottom:10px; line-height:1.2; }
-.case-summary { font-size:14px; color:var(--tx2); line-height:1.7; margin-bottom:16px; }
-.case-metrics { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px; }
-.case-metric-num { font-family:var(--serif); font-size:26px; color:var(--steel); line-height:1; }
-.case-metric-label { font-size:10px; color:var(--tx3); margin-top:2px; }
-.case-expand-btn {
-  font-size:11px; color:var(--rust); background:none; border:none; cursor:pointer;
-  padding:0; letter-spacing:.05em; display:flex; align-items:center; gap:5px;
-  font-family:var(--sans); transition:color .2s;
-}
-.case-expand-btn:hover { color:var(--rust2); }
-.case-expand-btn .arrow { transition:transform .25s; }
-.case-card.open .case-expand-btn .arrow { transform:rotate(180deg); }
-.case-detail { max-height:0; overflow:hidden; transition:max-height .4s ease; }
-.case-card.open .case-detail { max-height:400px; border-top:0.5px solid var(--border); padding-top:16px; margin-top:16px; }
-.case-detail-text { font-size:13px; color:var(--tx2); line-height:1.8; }
-.case-detail-list { margin-top:12px; padding-left:16px; }
-.case-detail-list li { font-size:13px; color:var(--tx2); margin-bottom:6px; line-height:1.7; }
+  /* MSG BOX */
+  .msg-box { padding: 10px 12px; border-radius: 6px; background: var(--bg); border: 1px solid var(--amber-dim); font-size: 12px; color: var(--tx); line-height: 1.7; white-space: pre-wrap; }
 
-/* ── SKILLS ── */
-.skills-layout { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
-.domain-items { display:flex; flex-direction:column; gap:20px; }
-.domain-row-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
-.domain-row-name { font-size:13px; color:var(--tx); }
-.domain-row-pct { font-size:11px; color:var(--tx3); }
-.domain-bar-bg { height:6px; background:var(--bg4); border-radius:3px; overflow:hidden; }
-.domain-bar { height:6px; border-radius:3px; background:var(--steel); width:0; transition:width 1s ease; }
-.domain-bar.rust-bar { background:var(--rust); }
-.skills-right { display:flex; flex-direction:column; gap:14px; }
-.skill-cat-label { font-size:10px; color:var(--steel); letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px; }
-.skill-tags { display:flex; flex-wrap:wrap; gap:6px; }
-.skill-tag { font-size:11px; padding:4px 10px; border-radius:4px; background:var(--bg4); color:var(--tx2); border:0.5px solid var(--border); }
+  /* ERROR */
+  .err { color: var(--red); font-size: 12px; padding: 10px 12px; border-radius: 6px; background: var(--red-bg); border: 1px solid var(--red); margin-bottom: 10px; }
 
-/* ── FIT WIDGET ── */
-.fit-widget {
-  background:var(--amber3); border:0.5px solid rgba(201,138,14,.22);
-  border-left:2px solid var(--amber); border-radius:0;
-  padding:36px; position:relative; overflow:hidden;
-}
-.fit-intro { font-size:15px; color:var(--tx2); line-height:1.7; margin-bottom:24px; max-width:560px; }
-.fit-input-row { display:flex; gap:12px; margin-bottom:8px; }
-.fit-textarea {
-  flex:1; background:#fff; border:0.5px solid var(--border2); border-radius:8px;
-  color:var(--tx); font-family:var(--sans); font-size:13px; padding:14px 16px;
-  resize:vertical; min-height:100px; outline:none; transition:border-color .2s;
-}
-.fit-textarea:focus { border-color:var(--amber); }
-.fit-textarea::placeholder { color:var(--tx3); }
-.fit-btn {
-  align-self:flex-end; background:var(--amber); color:#fff; border:none; border-radius:8px;
-  padding:12px 24px; font-family:var(--sans); font-size:13px; cursor:pointer;
-  white-space:nowrap; transition:background .2s; min-width:120px;
-}
-.fit-btn:hover { background:#a36e08; }
-.fit-btn:disabled { opacity:.5; cursor:not-allowed; }
-.fit-hint { font-size:11px; color:var(--tx3); margin-bottom:24px; }
-.fit-result { display:none; border-top:0.5px solid var(--border); padding-top:24px; margin-top:8px; }
-.fit-result.visible { display:block; }
-.fit-result-top { display:grid; grid-template-columns:auto auto 1fr; gap:16px; align-items:start; margin-bottom:20px; }
-.fit-score-box { background:#fff; border-radius:10px; padding:16px 20px; text-align:center; border:0.5px solid var(--border); }
-.fit-score-num { font-family:var(--serif); font-size:36px; line-height:1; margin-bottom:4px; }
-.fit-score-label { font-size:10px; color:var(--tx3); letter-spacing:.08em; text-transform:uppercase; }
-.fit-role-box { background:#fff; border-radius:10px; padding:16px 20px; border:0.5px solid var(--border); min-width:180px; }
-.fit-role-co { font-size:14px; font-weight:500; color:var(--tx); }
-.fit-role-title { font-size:12px; color:var(--tx2); margin-top:2px; }
-.fit-role-comp { font-size:11px; color:var(--tx3); margin-top:4px; }
-.fit-rationale { background:#fff; border-radius:10px; padding:16px 20px; border:0.5px solid var(--border); font-size:13px; color:var(--tx2); line-height:1.7; }
-.fit-flags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-.fit-flag { font-size:11px; padding:4px 10px; border-radius:4px; background:rgba(91,143,185,.1); color:var(--steel2); border:0.5px solid rgba(91,143,185,.25); }
-.fit-news { background:var(--bg4); border-radius:8px; padding:14px 16px; font-size:13px; color:var(--tx2); line-height:1.7; }
-.fit-news-label { font-size:10px; color:var(--steel); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
-.fit-match { font-size:12px; color:var(--tx3); margin-bottom:12px; }
-.fit-match strong { color:var(--tx2); }
-.fit-loading { display:none; text-align:center; padding:32px; color:var(--tx3); font-size:14px; }
-.fit-loading.visible { display:block; }
-.fit-error { display:none; color:var(--rust); font-size:13px; margin-top:12px; }
-.fit-error.visible { display:block; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.spin { display:inline-block; animation:spin 1s linear infinite; margin-right:8px; }
+  /* POMODORO CIRCLE */
+  #pom-svg { transform: rotate(-90deg); }
 
-/* ── CONTACT ── */
-.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
-.contact-links { display:flex; flex-direction:column; gap:14px; }
-.contact-link-row {
-  display:flex; align-items:center; gap:14px; padding:16px 20px;
-  background:var(--bg2); border:0.5px solid var(--border); border-radius:10px;
-  text-decoration:none; transition:border-color .2s, background .2s;
-}
-.contact-link-row:hover { border-color:var(--rust); background:var(--rust3); }
-.contact-link-icon { font-size:14px; color:var(--rust); width:20px; text-align:center; }
-.contact-link-label { font-size:13px; color:var(--tx2); }
-.contact-link-val { font-size:13px; color:var(--rust); margin-left:auto; }
-.contact-note {
-  font-size:17px; color:var(--tx2); line-height:1.8;
-  font-family:var(--serif); font-style:italic;
-  border-left:2px solid var(--steel); padding-left:20px;
-}
-.contact-note strong { font-style:normal; color:var(--tx); }
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--brd); border-radius: 2px; }
 
-footer { border-top:0.5px solid var(--border); padding:24px 48px; display:flex; justify-content:space-between; align-items:center; }
-.footer-name { font-family:var(--serif); font-size:14px; color:var(--tx3); }
-.footer-note { font-size:11px; color:var(--tx3); }
+  /* SETTINGS SCREEN */
+  #settings-screen { max-width: 500px; margin: 0 auto; }
 
-.fade-up { opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease; }
-.fade-up.in { opacity:1; transform:translateY(0); }
-
-@media(max-width:768px) {
-  nav { padding:0 20px; }
-  .nav-links { display:none; }
-  .hero { grid-template-columns:1fr; padding:100px 20px 60px; }
-  .hero-photo-col { display:none; }
-  section { padding:60px 20px; }
-  .story-grid, .skills-layout, .contact-grid { grid-template-columns:1fr; }
-  .cases-grid { grid-template-columns:1fr; }
-  .case-card.wide { grid-column:1; }
-  .fit-input-row { flex-direction:column; }
-  .fit-btn { align-self:stretch; }
-  .fit-result-top { grid-template-columns:1fr; }
-  footer { padding:20px; flex-direction:column; gap:8px; }
-}
+  /* STAGE FILTERS */
+  .stage-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 </style>
 </head>
 <body>
 
-<nav>
-  <span class="nav-name">
-    <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#1C3347"/>
-    </svg>
-    Ryan Corcoran
-  </span>
-  <div class="nav-links">
-    <a href="#story">story</a>
-    <a href="#work">work</a>
-    <a href="#skills">skills</a>
-    <a href="#fit">fit check</a>
-    <a href="#contact">contact</a>
+<div id="nav">
+  <div class="brand">Ryan's hunt <span>2026</span></div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <span id="sync-status"></span>
+    <div class="tabs">
+    <button class="active" onclick="showTab('board')" id="tab-board">⊞ Job board</button>
+    <button onclick="showTab('tracker')" id="tab-tracker">◈ Applications</button>
+    <button onclick="showTab('cover')" id="tab-cover">◎ Cover letters</button>
+    <button onclick="showTab('interview')" id="tab-interview">◇ Interview prep</button>
+    <button onclick="showTab('pomodoro')" id="tab-pomodoro">◉ Focus timer</button>
+    <button onclick="showTab('network')" id="tab-network">◌ Networking</button>
+    <button onclick="showTab('sync')" id="tab-sync" style="border-color:var(--amber-dim);color:var(--amber)">⇅ Excel sync</button>
   </div>
-</nav>
-
-<div class="hero">
-  <div class="hero-left fade-up">
-    <div class="hero-eyebrow">open to new roles · minneapolis, mn</div>
-    <h1 class="hero-headline">Building products<br>that <em>matter.</em></h1>
-    <p class="hero-sub">Senior product leader with a background in biomedical science, 0→1 digital healthcare products, and platform builds. I translate complex problems into things people actually use.</p>
-    <div class="hero-tags">
-      <span class="htag muted">Care navigation</span>
-      <span class="htag muted">Behavioral health</span>
-      <span class="htag muted">Digital health</span>
-      <span class="htag muted">SDOH</span>
-      <span class="htag muted">R&amp;D partnerships</span>
-      <span class="htag muted">Product marketing</span>
-      <span class="htag muted">Regulated environments</span>
-    </div>
-    <div class="hero-cta">
-      <a href="#fit" class="btn btn-primary">check role fit ↓</a>
-      <a href="#work" class="btn btn-ghost">see the work</a>
-      <a href="mailto:rcorcoran03@gmail.com" class="btn btn-ghost">get in touch</a>
-    </div>
-  </div>
-  <div class="hero-photo-col fade-up" style="transition-delay:.15s">
-    <div class="hero-photo">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="11" r="5" stroke="#7A9AAE" stroke-width="1.5"/>
-        <path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#7A9AAE" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <span>photo</span>
-    </div>
-    <div class="hero-stat-cards">
-      <div class="hstat"><div class="hstat-num">7+</div><div class="hstat-label">years in digital health</div></div>
-      <div class="hstat"><div class="hstat-num">0→1</div><div class="hstat-label">products launched</div></div>
-      <div class="hstat"><div class="hstat-num">48h</div><div class="hstat-label">time-to-care achieved</div></div>
-      <div class="hstat"><div class="hstat-num">2×</div><div class="hstat-label">NPS growth in 6mo</div></div>
-    </div>
   </div>
 </div>
 
-<section id="story">
-  <div class="section-eyebrow">the story</div>
-  <h2 class="section-title">Where <em>science</em> meets product.</h2>
-  <div class="story-grid fade-up">
-    <div>
-      <p class="story-text">I started in a cardiac research lab studying how hearts fail — and somewhere between the bench and the bedside, I got obsessed with the <span class="accent">systems that get people to care</span> in the first place.</p>
-      <br>
-      <p class="story-text">That led me to product management in digital health, where I've spent the last 7+ years building the kind of infrastructure that <strong>actually moves the needle</strong> — care navigation platforms, behavioral health analytics, patient engagement tools that work at scale.</p>
-      <br>
-      <p class="story-text">I've done it at <strong class="plain">Aetna/CVS</strong>, at a scrappy EAP startup, and in the University of Minnesota's commercialization engine. What I care about: <strong>problems that are genuinely hard</strong>, teams that take craft seriously, and products where the stakes are real.</p>
-    </div>
-    <div class="timeline">
-      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2023–present</div><div class="tl-role">Senior Product Manager</div><div class="tl-co">Resources for Living / Aetna CVS</div></div>
-      <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-year">2022–2023</div><div class="tl-role">Product Manager II</div><div class="tl-co">Aetna Behavioral Health</div></div>
-      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2021–2022</div><div class="tl-role">Product Manager</div><div class="tl-co">Aetna / CVS Health</div></div>
-      <div class="tl-item"><div class="tl-dot dim"></div><div class="tl-year">2020–2021</div><div class="tl-role">Technology Commercialization Fellow</div><div class="tl-co">University of Minnesota OTC</div></div>
-      <div class="tl-item"><div class="tl-dot dim"></div><div class="tl-year">2018–2020</div><div class="tl-role">MBA — Medical Industry Leadership</div><div class="tl-co">Carlson School, University of Minnesota</div></div>
-      <div class="tl-item"><div class="tl-dot dim"></div><div class="tl-year">2013–2018</div><div class="tl-role">BS Biomedical Sciences</div><div class="tl-co">University of Minnesota · Visible Heart Lab</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="work">
-  <div class="section-eyebrow">selected work</div>
-  <h2 class="section-title">Things I've <em>shipped.</em></h2>
-  <p class="section-lead">A few case studies from the work that shaped how I think about building in digital health.</p>
-  <div class="cases-grid fade-up">
-    <div class="case-card wide" onclick="toggleCase(this)">
-      <span class="case-tag">care navigation · 0→1</span>
-      <div class="case-title">Access Plus — EAP Care Navigation Platform</div>
-      <div class="case-summary">Members were authorized for mental health care but couldn't get to it. The scheduling experience was fragmented, provider matching was manual, and digital engagement was nearly absent. I built the product that fixed it.</div>
-      <div class="case-metrics">
-        <div class="case-metric"><div class="case-metric-num">48h</div><div class="case-metric-label">time-to-care</div></div>
-        <div class="case-metric"><div class="case-metric-num">2×+</div><div class="case-metric-label">NPS in 6 months</div></div>
-        <div class="case-metric"><div class="case-metric-num">1K+</div><div class="case-metric-label">automated touchpoints/mo</div></div>
-      </div>
-      <button class="case-expand-btn">read the story <span class="arrow">↓</span></button>
-      <div class="case-detail">
-        <div class="case-detail-text">Resources for Living's EAP had a fundamental access problem: members were authorized for care but couldn't get to it fast enough. Scheduling was fragmented, provider matching was manual, and the digital experience hadn't kept pace.
-          <ul class="case-detail-list">
-            <li>Led discovery across clinical, operations, and account stakeholders to map the broken workflow and find the highest-leverage intervention points</li>
-            <li>Owned the full product roadmap — prioritizing scheduling and navigation first, then building automated engagement workflows on top</li>
-            <li>Launched 1,000+ automated monthly touchpoints that reduced unused authorizations and improved care utilization</li>
-            <li>Delivered in a HIPAA-regulated environment with enterprise reporting requirements layered on top</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="case-card" onclick="toggleCase(this)">
-      <span class="case-tag">analytics platform</span>
-      <div class="case-title">Behavioral Health Analytics</div>
-      <div class="case-summary">Enterprise health clients needed to evaluate program performance, but data was siloed, inconsistent, and hard to act on. Led the build of the platform that changed that.</div>
-      <div class="case-metrics">
-        <div class="case-metric"><div class="case-metric-num" style="font-size:16px;line-height:1.2">Enterprise</div><div class="case-metric-label">national + mid-market</div></div>
-        <div class="case-metric"><div class="case-metric-num">0→1</div><div class="case-metric-label">real-time insights platform</div></div>
-      </div>
-      <button class="case-expand-btn">read the story <span class="arrow">↓</span></button>
-      <div class="case-detail">
-        <div class="case-detail-text">Aetna's behavioral health clients were making decisions with stale, inconsistent data. The opportunity: build a centralized analytics layer that surfaces real-time insights and makes them actionable.
-          <ul class="case-detail-list">
-            <li>Built a data ecosystem connecting disparate member and clinical data layers across the behavioral health portfolio</li>
-            <li>Owned product strategy and roadmap — aligning features to customer needs, regulatory requirements, and business priorities</li>
-            <li>Partnered with Sales to translate insights into client-facing tools supporting pricing decisions and account growth</li>
-            <li>Unlocked new outcome insights enabling more informed product, pricing, and go-to-market decisions at national scale</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="case-card wide" onclick="toggleCase(this)">
-      <span class="case-tag">commercialization strategy</span>
-      <div class="case-title">SDOH Mobile App · UMN Technology Commercialization</div>
-      <div class="case-summary">Academic researchers had built a compelling social determinants of health application, but had no path from desk to market. Led the strategy that got it to early-stage pilot.</div>
-      <button class="case-expand-btn">read the story <span class="arrow">↓</span></button>
-      <div class="case-detail">
-        <div class="case-detail-text">The UMN Office of Technology Commercialization works at the intersection of research and application. This project: a social determinants of health mobile app — proven in research, stranded without a viable path to market.
-          <ul class="case-detail-list">
-            <li>Conducted market assessment to identify the most viable initial deployment context and buyer profile</li>
-            <li>Developed regulatory strategy mapping the pathway from research tool to commercial product</li>
-            <li>Built financial modeling to support early-stage funding conversations and partnership development</li>
-            <li>Facilitated the transition from concept to pilot — the gap that kills most good research ideas</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="skills">
-  <div class="section-eyebrow">skills &amp; domains</div>
-  <h2 class="section-title">Where I'm <em>strong.</em></h2>
-  <div class="skills-layout fade-up">
-    <div class="domain-items">
-      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Care navigation &amp; patient access</span><span class="domain-row-pct">95%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="95"></div></div></div>
-      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Behavioral &amp; mental health</span><span class="domain-row-pct">92%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="92"></div></div></div>
-      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">0→1 digital healthcare products</span><span class="domain-row-pct">88%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="88"></div></div></div>
-      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Analytics &amp; data platforms</span><span class="domain-row-pct">85%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="85"></div></div></div>
-      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Payer / employer markets</span><span class="domain-row-pct">80%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="80"></div></div></div>
-      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">GTM &amp; commercialization</span><span class="domain-row-pct">78%</span></div><div class="domain-bar-bg"><div class="domain-bar rust-bar" data-w="78"></div></div></div>
-      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Medtech &amp; regulated devices</span><span class="domain-row-pct">76%</span></div><div class="domain-bar-bg"><div class="domain-bar rust-bar" data-w="76"></div></div></div>
-    </div>
-    <div class="skills-right">
-      <div><div class="skill-cat-label">product craft</div><div class="skill-tags"><span class="skill-tag">Roadmap ownership</span><span class="skill-tag">Discovery &amp; research</span><span class="skill-tag">Backlog prioritization</span><span class="skill-tag">Agile / Jira</span><span class="skill-tag">User stories</span><span class="skill-tag">KPI design</span><span class="skill-tag">Go-to-market</span></div></div>
-      <div><div class="skill-cat-label">technical fluency</div><div class="skill-tags"><span class="skill-tag">Tableau</span><span class="skill-tag">SQL (working)</span><span class="skill-tag">Data warehousing</span><span class="skill-tag">API integrations</span><span class="skill-tag">HIPAA compliance</span><span class="skill-tag">Salesforce CRM</span><span class="skill-tag">Applied AI in product</span></div></div>
-      <div><div class="skill-cat-label">domain knowledge</div><div class="skill-tags"><span class="skill-tag">EAP / care navigation</span><span class="skill-tag">Behavioral health</span><span class="skill-tag">Medicare Advantage</span><span class="skill-tag">Value-based care</span><span class="skill-tag">Cardiac physiology</span><span class="skill-tag">SDOH</span><span class="skill-tag">Payer markets</span></div></div>
-      <div><div class="skill-cat-label">leadership</div><div class="skill-tags"><span class="skill-tag">Cross-functional teams</span><span class="skill-tag">Executive stakeholders</span><span class="skill-tag">Vendor management</span><span class="skill-tag">Storytelling</span><span class="skill-tag">Customer discovery</span></div></div>
-      <div><div class="skill-cat-label">medtech &amp; devices</div><div class="skill-tags"><span class="skill-tag">Design controls</span><span class="skill-tag">510(k) familiarity</span><span class="skill-tag">Clinical/commercial handoff</span><span class="skill-tag">Upstream voice of customer</span><span class="skill-tag">Risk management</span></div></div>
-    </div>
-  </div>
-</section>
-
-<section id="fit">
-  <div class="section-eyebrow">role fit check</div>
-  <h2 class="section-title">See how I map<br>to <em>your role.</em></h2>
-  <p class="section-lead">Paste a job description and get a real-time analysis of how my background aligns — experience, domain match, and anything worth a closer look.</p>
-  <div class="fit-widget fade-up">
-    <p class="fit-intro">Built this to make your life easier. Paste the JD below — you'll get an honest read on where there's genuine overlap, where there are gaps, and whether this conversation is worth having.</p>
-    <div class="fit-input-row">
-      <textarea class="fit-textarea" id="fit-jd" placeholder="Paste job description text here..."></textarea>
-      <button class="fit-btn" id="fit-btn" onclick="runFit()">Analyze ↗</button>
-    </div>
-    <div class="fit-hint">powered by claude · ~15 seconds · no data stored</div>
-    <div class="fit-loading" id="fit-loading"><span class="spin">↻</span> Analyzing the role...</div>
-    <div class="fit-error" id="fit-error"></div>
-    <div class="fit-result" id="fit-result">
-      <div class="fit-result-top">
-        <div class="fit-score-box"><div class="fit-score-num" id="fit-score-num">—</div><div class="fit-score-label">fit score</div></div>
-        <div class="fit-role-box"><div class="fit-role-co" id="fit-co">—</div><div class="fit-role-title" id="fit-role">—</div><div class="fit-role-comp" id="fit-comp"></div></div>
-        <div class="fit-rationale" id="fit-rationale">—</div>
-      </div>
-      <div class="fit-match" id="fit-match"></div>
-      <div class="fit-flags" id="fit-flags"></div>
-      <div class="fit-news" id="fit-news" style="display:none"><div class="fit-news-label">company news</div><div id="fit-news-text"></div></div>
-    </div>
-  </div>
-</section>
-
-<section id="contact">
-  <div class="section-eyebrow">get in touch</div>
-  <h2 class="section-title">Let's talk about<br>what you're <em>building.</em></h2>
-  <div class="contact-grid fade-up">
-    <div class="contact-links">
-      <a href="mailto:rcorcoran03@gmail.com" class="contact-link-row"><span class="contact-link-icon">✉</span><span class="contact-link-label">Email</span><span class="contact-link-val">rcorcoran03@gmail.com</span></a>
-      <a href="https://linkedin.com/in/ryancorcoran1" target="_blank" class="contact-link-row"><span class="contact-link-icon">in</span><span class="contact-link-label">LinkedIn</span><span class="contact-link-val">linkedin.com/in/ryancorcoran1</span></a>
-      <a href="#" class="contact-link-row"><span class="contact-link-icon">↓</span><span class="contact-link-label">Resume</span><span class="contact-link-val">download PDF</span></a>
-      <div class="contact-link-row" style="cursor:default"><span class="contact-link-icon">◎</span><span class="contact-link-label">Location</span><span class="contact-link-val">Minneapolis, MN · remote ok</span></div>
-    </div>
-    <p class="contact-note">"I'm drawn to teams building at the intersection of <strong>clinical complexity and consumer experience</strong>, where the stakes are real and the product craft has to match."</p>
-  </div>
-</section>
-
-<footer>
-  <span class="footer-name">Ryan Corcoran</span>
-  <span class="footer-note">Minneapolis, MN · (651) 343-4165 · Updated May 2026</span>
-</footer>
+<div id="main">
+  <div id="pane-board"></div>
+  <div id="pane-tracker" style="display:none"></div>
+  <div id="pane-cover" style="display:none"></div>
+  <div id="pane-interview" style="display:none"></div>
+  <div id="pane-pomodoro" style="display:none"></div>
+  <div id="pane-network" style="display:none"></div>
+  <div id="pane-sync" style="display:none"></div>
+</div>
 
 <script>
-const CLAUDE_URL='/api/claude';
-const SYSTEM=`You are analyzing a job description on behalf of Ryan Corcoran's portfolio site to help recruiters and hiring managers understand how his background maps to their role.
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
-RYAN'S PROFILE:
-- 7+ years Product Management in digital health, healthtech, regulated environments
-- Strengths: care navigation, behavioral health analytics, 0-to-1 builds, analytics platforms, patient engagement
-- Key wins: Access Plus (0-1 care nav, 48hr time-to-care, double-digit NPS in 6mo); behavioral health analytics platform at Aetna/CVS; SDOH app commercialization at UMN
-- Education: MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences (Visible Heart Lab)
-- Location: Minneapolis MN — open to remote, hybrid, in-person
-- Target comp: $130K-$180K base
-- Open to: senior PM, upstream/downstream medtech PM, product owner, payer-side roles; cardiac or neuro device experience a plus
-- Hard nos: comp below $120K, relocation required
+const PROFILE = `Senior PM · Digital Health · Behavioral Health Analytics · Care Navigation · 0-1 Product Builds · MBA (Medical Industry, UMN Carlson) · BS Biomedical Sciences · Minneapolis MN · Remote-first · $120K–$160K target · 5+ yrs experience`;
 
-Be honest and direct. This helps recruiters quickly understand fit — not oversell. Strong fit: say so. Gaps: name them. Goal is useful signal, not a pitch.`;
+const PRESETS = [
+  {l:'PM – Digital Health', q:'"product manager" "digital health"'},
+  {l:'Sr PM – Care Navigation', q:'"senior product manager" "care navigation"'},
+  {l:'PM – Behavioral Health', q:'"product manager" "behavioral health" technology'},
+  {l:'PM – Value-Based Care', q:'"product manager" "value-based care"'},
+  {l:'PM – Health Analytics', q:'"product manager" "healthcare analytics"'},
+  {l:'PM – Patient Engagement', q:'"product manager" "patient engagement"'},
+  {l:'PM – Telehealth', q:'"product manager" telehealth OR "virtual care"'},
+  {l:'PM – HealthTech Startup', q:'"product manager" healthtech startup remote'},
+];
 
-async function runFit(){
-  const jd=document.getElementById('fit-jd').value.trim();
-  if(!jd)return;
-  if(/^https?:\/\/|^www\./i.test(jd)){
-    const errEl=document.getElementById('fit-error');
-    errEl.textContent='For best results, paste the job description text directly. Copy it from the posting and paste here.';
-    errEl.classList.add('visible');
+const STAGES = ['Saved','Applied','Phone Screen','Interview','Final Round','Offer','Rejected'];
+const STAGE_COL = {Saved:'purple',Applied:'blue','Phone Screen':'amber',Interview:'amber','Final Round':'green',Offer:'green',Rejected:'red'};
+
+const POM_TASKS = [
+  'Search 3 new job boards','Tailor resume for a role','Write a cover letter',
+  'Send 2 networking messages','Research a target company','Update application tracker',
+  'Prep 5 interview answers','Follow up on an application','Review job alerts','Update LinkedIn',
+];
+
+const REL_COL = {Warm:'amber',Alumni:'blue',Cold:'purple',Recruiter:'green'};
+
+// ── DEFAULT DATA ──────────────────────────────────────────────────────────────
+
+const DEFAULT_APPS = [
+  {id:1,company:'Enliven Health (Omnicell)',role:'PM – Clinical Solutions',stage:'Applied',priority:'High',date:'2026-04-30',salary:'$125–150K',notes:'Clinical pharmacy tech'},
+  {id:2,company:'Oasis Health Partners',role:'Senior Manager, Product',stage:'Applied',priority:'High',date:'2026-04-30',salary:'$118–160K',notes:'Clare MesserSchmidt – warm contact'},
+  {id:3,company:'Vori Health',role:'PM – Patient Experience',stage:'Applied',priority:'High',date:'2026-01-25',salary:'Not listed',notes:'Virtual MSK care'},
+  {id:4,company:'Health-E Commerce',role:'Sr. PM – Telehealth',stage:'Applied',priority:'High',date:'2026-02-10',salary:'$140–180K',notes:'0-1 telehealth build'},
+  {id:5,company:'Strive Health',role:'Digital PM – Patient Engagement',stage:'Saved',priority:'High',date:'',salary:'Not listed',notes:'Series D funded'},
+  {id:6,company:'H1 Provider Intelligence',role:'Sr. PM – Digital Health Data',stage:'Saved',priority:'High',date:'',salary:'$130–155K',notes:'Open until Jun 24'},
+];
+
+const DEFAULT_CONTACTS = [
+  {id:1,name:'Clare MesserSchmidt',company:'Oasis Health Partners',role:'Recruiter',rel:'Warm',last:'2026-04-26',next:'2026-05-10',notes:'Strong connection, future roles likely'},
+  {id:2,name:'Greg Seely',company:'ABOUT Healthcare',role:'Alumni',rel:'Alumni',last:'2026-03-04',next:'2026-05-15',notes:'Outreach sent 3/4/26'},
+  {id:3,name:'Dave Moen',company:'Oasis / Reema Health',role:'Network',rel:'Warm',last:'2026-04-10',next:'2026-05-12',notes:'Connected to multiple target companies'},
+  {id:4,name:'Ben R.',company:'Reema Health',role:'Network',rel:'Warm',last:'2026-03-15',next:'2026-05-20',notes:'Minneapolis digital health network'},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+
+let state = {
+  tab: 'board',
+  // Cloud credentials (persisted to localStorage — device-only, not synced)
+  jbKey:  localStorage.getItem('jb_key')  || '',
+  jbBin:  localStorage.getItem('jb_bin')  || '',
+  adzunaId:  localStorage.getItem('adzuna_id')  || '',
+  adzunaKey: localStorage.getItem('adzuna_key') || '',
+  // Cloud sync status
+  cloudLoading: false, cloudStatus: '', cloudError: '',
+  // App data (loaded from JSONBin on startup, falls back to defaults)
+  apps: DEFAULT_APPS,
+  contacts: DEFAULT_CONTACTS,
+  // Ephemeral UI state
+  jobs: [], jobTotal: 0, jobPage: 1, jobLoading: false,
+  jobPreset: 0, jobCustomQ: '', jobWhere: '', jobSalary: '120000', jobDays: '30', jobSort: 'date',
+  analyzed: {}, analyzing: {},
+  appFilter: 'all', appEditing: null, appShowAdd: false,
+  coverCo: '', coverTone: 'professional', coverJD: '', coverOut: '', coverLoading: false,
+  intRole: '', intCo: '', intQtype: 'behavioral', intQs: [], intAns: {}, intFb: {}, intLoading: false, intFbLoading: {},
+  pomMode: 0, pomSecs: 25*60, pomTotal: 25*60, pomRunning: false,
+  pomSessions: 0, pomTask: POM_TASKS[0], pomCustomTask: '', pomCustomMins: '', pomLog: [],
+  netShowAdd: false, netDraft: '', netDraftFor: null, netDraftLoading: false,
+};
+
+let pomInterval = null;
+let saveTimer = null;  // debounce cloud saves
+
+// ── JSONBIN CLOUD SYNC ────────────────────────────────────────────────────────
+
+const JB_URL = 'https://api.jsonbin.io/v3/b';
+
+function jbHeaders(extra={}) {
+  return { 'Content-Type': 'application/json', 'X-Master-Key': state.jbKey, ...extra };
+}
+
+// Create a new bin — called once during first-time setup
+async function jbCreate() {
+  const payload = { apps: state.apps, contacts: state.contacts, version: 1 };
+  const resp = await fetch(JB_URL, {
+    method: 'POST',
+    headers: { ...jbHeaders(), 'X-Bin-Name': 'ryans-hunt-2026', 'X-Bin-Private': 'true' },
+    body: JSON.stringify(payload)
+  });
+  if (!resp.ok) { const e = await resp.text(); throw new Error(`Create failed ${resp.status}: ${e.slice(0,200)}`); }
+  const data = await resp.json();
+  return data.metadata.id;
+}
+
+// Read latest data from bin
+async function jbRead() {
+  const resp = await fetch(`${JB_URL}/${state.jbBin}/latest`, {
+    headers: jbHeaders({ 'X-Bin-Meta': 'false' })
+  });
+  if (!resp.ok) throw new Error(`Read failed ${resp.status}`);
+  return resp.json(); // returns the record directly when X-Bin-Meta: false
+}
+
+// Write current apps+contacts to bin (debounced)
+async function jbWrite() {
+  if (!state.jbKey || !state.jbBin) return;
+  const payload = { apps: state.apps, contacts: state.contacts, version: 1, updatedAt: new Date().toISOString() };
+  const resp = await fetch(`${JB_URL}/${state.jbBin}`, {
+    method: 'PUT',
+    headers: jbHeaders(),
+    body: JSON.stringify(payload)
+  });
+  if (!resp.ok) throw new Error(`Write failed ${resp.status}`);
+}
+
+// ── PERSISTENCE ───────────────────────────────────────────────────────────────
+
+// Always save credentials to localStorage (device-level, intentionally local)
+function saveCredentials() {
+  if (state.jbKey)     localStorage.setItem('jb_key',      state.jbKey);
+  if (state.jbBin)     localStorage.setItem('jb_bin',      state.jbBin);
+  if (state.adzunaId)  localStorage.setItem('adzuna_id',   state.adzunaId);
+  if (state.adzunaKey) localStorage.setItem('adzuna_key',  state.adzunaKey);
+}
+
+// Debounced cloud save — batches rapid changes into one write, 1.5s after last change
+function save() {
+  saveCredentials();
+  if (!state.jbKey || !state.jbBin) {
+    // Fallback: also save to localStorage so data isn't lost if cloud not set up
+    localStorage.setItem('apps_backup', JSON.stringify(state.apps));
+    localStorage.setItem('contacts_backup', JSON.stringify(state.contacts));
     return;
   }
-  const btn=document.getElementById('fit-btn');
-  const loading=document.getElementById('fit-loading');
-  const result=document.getElementById('fit-result');
-  const error=document.getElementById('fit-error');
-  btn.disabled=true;
-  loading.classList.add('visible');
-  result.classList.remove('visible');
-  error.classList.remove('visible');
-  const prompt=`Analyze this job posting and return ONLY valid JSON (no markdown, no preamble):
-{"company":"company name","role":"job title","salary":"range or empty","location":"location","fitScore":<1-10>,"fitRationale":"2-3 honest sentences on fit","matchCriteria":"key requirements semicolon separated","redFlags":["flag1"],"compAnalysis":"1 sentence on market comp","newsSnapshot":"2-3 sentences recent company news using web search"}
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    setSyncStatus('saving…', false);
+    try {
+      await jbWrite();
+      setSyncStatus('✓ synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), false);
+    } catch(e) {
+      setSyncStatus('⚠ sync failed — ' + e.message, true);
+    }
+  }, 1500);
+}
 
-Job posting:
-${jd}`;
-  try{
-    const apiKey=localStorage.getItem('portfolio_api_key')||'';
-    const headers={'Content-Type':'application/json'};
-    if(apiKey)headers['x-user-api-key']=apiKey;
-    const resp=await fetch(CLAUDE_URL,{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,system:SYSTEM,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})});
-    const data=await resp.json();
-    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
-    const clean=text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-    const r=JSON.parse(clean);
-    const sEl=document.getElementById('fit-score-num');
-    sEl.textContent=r.fitScore+'/10';
-    sEl.style.color=r.fitScore>=7?'var(--steel)':r.fitScore>=5?'var(--amber)':'var(--rust)';
-    document.getElementById('fit-co').textContent=r.company||'—';
-    document.getElementById('fit-role').textContent=r.role||'—';
-    document.getElementById('fit-comp').textContent=r.salary||'';
-    document.getElementById('fit-rationale').textContent=r.fitRationale||'';
-    const mEl=document.getElementById('fit-match');
-    mEl.innerHTML=r.matchCriteria?`<strong>Key requirements:</strong> ${r.matchCriteria}`:'';
-    const fEl=document.getElementById('fit-flags');
-    fEl.innerHTML=(r.redFlags||[]).map(f=>`<span class="fit-flag">⚑ ${f}</span>`).join('');
-    if(r.newsSnapshot){document.getElementById('fit-news').style.display='block';document.getElementById('fit-news-text').textContent=r.newsSnapshot;}
-    loading.classList.remove('visible');
-    result.classList.add('visible');
-  }catch(e){
-    loading.classList.remove('visible');
-    error.textContent='Analysis failed: '+e.message;
-    error.classList.add('visible');
+function setSyncStatus(msg, isError) {
+  state.cloudStatus = msg; state.cloudError = isError;
+  const el = document.getElementById('sync-status');
+  if (el) { el.textContent = msg; el.style.color = isError ? 'var(--red)' : 'var(--green)'; }
+}
+
+// Load data from JSONBin on startup
+async function loadFromCloud() {
+  if (!state.jbKey || !state.jbBin) {
+    // No cloud configured — try localStorage backup
+    const appsBackup = localStorage.getItem('apps_backup');
+    const contactsBackup = localStorage.getItem('contacts_backup');
+    if (appsBackup) state.apps = JSON.parse(appsBackup);
+    if (contactsBackup) state.contacts = JSON.parse(contactsBackup);
+    return;
   }
-  btn.disabled=false;
+  try {
+    const data = await jbRead();
+    if (data.apps)    state.apps    = data.apps;
+    if (data.contacts) state.contacts = data.contacts;
+    setSyncStatus('✓ loaded from cloud', false);
+  } catch(e) {
+    setSyncStatus('⚠ cloud load failed — using local data', true);
+    // Fall back to localStorage backup
+    const appsBackup = localStorage.getItem('apps_backup');
+    if (appsBackup) state.apps = JSON.parse(appsBackup);
+  }
 }
 
-function toggleCase(card){
-  const wasOpen=card.classList.contains('open');
-  document.querySelectorAll('.case-card.open').forEach(c=>c.classList.remove('open'));
-  if(!wasOpen)card.classList.add('open');
+// ── RENDER ROUTER ─────────────────────────────────────────────────────────────
+
+function showTab(tab) {
+  state.tab = tab;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  ['board','tracker','cover','interview','pomodoro','network','sync'].forEach(t => {
+    document.getElementById('pane-' + t).style.display = t === tab ? '' : 'none';
+  });
+  render(tab);
 }
 
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
-},{threshold:0.1});
-document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+function render(tab) {
+  const el = document.getElementById('pane-' + tab);
+  switch(tab) {
+    case 'board': renderBoard(el); break;
+    case 'tracker': renderTracker(el); break;
+    case 'cover': renderCover(el); break;
+    case 'interview': renderInterview(el); break;
+    case 'pomodoro': renderPomodoro(el); break;
+    case 'network': renderNetwork(el); break;
+    case 'sync': renderSync(el); break;
+  }
+}
 
-const barObs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      document.querySelectorAll('.domain-bar').forEach(b=>{b.style.width=b.dataset.w+'%';});
-      barObs.disconnect();
+// ── HTML HELPERS ──────────────────────────────────────────────────────────────
+
+const h = (tag, attrs='', inner='') => `<${tag} ${attrs}>${inner}</${tag}>`;
+const div = (cls, inner) => `<div class="${cls}">${inner}</div>`;
+const secHead = title => `<div class="sec-head"><h1>${title}</h1><div class="bar"></div></div>`;
+const badge = (label, color) => `<span class="badge ${color}">${label}</span>`;
+const pill = label => `<span class="pill">${esc(label)}</span>`;
+const lbl = text => `<div class="lbl">${text}</div>`;
+const inp = (id, val, ph, style='') => `<input id="${id}" value="${esc(val)}" placeholder="${esc(ph)}" style="${style}">`;
+const ta = (id, val, ph, rows=5) => `<textarea id="${id}" placeholder="${esc(ph)}" rows="${rows}">${esc(val)}</textarea>`;
+const sel = (id, opts, val) => `<select id="${id}">${opts.map(o=>`<option value="${esc(o.v||o)}" ${(o.v||o)==val?'selected':''}>${esc(o.l||o)}</option>`).join('')}</select>`;
+const btn = (id, label, cls='', onclick='') => `<button id="${id}" class="${cls}" onclick="${onclick}">${label}</button>`;
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const fmtDate = d => { if(!d) return ''; const days=Math.floor((Date.now()-new Date(d))/86400000); return days===0?'today':days===1?'yesterday':`${days}d ago`; };
+const fmtSal = j => { if(!j.salary_min&&!j.salary_max) return null; const f=n=>n>=1000?`$${Math.round(n/1000)}K`:`$${n}`; if(j.salary_min&&j.salary_max) return `${f(j.salary_min)}–${f(j.salary_max)}${j.salary_is_predicted?' (est.)':''}`; return j.salary_min?`${f(j.salary_min)}+`:null; };
+
+// ── API CALLS ─────────────────────────────────────────────────────────────────
+
+async function claudeStream(prompt, onChunk) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,stream:true,messages:[{role:'user',content:prompt}]})
+  });
+  const reader = resp.body.getReader(), dec = new TextDecoder();
+  let full = '';
+  while(true) {
+    const {done,value} = await reader.read(); if(done) break;
+    for(const line of dec.decode(value).split('\n').filter(l=>l.startsWith('data: '))) {
+      try { const j=JSON.parse(line.slice(6)); if(j.delta?.text){full+=j.delta.text;onChunk?.(full);} } catch{}
+    }
+  }
+  return full;
+}
+
+async function claudeJSON(prompt) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})
+  });
+  const data = await resp.json();
+  const text = data.content?.filter(b=>b.type==='text').map(b=>b.text).join('')||'';
+  const s=text.indexOf('['),e=text.lastIndexOf(']');
+  if(s===-1||e===-1) return [];
+  return JSON.parse(text.slice(s,e+1));
+}
+
+async function adzunaSearch({q,where,salary,days,page=1}) {
+  const p = new URLSearchParams({
+    app_id:state.adzunaId, app_key:state.adzunaKey,
+    results_per_page:12, what:q, 'content-type':'application/json', sort_by:'date'
+  });
+  if(where) p.set('where',where);
+  if(salary) p.set('salary_min',salary);
+  if(days) p.set('max_days_old',days);
+  const resp = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/${page}?${p}`);
+  if(!resp.ok){ const e=await resp.text(); throw new Error(`Adzuna ${resp.status}: ${e.slice(0,200)}`); }
+  return resp.json();
+}
+
+// ── JOB BOARD ─────────────────────────────────────────────────────────────────
+
+function renderBoard(el) {
+  if(!state.adzunaId || !state.adzunaKey) { renderBoardSettings(el); return; }
+
+  const presetBtns = PRESETS.map((p,i) =>
+    `<button class="tag ${state.jobPreset===i&&!state.jobCustomQ?'on':''}" onclick="setPreset(${i})">${p.l}</button>`
+  ).join('');
+
+  const jobCards = sortedJobs().map(j => {
+    const sal = fmtSal(j);
+    const ana = state.analyzed[j.id];
+    const anLoading = state.analyzing[j.id];
+    return `<div class="card" style="border-left:none">
+      <div style="margin-bottom:6px">
+        <div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px;line-height:1.3">${esc(j.title)}</div>
+        <div style="font-size:12px;color:var(--muted)">${esc(j.company?.display_name||'')}</div>
+      </div>
+      <div style="margin-bottom:8px">
+        ${j.location?.display_name?pill(j.location.display_name):''}
+        ${sal?pill(sal):''}
+        ${j.created?pill(fmtDate(j.created)):''}
+        ${j.contract_type?pill(j.contract_type.replace('_',' ')):''}
+      </div>
+      ${j.description?`<div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">${esc(j.description.slice(0,240))}${j.description.length>240?'…':''}</div>`:''}
+      <div class="row">
+        <button class="amber" onclick="window.open('${esc(j.redirect_url)}','_blank')">View posting ↗</button>
+        <button onclick="analyzeJob('${esc(j.id)}')" ${anLoading?'disabled':''}>${anLoading?'<span class="spin"></span>Analyzing…':'Analyze my fit'}</button>
+      </div>
+      ${ana?`<div class="fb-box"><span class="fb-lbl">fit analysis</span>${esc(ana)}</div>`:''}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = secHead('Job board') + `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="ghost" onclick="clearCreds()" style="font-size:11px">⚙ change API keys</button>
+    </div>
+    ${lbl('Search preset')}
+    <div class="tag-row">${presetBtns}</div>
+    ${lbl('Custom search (overrides preset)')}
+    <div style="margin-bottom:12px">${inp('job-q',state.jobCustomQ,'e.g. "product manager" "SDOH" remote')}</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div>${lbl('Where (city/state)')}${sel('job-where',[{v:'',l:'Anywhere'},{v:'Minneapolis',l:'Minneapolis'},{v:'Chicago',l:'Chicago'},{v:'New York',l:'New York'},{v:'Boston',l:'Boston'},{v:'San Francisco',l:'San Francisco'}],state.jobWhere)}</div>
+      <div>${lbl('Min salary')}${sel('job-sal',[{v:'',l:'Any salary'},{v:'100000',l:'$100K+'},{v:'120000',l:'$120K+'},{v:'130000',l:'$130K+'},{v:'140000',l:'$140K+'}],state.jobSalary)}</div>
+      <div>${lbl('Posted within')}${sel('job-days',[{v:'7',l:'7 days'},{v:'14',l:'14 days'},{v:'30',l:'30 days'},{v:'60',l:'60 days'}],state.jobDays)}</div>
+      <div>${lbl('Sort')}${sel('job-sort',[{v:'date',l:'Most recent'},{v:'salary',l:'Highest salary'}],state.jobSort)}</div>
+    </div>
+    <button id="job-search-btn" class="amber full" onclick="doJobSearch(1)">${state.jobLoading?'<span class="spin"></span>Searching Adzuna…':'→ Search real job listings'}</button>
+    <div id="job-error"></div>
+    <div id="job-meta" style="font-size:12px;color:var(--muted);margin:10px 0 0">${state.jobs.length?`${state.jobTotal.toLocaleString()} total results · showing ${state.jobs.length}`:''}</div>
+    <div id="job-results" style="margin-top:10px">${state.jobs.length?jobCards:'<div class="empty">Configure search above and hit the button.</div>'}</div>
+    ${state.jobs.length&&state.jobs.length<state.jobTotal?`<button id="job-more-btn" onclick="doJobSearch(${state.jobPage+1})" style="width:100%;margin-top:8px">Load more results</button>`:''}
+  `;
+
+  // Wire inputs (read on search click, not on every keystroke)
+  document.getElementById('job-q').addEventListener('input', e => state.jobCustomQ = e.target.value);
+  document.getElementById('job-where').addEventListener('change', e => state.jobWhere = e.target.value);
+  document.getElementById('job-sal').addEventListener('change', e => state.jobSalary = e.target.value);
+  document.getElementById('job-days').addEventListener('change', e => state.jobDays = e.target.value);
+  document.getElementById('job-sort').addEventListener('change', e => { state.jobSort = e.target.value; render('board'); });
+}
+
+function renderBoardSettings(el) {
+  el.innerHTML = secHead('Job board') + `
+    <div id="settings-screen">
+      <div class="card" style="margin-bottom:14px">
+        <p style="color:var(--muted);line-height:1.7;margin-bottom:16px">
+          The job board pulls <strong style="color:var(--tx)">real live postings</strong> from Adzuna — 10M+ listings. Free API key, no credit card needed.
+        </p>
+        <ol style="color:var(--muted);line-height:2.2;padding-left:1.2rem">
+          <li>Go to <a href="https://developer.adzuna.com/signup" target="_blank">developer.adzuna.com/signup</a></li>
+          <li>Create free account → click <strong style="color:var(--tx)">Create App</strong></li>
+          <li>Copy your <strong style="color:var(--tx)">App ID</strong> and <strong style="color:var(--tx)">App Key</strong></li>
+          <li>Paste below — saved locally, never shared</li>
+        </ol>
+      </div>
+      <div class="card">
+        <div style="margin-bottom:10px">${lbl('Adzuna App ID')}${inp('cred-id',state.adzunaId,'e.g. ef8139e4')}</div>
+        <div style="margin-bottom:12px">${lbl('Adzuna App Key')}${inp('cred-key',state.adzunaKey,'e.g. 28298aa7111de7e1...')}</div>
+        <p style="font-size:11px;color:var(--faint);margin-bottom:12px">Saved to your browser's localStorage. Only sent to api.adzuna.com.</p>
+        <button class="amber full" onclick="saveCreds()">Save & start searching →</button>
+      </div>
+    </div>
+  `;
+}
+
+function saveCreds() {
+  state.adzunaId = document.getElementById('cred-id').value.trim();
+  state.adzunaKey = document.getElementById('cred-key').value.trim();
+  save(); render('board');
+}
+
+function clearCreds() {
+  state.adzunaId = ''; state.adzunaKey = '';
+  localStorage.removeItem('adzuna_id'); localStorage.removeItem('adzuna_key');
+  render('board');
+}
+
+function setPreset(i) { state.jobPreset = i; state.jobCustomQ = ''; render('board'); }
+
+function sortedJobs() {
+  return [...state.jobs].sort((a,b) =>
+    state.jobSort === 'salary' ? (b.salary_min||0)-(a.salary_min||0) : new Date(b.created)-new Date(a.created)
+  );
+}
+
+async function doJobSearch(page) {
+  if(state.jobLoading) return;
+  if(page===1) { state.jobs=[]; state.jobTotal=0; }
+  state.jobLoading = true; render('board');
+  const q = state.jobCustomQ.trim() || PRESETS[state.jobPreset].q;
+  try {
+    const data = await adzunaSearch({q, where:state.jobWhere, salary:state.jobSalary, days:state.jobDays, page});
+    state.jobs = page===1 ? (data.results||[]) : [...state.jobs, ...(data.results||[])];
+    state.jobTotal = data.count||0; state.jobPage = page;
+  } catch(e) {
+    state.jobLoading = false; render('board');
+    const errEl = document.getElementById('job-error');
+    if(errEl) errEl.innerHTML = `<div class="err" style="margin-top:8px">${esc(e.message)}</div>`;
+    return;
+  }
+  state.jobLoading = false; render('board');
+}
+
+async function analyzeJob(id) {
+  const job = state.jobs.find(j=>j.id==id); if(!job) return;
+  state.analyzing[id] = true; render('board');
+  await claudeStream(
+    `Ryan Corcoran: ${PROFILE}. Analyze fit (4-5 sentences) for: ${job.title} at ${job.company?.display_name}. Description: ${(job.description||'').slice(0,800)}. Be specific about matching strengths AND real gaps.`,
+    t => { state.analyzed[id]=t; const el=document.querySelector(`[data-jobid="${id}"] .fb-box`); if(el) el.innerHTML=`<span class="fb-lbl">fit analysis</span>${esc(t)}`; }
+  );
+  state.analyzing[id] = false; render('board');
+}
+
+// ── APPLICATION TRACKER ───────────────────────────────────────────────────────
+
+function renderTracker(el) {
+  const list = state.appFilter==='all' ? state.apps : state.apps.filter(a=>a.stage===state.appFilter);
+  const counts = STAGES.reduce((acc,s)=>({...acc,[s]:state.apps.filter(x=>x.stage===s).length}),{});
+
+  const filterBtns = ['all',...STAGES].map(s =>
+    `<button class="tag ${state.appFilter===s?'on':''}" onclick="setAppFilter('${s}')">${s==='all'?`all (${state.apps.length})`:`${s} (${counts[s]||0})`}</button>`
+  ).join('');
+
+  const addForm = state.appShowAdd ? `
+    <div class="card" style="border-color:var(--amber-dim);margin-bottom:12px">
+      <div class="g2" style="margin-bottom:8px">
+        ${inp('add-co','',  'Company')} ${inp('add-role','','Role title')}
+        ${inp('add-sal','', 'Salary range')} ${inp('add-date','','Date applied')}
+      </div>
+      ${inp('add-notes','','Notes')}
+      <div class="row" style="margin-top:8px">
+        ${sel('add-stage',STAGES,'Saved')} ${sel('add-pri',['High','Medium','Low'],'High')}
+        <button class="amber" onclick="addApp()">Save</button>
+        <button onclick="state.appShowAdd=false;render('tracker')">Cancel</button>
+      </div>
+    </div>` : '';
+
+  const cards = list.map(app => {
+    if(state.appEditing === app.id) {
+      return `<div class="card" style="margin-bottom:8px;border-left:3px solid var(--amber)">
+        <div class="g2" style="margin-bottom:8px">
+          ${inp(`e-co-${app.id}`,app.company,'Company')} ${inp(`e-role-${app.id}`,app.role,'Role')}
+          ${inp(`e-sal-${app.id}`,app.salary,'Salary')} ${inp(`e-date-${app.id}`,app.date,'Date')}
+        </div>
+        ${inp(`e-notes-${app.id}`,app.notes,'Notes')}
+        <div class="row" style="margin-top:8px"><button class="amber" onclick="saveEdit(${app.id})">Done</button></div>
+      </div>`;
+    }
+    const lc = app.stage==='Offer'?'var(--green)':app.stage==='Rejected'?'var(--red)':'var(--amber)';
+    return `<div class="card" style="margin-bottom:8px;border-left:3px solid ${lc}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
+            <span style="font-size:14px;font-weight:600">${esc(app.company)}</span>
+            ${badge(app.stage,STAGE_COL[app.stage]||'amber')}
+            ${app.priority==='High'?badge('high priority','green'):''}
+          </div>
+          <div style="color:var(--muted)">${esc(app.role)}</div>
+          ${(app.salary||app.date)?`<div style="font-size:11px;color:var(--faint);margin-top:2px">${[app.salary,app.date].filter(Boolean).map(esc).join(' · ')}</div>`:''}
+          ${app.notes?`<div style="font-size:11px;color:var(--faint);margin-top:3px">${esc(app.notes)}</div>`:''}
+        </div>
+        <div class="row" style="margin-left:10px;flex-shrink:0">
+          ${sel(`stg-${app.id}`,STAGES,app.stage)}
+          <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">↑ Move</button>
+          <button onclick="state.appEditing=${app.id};render('tracker')" style="font-size:11px">Edit</button>
+          <button class="danger" onclick="delApp(${app.id})" style="font-size:11px">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = secHead('Applications') + `
+    <div class="stage-filters">${filterBtns}<button class="amber" onclick="state.appShowAdd=!state.appShowAdd;render('tracker')" style="margin-left:auto">+ Add</button></div>
+    ${addForm}
+    ${cards || '<div class="empty">No applications in this stage.</div>'}
+  `;
+}
+
+function setAppFilter(f) { state.appFilter=f; state.appEditing=null; render('tracker'); }
+function setAppStage(id,stage) { state.apps=state.apps.map(a=>a.id===id?{...a,stage}:a); save(); render('tracker'); }
+function delApp(id) { if(confirm('Remove this application?')) { state.apps=state.apps.filter(a=>a.id!==id); save(); render('tracker'); } }
+function addApp() {
+  const co=document.getElementById('add-co').value.trim(); if(!co)return;
+  state.apps.push({id:Date.now(),company:co,role:document.getElementById('add-role').value,stage:document.getElementById('add-stage').value,priority:document.getElementById('add-pri').value,date:document.getElementById('add-date').value,salary:document.getElementById('add-sal').value,notes:document.getElementById('add-notes').value});
+  state.appShowAdd=false; save(); render('tracker');
+}
+function saveEdit(id) {
+  state.apps=state.apps.map(a=>a.id===id?{...a,company:document.getElementById(`e-co-${id}`).value,role:document.getElementById(`e-role-${id}`).value,salary:document.getElementById(`e-sal-${id}`).value,date:document.getElementById(`e-date-${id}`).value,notes:document.getElementById(`e-notes-${id}`).value}:a);
+  state.appEditing=null; save(); render('tracker');
+}
+
+// ── COVER LETTER ──────────────────────────────────────────────────────────────
+
+function renderCover(el) {
+  el.innerHTML = secHead('Cover letters') + `
+    <div class="g2" style="margin-bottom:10px">
+      <div>${lbl('Company')}${inp('cv-co',state.coverCo,'e.g. Strive Health')}</div>
+      <div>${lbl('Tone')}${sel('cv-tone',[{v:'professional',l:'Professional & warm'},{v:'direct',l:'Direct & confident'},{v:'startup',l:'Startup energy'},{v:'formal',l:'Formal'}],state.coverTone)}</div>
+    </div>
+    ${lbl('Job description')}
+    ${ta('cv-jd',state.coverJD,'Paste the full job description here…',7)}
+    <div style="margin-top:10px"><button id="cv-btn" class="amber full" onclick="genCover()">${state.coverLoading?'<span class="spin"></span>Writing…':'→ Generate cover letter'}</button></div>
+    <div id="cv-out" style="margin-top:14px">${state.coverOut?`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">${badge('cover letter','green')}<button onclick="navigator.clipboard.writeText(document.getElementById('cv-text').textContent)" style="font-size:11px">Copy</button></div><div id="cv-text" style="font-size:13px;line-height:1.8;white-space:pre-wrap">${esc(state.coverOut)}</div></div>`:''}</div>
+  `;
+  document.getElementById('cv-co').addEventListener('input',e=>state.coverCo=e.target.value);
+  document.getElementById('cv-tone').addEventListener('change',e=>state.coverTone=e.target.value);
+  document.getElementById('cv-jd').addEventListener('input',e=>state.coverJD=e.target.value);
+}
+
+async function genCover() {
+  state.coverJD = document.getElementById('cv-jd').value;
+  state.coverCo = document.getElementById('cv-co').value;
+  state.coverTone = document.getElementById('cv-tone').value;
+  if(!state.coverJD.trim()) return;
+  state.coverLoading=true; state.coverOut=''; render('cover');
+  await claudeStream(
+    `Write a compelling 3-paragraph cover letter for Ryan Corcoran. Profile: ${PROFILE}. Tone: ${state.coverTone}. Company: ${state.coverCo||'the company'}. Job:\n${state.coverJD}\n\nP1: hook + why this role. P2: 2 specific accomplishments matching the JD. P3: why this company + close. Be specific, no clichés. Reference Aetna/CVS behavioral health analytics, care navigation platform, or 0-1 product builds where relevant.`,
+    t => { state.coverOut=t; const out=document.getElementById('cv-out'); if(out) out.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">${badge('cover letter','green')}<button onclick="navigator.clipboard.writeText(document.getElementById('cv-text').textContent)" style="font-size:11px">Copy</button></div><div id="cv-text" style="font-size:13px;line-height:1.8;white-space:pre-wrap">${esc(t)}</div></div>`; }
+  );
+  state.coverLoading=false;
+  const btn=document.getElementById('cv-btn'); if(btn) btn.innerHTML='→ Regenerate cover letter'; btn.disabled=false;
+}
+
+// ── INTERVIEW PREP ────────────────────────────────────────────────────────────
+
+function renderInterview(el) {
+  const qCards = state.intQs.map((q,i) => `
+    <div class="card" style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--amber);margin-bottom:5px">Q${i+1}</div>
+      <div style="font-size:13px;line-height:1.5;margin-bottom:8px">${esc(q)}</div>
+      ${ta(`int-ans-${i}`,state.intAns[i]||'','Type your answer…',3)}
+      <div style="margin-top:8px"><button onclick="getIntFb(${i})" ${state.intFbLoading[i]?'disabled':''} style="font-size:11px">${state.intFbLoading[i]?'<span class="spin"></span>Reviewing…':'Get feedback'}</button></div>
+      ${state.intFb[i]?`<div class="fb-box"><span class="fb-lbl">feedback</span>${esc(state.intFb[i])}</div>`:''}
+    </div>`).join('');
+
+  el.innerHTML = secHead('Interview prep') + `
+    <div class="g2" style="margin-bottom:10px">
+      <div>${lbl('Role')}${inp('int-role',state.intRole,'e.g. Sr. Product Manager')}</div>
+      <div>${lbl('Company (optional)')}${inp('int-co',state.intCo,'e.g. Strive Health')}</div>
+    </div>
+    <div class="row" style="margin-bottom:14px">
+      ${sel('int-qtype',[{v:'behavioral',l:'Behavioral (STAR)'},{v:'technical',l:'Technical / product'},{v:'strategic',l:'Strategic vision'},{v:'case',l:'Case / scenario'},{v:'culture',l:'Culture fit'}],state.intQtype)}
+      <button id="int-gen-btn" class="amber" style="flex:1" onclick="genIntQs()">${state.intLoading?'<span class="spin"></span>Generating…':'→ Generate questions'}</button>
+    </div>
+    ${qCards}
+  `;
+  document.getElementById('int-role').addEventListener('input',e=>state.intRole=e.target.value);
+  document.getElementById('int-co').addEventListener('input',e=>state.intCo=e.target.value);
+  document.getElementById('int-qtype').addEventListener('change',e=>state.intQtype=e.target.value);
+}
+
+async function genIntQs() {
+  state.intRole=document.getElementById('int-role').value;
+  state.intCo=document.getElementById('int-co').value;
+  if(!state.intRole) return;
+  state.intLoading=true; state.intQs=[]; state.intAns={}; state.intFb={}; render('interview');
+  try { state.intQs = await claudeJSON(`Generate 6 ${state.intQtype} interview questions for a ${state.intRole} role${state.intCo?` at ${state.intCo}`:''} for Ryan Corcoran: ${PROFILE}. Return ONLY a JSON array of strings. No markdown.`); } catch{}
+  state.intLoading=false; render('interview');
+}
+
+async function getIntFb(i) {
+  state.intAns[i]=document.getElementById(`int-ans-${i}`).value;
+  if(!state.intAns[i]?.trim()) return;
+  state.intFbLoading[i]=true; render('interview');
+  await claudeStream(
+    `Ryan interviewing for ${state.intRole}${state.intCo?` at ${state.intCo}`:''}: ${PROFILE}. Q: "${state.intQs[i]}". His answer: "${state.intAns[i]}". 3-5 sentence feedback: what's strong, what's missing, suggest a STAR-format improvement.`,
+    t=>{ state.intFb[i]=t; const fb=document.querySelectorAll('.fb-box')[i]; if(fb) fb.innerHTML=`<span class="fb-lbl">feedback</span>${esc(t)}`; }
+  );
+  state.intFbLoading[i]=false; render('interview');
+}
+
+// ── POMODORO ──────────────────────────────────────────────────────────────────
+
+function renderPomodoro(el) {
+  const cur = [{key:'focus',label:'Focus',mins:25,col:'var(--amber)'},{key:'short',label:'Short break',mins:5,col:'var(--green)'},{key:'long',label:'Long break',mins:15,col:'var(--blue)'}][state.pomMode];
+  const R=80, Circ=2*Math.PI*R, pct=state.pomSecs/state.pomTotal;
+  const mm=String(Math.floor(state.pomSecs/60)).padStart(2,'0'), ss=String(state.pomSecs%60).padStart(2,'0');
+
+  const taskBtns = POM_TASKS.map(t => `<button class="tag ${state.pomTask===t&&!state.pomCustomTask?'on':''}" onclick="setPomTask('${esc(t)}')">${esc(t)}</button>`).join('');
+
+  const logRows = state.pomLog.slice(-6).reverse().map(l =>
+    `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--brd);font-size:12px"><span>${esc(l.task)}</span><span style="color:var(--faint)">${l.time} · ${l.mins}m</span></div>`
+  ).join('');
+
+  const dots = [...Array(4)].map((_,i) => `<div style="width:14px;height:14px;border-radius:50%;background:${i<(state.pomSessions%4)?'var(--amber)':'var(--surf)'};border:1px solid var(--brd)"></div>`).join('');
+
+  el.innerHTML = secHead('Focus timer') + `
+    <div class="row" style="margin-bottom:20px">
+      ${[{l:'Focus',c:'var(--amber)'},{l:'Short break',c:'var(--green)'},{l:'Long break',c:'var(--blue)'}].map((m,i)=>`<button onclick="switchPomMode(${i})" style="flex:1;color:${state.pomMode===i?m.c:'var(--muted)'};border-color:${state.pomMode===i?m.c:'var(--brd)'}">${m.l}</button>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:center;margin-bottom:20px">
+      <div style="position:relative;width:200px;height:200px">
+        <svg id="pom-svg" width="200" height="200">
+          <circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--surf)" stroke-width="8"/>
+          <circle cx="100" cy="100" r="${R}" fill="none" stroke="${cur.col}" stroke-width="8" stroke-dasharray="${Circ}" stroke-dashoffset="${Circ*(1-pct)}" stroke-linecap="round" style="transition:${state.pomRunning?'stroke-dashoffset 1s linear':'none'}"/>
+        </svg>
+        <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="font-size:42px;font-weight:500;letter-spacing:-2px;color:var(--tx)">${mm}:${ss}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${cur.label}</div>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="justify-content:center;margin-bottom:16px">
+      <button class="${state.pomRunning?'':'amber'}" style="min-width:90px;font-size:13px" onclick="togglePom()">${state.pomRunning?'Pause':state.pomSecs===state.pomTotal?'Start':'Resume'}</button>
+      <button style="font-size:13px" onclick="resetPom()">Reset</button>
+    </div>
+    <div class="row" style="margin-bottom:16px">
+      ${inp('pom-custom',state.pomCustomMins,'Custom duration (mins)','flex:1')}
+      <button onclick="applyPomCustom()">Set</button>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      ${lbl('Current task')}
+      <div class="tag-row" style="margin-top:8px">${taskBtns}</div>
+      ${inp('pom-task-custom',state.pomCustomTask,'Or type a custom task…')}
+    </div>
+    <div class="row" style="margin-bottom:${state.pomLog.length?'12px':'0'}">${dots}<span style="font-size:12px;color:var(--muted)">${state.pomSessions} session${state.pomSessions!==1?'s':''} today</span></div>
+    ${state.pomLog.length?`<div class="card">${lbl('Today\'s log')}${logRows}</div>`:''}
+  `;
+  document.getElementById('pom-custom').addEventListener('input',e=>state.pomCustomMins=e.target.value);
+  document.getElementById('pom-task-custom').addEventListener('input',e=>{ state.pomCustomTask=e.target.value; if(e.target.value) state.pomTask=''; });
+}
+
+function switchPomMode(i) {
+  clearInterval(pomInterval); pomInterval=null;
+  const mins=[25,5,15][i];
+  state.pomMode=i; state.pomRunning=false; state.pomTotal=mins*60; state.pomSecs=mins*60;
+  render('pomodoro');
+}
+
+function togglePom() {
+  if(state.pomRunning) { clearInterval(pomInterval); pomInterval=null; state.pomRunning=false; }
+  else {
+    state.pomRunning=true;
+    pomInterval=setInterval(()=>{
+      state.pomSecs--;
+      if(state.pomSecs<=0) {
+        clearInterval(pomInterval); pomInterval=null; state.pomRunning=false;
+        if(state.pomMode===0) {
+          state.pomSessions++;
+          state.pomLog.push({task:state.pomCustomTask||state.pomTask,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),mins:[25,5,15][state.pomMode]});
+        }
+        state.pomSecs=0;
+      }
+      render('pomodoro');
+    },1000);
+  }
+  render('pomodoro');
+}
+
+function resetPom() { clearInterval(pomInterval); pomInterval=null; state.pomRunning=false; state.pomSecs=state.pomTotal; render('pomodoro'); }
+
+function applyPomCustom() {
+  const m=parseInt(document.getElementById('pom-custom').value);
+  if(!m||m<1||m>120) return;
+  clearInterval(pomInterval); pomInterval=null;
+  state.pomRunning=false; state.pomTotal=m*60; state.pomSecs=m*60; state.pomCustomMins='';
+  render('pomodoro');
+}
+
+function setPomTask(t) { state.pomTask=t; state.pomCustomTask=''; render('pomodoro'); }
+
+// ── NETWORKING CRM ────────────────────────────────────────────────────────────
+
+function renderNetwork(el) {
+  const today=new Date();
+  const overdue=d=>d&&new Date(d)<today;
+  const soon=d=>d&&new Date(d)>=today&&new Date(d)<=new Date(today.getTime()+7*86400000);
+  const od=state.contacts.filter(c=>overdue(c.next)).length;
+  const sd=state.contacts.filter(c=>soon(c.next)).length;
+
+  const addForm = state.netShowAdd ? `
+    <div class="card" style="border-color:var(--amber-dim);margin-bottom:12px">
+      <div class="g2" style="margin-bottom:8px">
+        ${inp('net-name','','Name')} ${inp('net-co','','Company')}
+        ${inp('net-role','','Their role')} ${sel('net-rel',['Warm','Alumni','Cold','Recruiter'],'Warm')}
+        ${inp('net-last','','Last touch (YYYY-MM-DD)')} ${inp('net-next','','Next touch (YYYY-MM-DD)')}
+      </div>
+      ${inp('net-notes','','Notes')}
+      <div class="row" style="margin-top:8px"><button class="amber" onclick="addContact()">Save</button><button onclick="state.netShowAdd=false;render('network')">Cancel</button></div>
+    </div>` : '';
+
+  const cards = state.contacts.map(c => {
+    const ov=overdue(c.next), sn=soon(c.next);
+    const brdCol=ov?'var(--red)':sn?'var(--amber)':'var(--brd)';
+    const dm=state.netDraft&&state.netDraftFor===c.id;
+    return `<div class="card" style="margin-bottom:8px;border-left:3px solid ${brdCol}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div>
+          <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
+            <span style="font-size:14px;font-weight:600">${esc(c.name)}</span>
+            ${badge(c.rel,REL_COL[c.rel]||'amber')}
+            ${ov?badge('follow up overdue','red'):''}${!ov&&sn?badge('due soon','amber'):''}
+          </div>
+          <div style="color:var(--muted)">${esc(c.role)} · ${esc(c.company)}</div>
+          ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-top:2px">${esc(c.notes)}</div>`:''}
+          <div style="font-size:11px;color:var(--faint);margin-top:2px">${c.last?`last: ${c.last}`:''}${c.next?` · next: ${c.next}`:''}</div>
+        </div>
+        <button onclick="genNetMsg(${c.id})" ${state.netDraftLoading&&state.netDraftFor===c.id?'disabled':''} style="font-size:11px;flex-shrink:0">${state.netDraftLoading&&state.netDraftFor===c.id?'<span class="spin"></span>Writing…':'Draft message'}</button>
+      </div>
+      ${dm?`<div class="msg-box"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--amber);font-size:11px">draft message</span><button onclick="navigator.clipboard.writeText(document.getElementById('draft-text').textContent)" style="font-size:10px;padding:2px 8px">Copy</button></div><span id="draft-text">${esc(state.netDraft)}</span></div>`:''}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = secHead('Networking') + `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-size:12px;color:var(--muted)"><span style="color:var(--red)">${od} overdue</span> · <span style="color:var(--amber)">${sd} due this week</span></div>
+      <button class="amber" onclick="state.netShowAdd=!state.netShowAdd;render('network')">+ Add contact</button>
+    </div>
+    ${addForm}${cards}
+  `;
+}
+
+function addContact() {
+  const name=document.getElementById('net-name').value.trim(); if(!name)return;
+  state.contacts.push({id:Date.now(),name,company:document.getElementById('net-co').value,role:document.getElementById('net-role').value,rel:document.getElementById('net-rel').value,last:document.getElementById('net-last').value,next:document.getElementById('net-next').value,notes:document.getElementById('net-notes').value});
+  state.netShowAdd=false; save(); render('network');
+}
+
+async function genNetMsg(id) {
+  const c=state.contacts.find(x=>x.id===id); if(!c)return;
+  state.netDraftLoading=true; state.netDraftFor=id; state.netDraft=''; render('network');
+  await claudeStream(
+    `Write a short (3-4 sentence) warm LinkedIn message from Ryan Corcoran to ${c.name} at ${c.company}. Ryan: ${PROFILE}. Context: ${c.notes||'reconnecting to explore opportunities'}. Natural and specific, not generic. No subject line.`,
+    t=>{ state.netDraft=t; const el=document.getElementById('draft-text'); if(el) el.textContent=t; }
+  );
+  state.netDraftLoading=false; render('network');
+}
+
+// ── CSV BRIDGE ────────────────────────────────────────────────────────────────
+
+// Column mapping — matches the Excel tracker's column headers exactly
+const APP_COLS  = ['Company','Role Title','Salary Range','Location / Remote','Date Applied','Stage','Priority','Fit Score','Key Requirement Match','Gaps / Notes','Next Step','Next Step Date','Recruiter / Contact','Link / Source'];
+const APP_KEYS  = ['company','role','salary','location','date','stage','priority','fit','keyReqs','gaps','nextStep','nextDate','contact','source'];
+const NET_COLS  = ['Company','Role','Alumni Contact','Relationship','Last Touch','Next Touch','Status','Notes'];
+const NET_KEYS  = ['company','role','name','rel','last','next','status','notes'];
+
+function csvEscape(v) {
+  const s = String(v == null ? '' : v);
+  return (s.includes(',') || s.includes('"') || s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s;
+}
+
+function toCSV(rows, cols) {
+  return [cols.join(','), ...rows.map(r => APP_KEYS.map ? r : r)].join('\n');
+}
+
+function appsToCSV() {
+  const header = APP_COLS.join(',');
+  const rows = state.apps.map(a =>
+    APP_KEYS.map(k => csvEscape(a[k]||'')).join(',')
+  );
+  return [header, ...rows].join('\n');
+}
+
+function contactsToCSV() {
+  const header = NET_COLS.join(',');
+  const rows = state.contacts.map(c =>
+    NET_KEYS.map(k => csvEscape(c[k]||'')).join(',')
+  );
+  return [header, ...rows].join('\n');
+}
+
+function downloadCSV(content, filename) {
+  const blob = new Blob([content], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = parseCSVLine(lines[0]);
+  return lines.slice(1).filter(l=>l.trim()).map(line => {
+    const vals = parseCSVLine(line);
+    const obj = {};
+    headers.forEach((h,i) => { obj[h.trim()] = (vals[i]||'').trim(); });
+    return obj;
+  });
+}
+
+function parseCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for(let i=0;i<line.length;i++) {
+    const c=line[i];
+    if(c==='"'&&inQ&&line[i+1]==='"'){cur+='"';i++;}
+    else if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){result.push(cur);cur='';}
+    else cur+=c;
+  }
+  result.push(cur);
+  return result;
+}
+
+function importAppsCSV(text) {
+  const rows = parseCSV(text);
+  if(!rows.length) return {count:0, skipped:0, msg:'No rows found in file.'};
+
+  // Try to detect column mapping — accepts both exact Excel headers and app-internal keys
+  const colMap = {};
+  const firstRow = rows[0];
+  const allHeaders = Object.keys(firstRow);
+
+  // Map Excel column names → internal keys
+  const excelToKey = {};
+  APP_COLS.forEach((col,i) => { excelToKey[col] = APP_KEYS[i]; });
+  // Also accept lowercase/trimmed variants
+  APP_COLS.forEach((col,i) => { excelToKey[col.toLowerCase()] = APP_KEYS[i]; });
+  // Also accept direct key names
+  APP_KEYS.forEach(k => { excelToKey[k] = k; excelToKey[k.toLowerCase()] = k; });
+
+  // Build per-row mapping
+  const headerMap = {}; // header name → internal key
+  allHeaders.forEach(h => {
+    const key = excelToKey[h] || excelToKey[h.trim().toLowerCase()];
+    if(key) headerMap[h] = key;
+  });
+
+  if(!headerMap['Company'] && !headerMap['company']) {
+    return {count:0, skipped:0, msg:`Could not find a "Company" column. Headers found: ${allHeaders.slice(0,5).join(', ')}…`};
+  }
+
+  let added=0, skipped=0, updated=0;
+  const existingCos = state.apps.map(a=>a.company.toLowerCase().trim());
+
+  rows.forEach(row => {
+    const mapped = {};
+    Object.entries(headerMap).forEach(([h,k]) => { mapped[k] = row[h]||''; });
+    const co = (mapped.company||'').trim();
+    if(!co) { skipped++; return; }
+
+    const existIdx = existingCos.indexOf(co.toLowerCase());
+    if(existIdx !== -1) {
+      // Update existing — merge in any non-empty fields from CSV
+      const existing = state.apps[existIdx];
+      APP_KEYS.forEach(k => { if(mapped[k]) existing[k] = mapped[k]; });
+      updated++;
+    } else {
+      state.apps.push({
+        id: Date.now() + Math.random(),
+        company: mapped.company||'',
+        role: mapped.role||'',
+        salary: mapped.salary||'',
+        location: mapped.location||'',
+        date: mapped.date||'',
+        stage: mapped.stage||'Applied',
+        priority: mapped.priority||'Medium',
+        fit: mapped.fit||'',
+        keyReqs: mapped.keyReqs||'',
+        gaps: mapped.gaps||'',
+        nextStep: mapped.nextStep||'',
+        nextDate: mapped.nextDate||'',
+        contact: mapped.contact||'',
+        source: mapped.source||'',
+        notes: mapped.notes||mapped.gaps||'',
+      });
+      added++;
     }
   });
-},{threshold:0.3});
-const skillSec=document.getElementById('skills');
-if(skillSec)barObs.observe(skillSec);
 
-setTimeout(()=>{
-  document.querySelectorAll('.fade-up').forEach((el,i)=>{
-    setTimeout(()=>el.classList.add('in'),i*120);
+  save();
+  return {count:added, updated, skipped, msg:`Done — ${added} added, ${updated} updated, ${skipped} skipped (blank company).`};
+}
+
+function importContactsCSV(text) {
+  const rows = parseCSV(text);
+  if(!rows.length) return {count:0, msg:'No rows found.'};
+  let added=0, skipped=0;
+  const existingNames = state.contacts.map(c=>c.name.toLowerCase().trim());
+  rows.forEach(row => {
+    const name = (row['Alumni Contact']||row['Name']||row['name']||'').trim();
+    if(!name){skipped++;return;}
+    if(existingNames.includes(name.toLowerCase())){skipped++;return;}
+    state.contacts.push({
+      id: Date.now()+Math.random(), name,
+      company: row['Company']||row['company']||'',
+      role: row['Role']||row['role']||'',
+      rel: row['Relationship']||row['rel']||'Warm',
+      last: row['Last Touch']||row['last']||'',
+      next: row['Next Touch']||row['next']||'',
+      notes: row['Notes']||row['notes']||'',
+    });
+    added++;
   });
-},100);
+  save();
+  return {count:added, skipped, msg:`Done — ${added} contacts added, ${skipped} skipped.`};
+}
+
+function renderSync(el) {
+  const cloudConnected = state.jbKey && state.jbBin;
+  const cloudBadge = cloudConnected
+    ? `${badge('cloud connected', 'green')} <span style="font-size:11px;color:var(--faint)">bin: ${state.jbBin.slice(0,8)}…</span>`
+    : badge('local only', 'red');
+
+  el.innerHTML = secHead('Excel sync') + `
+
+    <div class="card" style="margin-bottom:16px;border-color:${cloudConnected?'var(--green-dim)':'var(--amber-dim)'}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div class="row">${cloudBadge}</div>
+        ${cloudConnected
+          ? `<button class="danger" onclick="disconnectCloud()" style="font-size:11px">Disconnect</button>`
+          : `<button class="amber" onclick="location.reload()" style="font-size:11px">Set up cloud →</button>`}
+      </div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.6">
+        ${cloudConnected
+          ? `Data syncs automatically to JSONBin after every change. Open <strong style="color:var(--tx)">this same HTML file</strong> on any device, enter your Master Key + Bin ID on first load, and all your data will be there.`
+          : `Cloud sync is not set up. Data is saved to this browser only. <a href="javascript:location.reload()">Click here</a> to connect JSONBin.`}
+      </p>
+      ${cloudConnected ? `<div style="margin-top:10px;padding:8px 12px;border-radius:6px;background:var(--bg);border:1px solid var(--brd);font-size:11px;color:var(--faint)">
+        <strong style="color:var(--muted)">To open on another device:</strong> download this HTML file, open it in a browser, and when prompted enter your JSONBin Master Key and Bin ID <code style="font-size:10px">${esc(state.jbBin)}</code>
+      </div>` : ''}
+    </div>
+
+    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:20px">
+      Two-way bridge between this app and your <strong style="color:var(--tx)">job_tracker.xlsx</strong>. Export to bring Excel up to date; import to load Excel data back in.
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div style="font-size:13px;font-weight:500;margin-bottom:6px;color:var(--tx)">↓ Export to Excel</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Downloads your app data as <code style="background:var(--bg);padding:1px 5px;border-radius:3px;font-size:11px">.csv</code> files. Open in Excel and paste into the matching sheet.</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="amber" onclick="exportApps()">↓ Export applications (${state.apps.length} rows)</button>
+          <button onclick="exportContacts()">↓ Export contacts (${state.contacts.length} rows)</button>
+        </div>
+        <div id="export-note" style="font-size:11px;color:var(--green);margin-top:10px;min-height:16px"></div>
+      </div>
+
+      <div class="card" style="border-top:3px solid var(--amber)">
+        <div style="font-size:13px;font-weight:500;margin-bottom:6px;color:var(--tx)">↑ Import from Excel</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Save the Excel sheet as <code style="background:var(--bg);padding:1px 5px;border-radius:3px;font-size:11px">.csv</code> (File → Save As → CSV), then drop it here.</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div>
+            ${lbl('Import applications')}
+            <input type="file" id="import-apps-file" accept=".csv" style="color:var(--muted);padding:5px 0;border:none;background:transparent">
+            <button onclick="doImportApps()" style="margin-top:6px;width:100%">↑ Import applications CSV</button>
+          </div>
+          <div>
+            ${lbl('Import contacts')}
+            <input type="file" id="import-net-file" accept=".csv" style="color:var(--muted);padding:5px 0;border:none;background:transparent">
+            <button onclick="doImportContacts()" style="margin-top:6px;width:100%">↑ Import networking CSV</button>
+          </div>
+        </div>
+        <div id="import-note" style="font-size:12px;margin-top:10px;min-height:16px"></div>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--brd2)">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px;color:var(--tx)">How to sync with job_tracker.xlsx</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:11px;color:var(--green);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">App → Excel</div>
+          <ol style="font-size:12px;color:var(--muted);line-height:2;padding-left:1.1rem">
+            <li>Click <strong style="color:var(--tx)">Export applications</strong></li>
+            <li>Open the downloaded CSV in Excel</li>
+            <li>Select all → copy</li>
+            <li>Paste into <strong style="color:var(--tx)">Job Tracker</strong> sheet row 5</li>
+          </ol>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--amber);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Excel → App</div>
+          <ol style="font-size:12px;color:var(--muted);line-height:2;padding-left:1.1rem">
+            <li>Open <code style="background:var(--bg);padding:1px 4px;border-radius:3px;font-size:11px">job_tracker.xlsx</code></li>
+            <li>File → Save As → <strong style="color:var(--tx)">CSV UTF-8</strong></li>
+            <li>Click <strong style="color:var(--tx)">Import applications CSV</strong></li>
+            <li>Pick the file — done</li>
+          </ol>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding:10px 12px;border-radius:6px;background:var(--bg);border:1px solid var(--brd);font-size:11px;color:var(--faint);line-height:1.7">
+        <strong style="color:var(--muted)">Merge logic:</strong> Matches on Company name (case-insensitive). Existing entries are updated; new ones appended. Nothing is ever deleted automatically.
+      </div>
+    </div>
+  `;
+}
+
+function exportApps() {
+  downloadCSV(appsToCSV(), `applications_export_${new Date().toISOString().slice(0,10)}.csv`);
+  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.apps.length} rows at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+function exportContacts() {
+  downloadCSV(contactsToCSV(), `contacts_export_${new Date().toISOString().slice(0,10)}.csv`);
+  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.contacts.length} contacts`;
+}
+
+function doImportApps() {
+  const file = document.getElementById('import-apps-file').files[0];
+  if(!file){ alert('Pick a CSV file first.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const result = importAppsCSV(e.target.result);
+    const n=document.getElementById('import-note');
+    if(n){ n.style.color = result.count>0||result.updated>0 ? 'var(--green)' : 'var(--red)'; n.textContent=result.msg; }
+    render('sync');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function doImportContacts() {
+  const file = document.getElementById('import-net-file').files[0];
+  if(!file){ alert('Pick a CSV file first.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const result = importContactsCSV(e.target.result);
+    const n=document.getElementById('import-note');
+    if(n){ n.style.color = result.count>0 ? 'var(--green)' : 'var(--amber)'; n.textContent=result.msg; }
+    render('sync');
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ── CLOUD SETUP SCREEN ────────────────────────────────────────────────────────
+
+function renderCloudSetup(el) {
+  el.innerHTML = `
+    <div style="max-width:520px;margin:0 auto;padding-top:1rem">
+      <div class="sec-head"><h1>Connect cloud sync</h1><div class="bar"></div></div>
+      <div class="card" style="margin-bottom:14px">
+        <p style="color:var(--muted);line-height:1.7;margin-bottom:16px">
+          To access your data on <strong style="color:var(--tx)">any device</strong> — phone, laptop, work computer — you need a free JSONBin account. It's a tiny cloud database that stores your apps and contacts. Takes 3 minutes, no credit card.
+        </p>
+        <ol style="color:var(--muted);line-height:2.4;padding-left:1.2rem">
+          <li>Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → <strong style="color:var(--tx)">Sign Up Free</strong></li>
+          <li>After logging in, click <strong style="color:var(--tx)">API Keys</strong> in the left sidebar</li>
+          <li>Copy your <strong style="color:var(--tx)">Master Key</strong> (starts with <code style="background:var(--bg);padding:1px 5px;border-radius:3px;font-size:11px">$2b$</code>)</li>
+          <li>Paste it below and click <strong style="color:var(--tx)">Create my data bin</strong></li>
+        </ol>
+      </div>
+      <div class="card">
+        <div style="margin-bottom:12px">
+          ${lbl('JSONBin Master Key')}
+          ${inp('setup-jb-key', '', '$2b$10$...')}
+          <p style="font-size:11px;color:var(--faint);margin-top:5px">Stored in your browser only. Never transmitted anywhere except jsonbin.io.</p>
+        </div>
+        <div id="setup-error" style="font-size:12px;color:var(--red);min-height:16px;margin-bottom:8px"></div>
+        <button id="setup-btn" class="amber full" onclick="doCloudSetup()">Create my data bin →</button>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Already have a Bin ID from a previous setup?</p>
+          <div style="display:flex;gap:8px">
+            ${inp('setup-existing-key', '', 'Master Key')}
+            ${inp('setup-existing-bin', '', 'Bin ID (e.g. 6634...)')}
+            <button onclick="doExistingSetup()" style="white-space:nowrap;flex-shrink:0">Connect →</button>
+          </div>
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">
+          <button class="ghost" onclick="skipCloudSetup()" style="font-size:11px;width:100%">Skip for now — use this device only</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function doCloudSetup() {
+  const key = document.getElementById('setup-jb-key').value.trim();
+  if (!key) { document.getElementById('setup-error').textContent = 'Please enter your Master Key.'; return; }
+  const btn = document.getElementById('setup-btn');
+  btn.disabled = true; btn.textContent = 'Creating bin…';
+  state.jbKey = key;
+  try {
+    const binId = await jbCreate();
+    state.jbBin = binId;
+    saveCredentials();
+    document.getElementById('setup-error').textContent = '';
+    showTab('board');
+    setSyncStatus('✓ cloud connected · bin ' + binId.slice(0,8) + '…', false);
+  } catch(e) {
+    state.jbKey = '';
+    document.getElementById('setup-error').textContent = 'Error: ' + e.message;
+    btn.disabled = false; btn.textContent = 'Create my data bin →';
+  }
+}
+
+async function doExistingSetup() {
+  const key = document.getElementById('setup-existing-key').value.trim();
+  const bin = document.getElementById('setup-existing-bin').value.trim();
+  if (!key || !bin) { document.getElementById('setup-error').textContent = 'Enter both Master Key and Bin ID.'; return; }
+  state.jbKey = key; state.jbBin = bin;
+  try {
+    const data = await jbRead();
+    if (data.apps) state.apps = data.apps;
+    if (data.contacts) state.contacts = data.contacts;
+    saveCredentials();
+    showTab('board');
+    setSyncStatus('✓ reconnected · ' + state.apps.length + ' apps loaded', false);
+  } catch(e) {
+    state.jbKey = ''; state.jbBin = '';
+    document.getElementById('setup-error').textContent = 'Could not connect: ' + e.message;
+  }
+}
+
+function skipCloudSetup() {
+  localStorage.setItem('cloud_skipped', '1');
+  showTab('board');
+}
+
+function disconnectCloud() {
+  if (!confirm('Disconnect cloud sync? Your data stays on this device but won\'t sync to other devices.')) return;
+  state.jbKey = ''; state.jbBin = '';
+  localStorage.removeItem('jb_key'); localStorage.removeItem('jb_bin');
+  localStorage.removeItem('cloud_skipped');
+  location.reload();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+async function init() {
+  const hasCloud = state.jbKey && state.jbBin;
+  const skipped  = localStorage.getItem('cloud_skipped');
+
+  if (!hasCloud && !skipped) {
+    // First run — show cloud setup screen overlaid on top of board pane
+    const el = document.getElementById('pane-board');
+    renderCloudSetup(el);
+    return;
+  }
+
+  if (hasCloud) {
+    setSyncStatus('loading…', false);
+    await loadFromCloud();
+  }
+
+  render('board');
+}
+
+init();
 </script>
 </body>
 </html>
