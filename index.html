@@ -3,2246 +3,578 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JobQuest · 2026</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232A5F52'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%239E4A62'/%3E%3Cpath d='M11 21L21 11' stroke='%23C9961A' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M21 11H13.5' stroke='%23C9961A' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M21 11V18.5' stroke='%23C9961A' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Ryan Corcoran — Product Leader</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23E8F1F8'/%3E%3Cpolygon points='16,3 17.8,10.2 24.5,7.5 20.5,13.5 27.5,15.5 20.5,17.5 24.5,23.5 17.8,20.8 16,28 14.2,20.8 7.5,23.5 11.5,17.5 4.5,15.5 11.5,13.5 7.5,7.5 14.2,10.2' fill='%231C3347'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Avenir+Next:wght@400;500;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
 <style>
-  :root {
-    /* Core palette */
-    --jade:        #2A5F52;
-    --jade-light:  #3D8A76;
-    --jade-pale:   #E8F3EF;
-    --jade-mid:    #9FCBB8;
-    --rose:        #9E4A62;
-    --rose-pale:   #FBF0F2;
-    --rose-border: #F4C0D1;
-    --gold:        #C9961A;
-    --gold-pale:   #FDF3DC;
-    --gold-border: #E8C97A;
-    --cream:       #F5F1E8;
-    --cream-dark:  #EDE7D8;
-    --cream-border:#D8D0BE;
-    --surf:        #FFFFFF;
-    --surf2:       #FDFAF5;
-    /* Text */
-    --tx:    #1E3D33;
-    --muted: #6B5F50;
-    --faint: #9C8E7A;
-    /* Stage card backgrounds */
-    --card-saved:              #F7F4EE;
-    --card-applied:            #EEF6F0;
-    --card-coffee:             #FDF8EC;
-    --card-screen:             #FEF9EE;
-    --card-interview:          #FDF8EC;
-    --card-offer:              #EEF6F0;
-    --card-rejected:           #FBF0F2;
-    --card-ghosted:            #F4F0F8;
-    --card-default:            #FDFAF5;
-    /* Semantic */
-    --green:     #2A5F52; --green-bg: #E8F3EF; --green-dim: #9FCBB8;
-    --red:       #9E4A62; --red-bg:   #FBF0F2;
-    --blue:      #185FA5; --blue-bg:  #E6F1FB;
-    --purple:    #7C52B0; --purple-bg:#F0EBF8;
-    --amber:     #C9961A; --amber-dim:#E8C97A; --amber-bg: #FDF3DC;
-    --teal:      #0F7B6C; --teal-bg:  #E1F5EE; --teal-dim: #5DCAA5;
-    --brd:       #D8D0BE; --brd2: #C8C0AE;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--cream); color: var(--tx); font-family: 'Avenir Next', 'Avenir', system-ui, sans-serif; font-size: 13px; line-height: 1.5; }
-  a { color: var(--jade); }
-  input, textarea, select, button { font-family: 'Avenir Next', 'Avenir', system-ui, sans-serif; font-size: 12px; }
-  input, textarea, select {
-    background: var(--surf); color: var(--tx); border: 1px solid var(--brd);
-    border-radius: 6px; padding: 7px 11px; outline: none; width: 100%;
-  }
-  input::placeholder, textarea::placeholder { color: var(--faint); }
-  textarea { resize: vertical; }
-  select { cursor: pointer; }
-  button {
-    cursor: pointer; border-radius: 6px; border: 1px solid var(--brd);
-    background: var(--surf2); color: var(--tx); padding: 6px 14px;
-    transition: all .15s; letter-spacing: .01em;
-  }
-  button:hover:not(:disabled) { background: var(--cream-dark); }
-  button:disabled { opacity: .45; cursor: not-allowed; }
-  button.amber { background: var(--jade); color: #fff; border-color: var(--jade); font-weight: 500; }
-  button.amber:hover:not(:disabled) { background: var(--jade-light); border-color: var(--jade-light); }
-  button.ghost { color: var(--faint); border-color: transparent; background: transparent; }
-  button.danger { color: var(--rose); border-color: var(--rose-border); background: var(--rose-pale); }
-  button.full { width: 100%; padding: 9px 0; font-size: 13px; }
+:root {
+  --bg:     #E8F1F8;
+  --bg2:    #F4F8FC;
+  --bg3:    #EDF4FA;
+  --bg4:    #DDEAF4;
 
-  /* NAV */
-  #nav {
-    border-bottom: 1px solid var(--brd); height: 50px; display: flex;
-    align-items: center; justify-content: space-between; padding: 0 24px;
-    position: sticky; top: 0; background: var(--jade); z-index: 100;
-  }
-  #nav .brand { display: flex; align-items: center; gap: 10px; }
-  #nav .brand .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--rose); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  #nav .brand-name { font-size: 17px; font-weight: 600; color: var(--cream); letter-spacing: -.2px; }
-  #nav .brand-year { font-size: 10px; color: var(--jade-mid); letter-spacing: .06em; margin-left: 2px; }
-  #nav .tabs { display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
-  #nav .tabs button { font-size: 11px; padding: 5px 10px; background: transparent; border-color: transparent; color: rgba(245,241,232,0.55); }
-  #nav .tabs button:hover:not(:disabled) { background: rgba(255,255,255,0.08); color: var(--cream); }
-  #nav .tabs button.active { background: rgba(255,255,255,0.13); color: var(--cream); border-color: rgba(255,255,255,0.18); }
-  #sync-status { font-size: 10px; color: var(--jade-mid); letter-spacing: .03em; padding: 0 6px; white-space: nowrap; }
+  --steel:  #5B8FB9;
+  --steel2: #1C3347;
+  --steel3: #C8DFF0;
 
-  /* MAIN */
-  #main { max-width: 820px; margin: 0 auto; padding: 28px 24px; }
+  --rust:   #C8694A;
+  --rust2:  #E8A890;
+  --rust3:  #F7EDE9;
 
-  /* SECTION HEAD */
-  .sec-head { margin-bottom: 24px; }
-  .sec-head h1 { font-size: 22px; font-weight: 600; color: var(--jade); letter-spacing: -.3px; margin-bottom: 6px; }
-  .sec-head .bar { width: 28px; height: 2px; background: var(--rose); border-radius: 1px; }
+  --amber:  #C98A0E;
+  --amber3: #FDF6E3;
 
-  /* CARD */
-  .card { background: var(--surf); border: 1px solid var(--brd); border-radius: 10px; padding: 1rem 1.25rem; animation: fadeIn .2s ease; margin-bottom: 10px; }
-  .card:last-child { margin-bottom: 0; }
-  @keyframes fadeIn { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:none } }
-  @keyframes spin { to { transform: rotate(360deg) } }
+  --tx:     #1C3347;
+  --tx2:    #3D6078;
+  --tx3:    #7A9AAE;
 
-  /* GRID */
-  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  --border:  rgba(91,143,185,0.18);
+  --border2: rgba(91,143,185,0.32);
 
-  /* LABEL */
-  .lbl { font-size: 11px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; font-weight: 500; }
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans:  'DM Sans', system-ui, sans-serif;
+}
 
-  /* BADGE */
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 11px; letter-spacing: .02em; white-space: nowrap; font-weight: 500; border: 1px solid transparent; }
-  .badge.amber { background: var(--amber-bg); color: #6B4A00; border-color: var(--gold-border); }
-  .badge.green { background: var(--green-bg); color: var(--jade); border-color: var(--jade-mid); }
-  .badge.red   { background: var(--red-bg);   color: #6B1828;  border-color: var(--rose-border); }
-  .badge.blue  { background: var(--blue-bg);  color: var(--blue); border-color: #B5D4F4; }
-  .badge.purple{ background: var(--purple-bg);color: #4A2870;  border-color: #C4A8E8; }
-  .badge.teal  { background: var(--teal-bg);  color: var(--teal); border-color: var(--teal-dim); }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--tx); font-family:var(--sans); font-size:16px; line-height:1.6; overflow-x:hidden; }
 
-  /* PILL */
-  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 8px; background: var(--cream); border: 1px solid var(--cream-border); color: var(--muted); margin: 2px; }
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(232,241,248,0.96); backdrop-filter:blur(12px);
+  border-bottom:0.5px solid var(--border2);
+  padding:0 48px; height:56px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.nav-name { font-family:var(--serif); font-size:17px; color:var(--steel2); display:flex; align-items:center; gap:10px; }
+.nav-links { display:flex; gap:28px; }
+.nav-links a { font-size:12px; color:var(--rust); text-decoration:none; letter-spacing:.06em; text-transform:uppercase; transition:color .2s; }
+.nav-links a:hover { color:var(--rust2); }
 
-  /* TAGS */
-  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-  .tag { font-size: 11px; padding: 4px 11px; border-radius: 20px; border: 1px solid var(--brd); background: var(--surf2); color: var(--muted); }
-  .tag:hover { border-color: var(--jade-mid); color: var(--jade); }
-  .tag.on { background: var(--jade-pale); color: var(--jade); border-color: var(--jade-mid); font-weight: 500; }
+/* ── HERO ── */
+.hero {
+  min-height:100vh; padding:120px 48px 80px;
+  display:grid; grid-template-columns:1fr 380px; gap:64px; align-items:center;
+  position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; top:-100px; right:-100px;
+  width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(circle, rgba(91,143,185,0.10) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-eyebrow {
+  display:flex; align-items:center; gap:10px;
+  font-size:11px; color:var(--rust); letter-spacing:.12em; text-transform:uppercase; margin-bottom:20px;
+}
+.hero-eyebrow::before { content:''; display:inline-block; width:24px; height:1px; background:var(--rust); }
+.hero-headline { font-family:var(--serif); font-size:clamp(44px,5vw,68px); line-height:1.05; color:var(--tx); margin-bottom:20px; letter-spacing:-.01em; }
+.hero-headline em { font-style:italic; color:var(--steel); }
+.hero-sub { font-size:16px; color:var(--tx2); line-height:1.7; margin-bottom:32px; max-width:500px; }
+.hero-tags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:40px; }
+.htag { font-size:11px; padding:5px 12px; border-radius:20px; letter-spacing:.04em; }
+.htag.muted { background:rgba(91,143,185,0.12); color:var(--tx2); border:0.5px solid var(--border2); }
+.hero-cta { display:flex; gap:12px; flex-wrap:wrap; }
+.btn {
+  font-family:var(--sans); font-size:12px; padding:10px 22px; border-radius:6px;
+  cursor:pointer; text-decoration:none; letter-spacing:.05em;
+  transition:all .2s; display:inline-flex; align-items:center; gap:6px;
+}
+.btn-primary { background:var(--steel); color:#fff; border:none; }
+.btn-primary:hover { background:var(--steel2); }
+.btn-ghost { background:transparent; color:var(--tx2); border:0.5px solid var(--border2); }
+.btn-ghost:hover { border-color:var(--rust); color:var(--rust); }
 
-  /* SPINNER */
-  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--brd); border-top-color: var(--jade); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+.hero-photo-col { display:flex; flex-direction:column; gap:16px; }
+.hero-photo {
+  width:100%; aspect-ratio:4/5; background:var(--bg3); border-radius:12px;
+  border:0.5px solid var(--border2);
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  gap:8px; color:var(--tx3); font-size:12px; position:relative; overflow:hidden;
+}
+.hero-stat-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.hstat { background:var(--bg2); border:0.5px solid var(--border); border-radius:8px; padding:14px; text-align:center; }
+.hstat-num { font-family:var(--serif); font-size:26px; color:var(--steel); line-height:1; margin-bottom:4px; }
+.hstat-label { font-size:10px; color:var(--tx3); letter-spacing:.05em; line-height:1.4; }
 
-  /* ROW */
-  .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* ── SECTIONS ── */
+section { padding:80px 48px; border-top:0.5px solid var(--border); max-width:1200px; margin:0 auto; }
+.section-eyebrow {
+  font-size:10px; color:var(--rust); letter-spacing:.12em; text-transform:uppercase;
+  margin-bottom:16px; display:flex; align-items:center; gap:10px;
+}
+.section-eyebrow::before { content:''; display:inline-block; width:16px; height:1px; background:var(--rust); }
+.section-title { font-family:var(--serif); font-size:clamp(28px,3vw,38px); color:var(--tx); margin-bottom:12px; line-height:1.15; }
+.section-title em { font-style:italic; color:var(--steel); }
+.section-lead { font-size:16px; color:var(--tx2); max-width:580px; line-height:1.8; margin-bottom:48px; }
 
-  /* EMPTY */
-  .empty { text-align: center; padding: 3rem 0; color: var(--faint); }
+/* ── STORY ── */
+.story-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
+.story-text { font-size:17px; color:var(--tx2); line-height:1.9; }
+.story-text strong { color:var(--rust); font-weight:500; }
+.story-text strong.plain { color:var(--tx); font-weight:500; }
+.story-text .accent { color:var(--steel); }
 
-  /* FEEDBACK / MSG BOXES */
-  .fb-box { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: var(--jade-pale); border: 1px solid var(--jade-mid); font-size: 12px; color: var(--muted); line-height: 1.7; white-space: pre-wrap; }
-  .fb-box .fb-lbl { color: var(--jade); font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px; }
-  .msg-box { padding: 10px 12px; border-radius: 8px; background: var(--gold-pale); border: 1px solid var(--gold-border); font-size: 12px; color: var(--tx); line-height: 1.7; white-space: pre-wrap; }
+.timeline { padding-left:24px; position:relative; }
+.timeline::before { content:''; position:absolute; left:0; top:8px; bottom:8px; width:1px; background:rgba(200,105,74,.3); }
+.tl-item { position:relative; margin-bottom:28px; }
+.tl-dot { position:absolute; left:-29px; top:7px; width:10px; height:10px; border-radius:50%; background:var(--steel); box-shadow:0 0 0 3px rgba(91,143,185,.2); }
+.tl-dot.amber { background:var(--amber); box-shadow:0 0 0 3px rgba(201,138,14,.2); }
+.tl-dot.dim { background:var(--bg4); box-shadow:none; border:1px solid var(--border2); }
+.tl-year { font-size:10px; color:var(--tx3); letter-spacing:.08em; margin-bottom:3px; }
+.tl-role { font-size:14px; font-weight:500; color:var(--tx); margin-bottom:2px; }
+.tl-co { font-size:12px; color:var(--tx3); }
 
-  /* ERROR */
-  .err { color: #6B1828; font-size: 12px; padding: 10px 12px; border-radius: 6px; background: var(--rose-pale); border: 1px solid var(--rose-border); margin-bottom: 10px; }
+/* ── WORK CARDS ── */
+.cases-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.case-card {
+  background:var(--bg2); border:0.5px solid var(--border); border-radius:12px; padding:28px;
+  cursor:pointer; transition:border-color .25s, background .25s;
+  position:relative; overflow:hidden;
+}
+.case-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--rust); transform:scaleX(0); transform-origin:left; transition:transform .3s;
+}
+.case-card:hover { border-color:var(--border2); background:var(--bg3); }
+.case-card:hover::before, .case-card.open::before { transform:scaleX(1); }
+.case-card.open { border-color:rgba(91,143,185,.35); background:var(--bg3); }
+.case-card.wide { grid-column:1/-1; }
+.case-tag {
+  display:inline-block; font-size:10px; letter-spacing:.08em; padding:3px 9px; border-radius:10px;
+  background:rgba(200,105,74,.10); color:var(--rust); border:0.5px solid rgba(200,105,74,.28); margin-bottom:14px;
+}
+.case-title { font-family:var(--serif); font-size:22px; color:var(--tx); margin-bottom:10px; line-height:1.2; }
+.case-summary { font-size:14px; color:var(--tx2); line-height:1.7; margin-bottom:16px; }
+.case-metrics { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px; }
+.case-metric-num { font-family:var(--serif); font-size:26px; color:var(--steel); line-height:1; }
+.case-metric-label { font-size:10px; color:var(--tx3); margin-top:2px; }
+.case-expand-btn {
+  font-size:11px; color:var(--rust); background:none; border:none; cursor:pointer;
+  padding:0; letter-spacing:.05em; display:flex; align-items:center; gap:5px;
+  font-family:var(--sans); transition:color .2s;
+}
+.case-expand-btn:hover { color:var(--rust2); }
+.case-expand-btn .arrow { transition:transform .25s; }
+.case-card.open .case-expand-btn .arrow { transform:rotate(180deg); }
+.case-detail { max-height:0; overflow:hidden; transition:max-height .4s ease; }
+.case-card.open .case-detail { max-height:400px; border-top:0.5px solid var(--border); padding-top:16px; margin-top:16px; }
+.case-detail-text { font-size:13px; color:var(--tx2); line-height:1.8; }
+.case-detail-list { margin-top:12px; padding-left:16px; }
+.case-detail-list li { font-size:13px; color:var(--tx2); margin-bottom:6px; line-height:1.7; }
 
-  /* POMODORO */
-  #pom-svg { transform: rotate(-90deg); }
+/* ── SKILLS ── */
+.skills-layout { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
+.domain-items { display:flex; flex-direction:column; gap:20px; }
+.domain-row-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+.domain-row-name { font-size:13px; color:var(--tx); }
+.domain-row-pct { font-size:11px; color:var(--tx3); }
+.domain-bar-bg { height:6px; background:var(--bg4); border-radius:3px; overflow:hidden; }
+.domain-bar { height:6px; border-radius:3px; background:var(--steel); width:0; transition:width 1s ease; }
+.domain-bar.rust-bar { background:var(--rust); }
+.skills-right { display:flex; flex-direction:column; gap:14px; }
+.skill-cat-label { font-size:10px; color:var(--steel); letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px; }
+.skill-tags { display:flex; flex-wrap:wrap; gap:6px; }
+.skill-tag { font-size:11px; padding:4px 10px; border-radius:4px; background:var(--bg4); color:var(--tx2); border:0.5px solid var(--border); }
 
-  /* SCROLLBAR */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: var(--cream); }
-  ::-webkit-scrollbar-thumb { background: var(--cream-border); border-radius: 3px; }
+/* ── FIT WIDGET ── */
+.fit-widget {
+  background:var(--amber3); border:0.5px solid rgba(201,138,14,.22);
+  border-left:2px solid var(--amber); border-radius:0;
+  padding:36px; position:relative; overflow:hidden;
+}
+.fit-intro { font-size:15px; color:var(--tx2); line-height:1.7; margin-bottom:24px; max-width:560px; }
+.fit-input-row { display:flex; gap:12px; margin-bottom:8px; }
+.fit-textarea {
+  flex:1; background:#fff; border:0.5px solid var(--border2); border-radius:8px;
+  color:var(--tx); font-family:var(--sans); font-size:13px; padding:14px 16px;
+  resize:vertical; min-height:100px; outline:none; transition:border-color .2s;
+}
+.fit-textarea:focus { border-color:var(--amber); }
+.fit-textarea::placeholder { color:var(--tx3); }
+.fit-btn {
+  align-self:flex-end; background:var(--amber); color:#fff; border:none; border-radius:8px;
+  padding:12px 24px; font-family:var(--sans); font-size:13px; cursor:pointer;
+  white-space:nowrap; transition:background .2s; min-width:120px;
+}
+.fit-btn:hover { background:#a36e08; }
+.fit-btn:disabled { opacity:.5; cursor:not-allowed; }
+.fit-hint { font-size:11px; color:var(--tx3); margin-bottom:24px; }
+.fit-result { display:none; border-top:0.5px solid var(--border); padding-top:24px; margin-top:8px; }
+.fit-result.visible { display:block; }
+.fit-result-top { display:grid; grid-template-columns:auto auto 1fr; gap:16px; align-items:start; margin-bottom:20px; }
+.fit-score-box { background:#fff; border-radius:10px; padding:16px 20px; text-align:center; border:0.5px solid var(--border); }
+.fit-score-num { font-family:var(--serif); font-size:36px; line-height:1; margin-bottom:4px; }
+.fit-score-label { font-size:10px; color:var(--tx3); letter-spacing:.08em; text-transform:uppercase; }
+.fit-role-box { background:#fff; border-radius:10px; padding:16px 20px; border:0.5px solid var(--border); min-width:180px; }
+.fit-role-co { font-size:14px; font-weight:500; color:var(--tx); }
+.fit-role-title { font-size:12px; color:var(--tx2); margin-top:2px; }
+.fit-role-comp { font-size:11px; color:var(--tx3); margin-top:4px; }
+.fit-rationale { background:#fff; border-radius:10px; padding:16px 20px; border:0.5px solid var(--border); font-size:13px; color:var(--tx2); line-height:1.7; }
+.fit-flags { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.fit-flag { font-size:11px; padding:4px 10px; border-radius:4px; background:rgba(91,143,185,.1); color:var(--steel2); border:0.5px solid rgba(91,143,185,.25); }
+.fit-news { background:var(--bg4); border-radius:8px; padding:14px 16px; font-size:13px; color:var(--tx2); line-height:1.7; }
+.fit-news-label { font-size:10px; color:var(--steel); letter-spacing:.08em; text-transform:uppercase; margin-bottom:6px; }
+.fit-match { font-size:12px; color:var(--tx3); margin-bottom:12px; }
+.fit-match strong { color:var(--tx2); }
+.fit-loading { display:none; text-align:center; padding:32px; color:var(--tx3); font-size:14px; }
+.fit-loading.visible { display:block; }
+.fit-error { display:none; color:var(--rust); font-size:13px; margin-top:12px; }
+.fit-error.visible { display:block; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.spin { display:inline-block; animation:spin 1s linear infinite; margin-right:8px; }
 
-  /* PROFILE PANEL */
-  #profile-panel {
-    position: fixed; top: 0; right: -620px; width: 600px; height: 100vh;
-    background: var(--surf); border-left: 1px solid var(--brd);
-    z-index: 1000; transition: right .3s ease; overflow-y: auto;
-    display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(42,95,82,.08);
-  }
-  #profile-panel.open { right: 0; }
-  #profile-overlay { display: none; position: fixed; inset: 0; background: rgba(30,61,51,.35); z-index: 999; }
-  #profile-overlay.open { display: block; }
-  .profile-header { padding: 16px 20px; border-bottom: 1px solid var(--brd); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surf); z-index: 1; }
-  .profile-body { padding: 20px; flex: 1; }
-  .profile-section-head { font-size: 11px; color: var(--jade); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; margin-top: 16px; }
-  .profile-body p { font-size: 12px; color: var(--muted); line-height: 1.7; }
-  .profile-streaming { font-size: 12px; color: var(--muted); line-height: 1.8; white-space: pre-wrap; }
-  .profile-loading { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; padding: 20px 0; }
+/* ── CONTACT ── */
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
+.contact-links { display:flex; flex-direction:column; gap:14px; }
+.contact-link-row {
+  display:flex; align-items:center; gap:14px; padding:16px 20px;
+  background:var(--bg2); border:0.5px solid var(--border); border-radius:10px;
+  text-decoration:none; transition:border-color .2s, background .2s;
+}
+.contact-link-row:hover { border-color:var(--rust); background:var(--rust3); }
+.contact-link-icon { font-size:14px; color:var(--rust); width:20px; text-align:center; }
+.contact-link-label { font-size:13px; color:var(--tx2); }
+.contact-link-val { font-size:13px; color:var(--rust); margin-left:auto; }
+.contact-note {
+  font-size:17px; color:var(--tx2); line-height:1.8;
+  font-family:var(--serif); font-style:italic;
+  border-left:2px solid var(--steel); padding-left:20px;
+}
+.contact-note strong { font-style:normal; color:var(--tx); }
 
-  /* SETTINGS */
-  #settings-screen { max-width: 500px; margin: 0 auto; }
+footer { border-top:0.5px solid var(--border); padding:24px 48px; display:flex; justify-content:space-between; align-items:center; }
+.footer-name { font-family:var(--serif); font-size:14px; color:var(--tx3); }
+.footer-note { font-size:11px; color:var(--tx3); }
 
-  /* STAGE FILTERS */
-  .stage-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.fade-up { opacity:0; transform:translateY(20px); transition:opacity .7s ease, transform .7s ease; }
+.fade-up.in { opacity:1; transform:translateY(0); }
+
+@media(max-width:768px) {
+  nav { padding:0 20px; }
+  .nav-links { display:none; }
+  .hero { grid-template-columns:1fr; padding:100px 20px 60px; }
+  .hero-photo-col { display:none; }
+  section { padding:60px 20px; }
+  .story-grid, .skills-layout, .contact-grid { grid-template-columns:1fr; }
+  .cases-grid { grid-template-columns:1fr; }
+  .case-card.wide { grid-column:1; }
+  .fit-input-row { flex-direction:column; }
+  .fit-btn { align-self:stretch; }
+  .fit-result-top { grid-template-columns:1fr; }
+  footer { padding:20px; flex-direction:column; gap:8px; }
+}
 </style>
 </head>
 <body>
 
-<div id="profile-overlay" onclick="closeProfilePanel()"></div>
-<div id="profile-panel">
-  <div class="profile-header">
-    <div>
-      <div id="profile-panel-title" style="font-size:14px;font-weight:500;color:var(--tx)">Company Profile</div>
-      <div id="profile-panel-sub" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button id="profile-copy-btn" onclick="copyProfile()" style="font-size:11px;display:none">Copy</button>
-      <button onclick="closeProfilePanel()" style="font-size:18px;border:none;background:none;color:var(--muted);padding:4px 8px">×</button>
-    </div>
+<nav>
+  <span class="nav-name">
+    <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#1C3347"/>
+    </svg>
+    Ryan Corcoran
+  </span>
+  <div class="nav-links">
+    <a href="#story">story</a>
+    <a href="#work">work</a>
+    <a href="#skills">skills</a>
+    <a href="#fit">fit check</a>
+    <a href="#contact">contact</a>
   </div>
-  <div class="profile-body">
-    <div id="profile-panel-content"></div>
-  </div>
-</div>
+</nav>
 
-<div id="nav">
-  <div class="brand">
-    <div class="logo">
-      <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="16" cy="16" r="11" fill="#9E4A62"/>
-        <path d="M11 21L21 11" stroke="#C9961A" stroke-width="2.6" stroke-linecap="round"/>
-        <path d="M21 11H13.5" stroke="#C9961A" stroke-width="2.6" stroke-linecap="round"/>
-        <path d="M21 11V18.5" stroke="#C9961A" stroke-width="2.6" stroke-linecap="round"/>
+<div class="hero">
+  <div class="hero-left fade-up">
+    <div class="hero-eyebrow">open to new roles · minneapolis, mn</div>
+    <h1 class="hero-headline">Building products<br>that <em>matter.</em></h1>
+    <p class="hero-sub">Senior product leader with a background in biomedical science, 0→1 digital healthcare products, and platform builds. I translate complex problems into things people actually use.</p>
+    <div class="hero-tags">
+      <span class="htag muted">Care navigation</span>
+      <span class="htag muted">Behavioral health</span>
+      <span class="htag muted">Digital health</span>
+      <span class="htag muted">SDOH</span>
+      <span class="htag muted">R&amp;D partnerships</span>
+      <span class="htag muted">Product marketing</span>
+      <span class="htag muted">Regulated environments</span>
+    </div>
+    <div class="hero-cta">
+      <a href="#fit" class="btn btn-primary">check role fit ↓</a>
+      <a href="#work" class="btn btn-ghost">see the work</a>
+      <a href="mailto:rcorcoran03@gmail.com" class="btn btn-ghost">get in touch</a>
+    </div>
+  </div>
+  <div class="hero-photo-col fade-up" style="transition-delay:.15s">
+    <div class="hero-photo">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="11" r="5" stroke="#7A9AAE" stroke-width="1.5"/>
+        <path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#7A9AAE" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
+      <span>photo</span>
     </div>
-    <span class="brand-name">JobQuest</span><span class="brand-year">2026</span>
-  </div>
-  <div style="display:flex;align-items:center;gap:6px">
-    <span id="sync-status"></span>
-    <div class="tabs">
-      <button class="active" onclick="showTab('board')" id="tab-board">Job board</button>
-      <button onclick="showTab('tracker')" id="tab-tracker">Applications</button>
-      <button onclick="showTab('tasks')" id="tab-tasks">Tasks</button>
-      <button onclick="showTab('pomodoro')" id="tab-pomodoro">Focus timer</button>
-      <button onclick="showTab('network')" id="tab-network">Networking</button>
-      <button onclick="showTab('referrals')" id="tab-referrals">Referrals</button>
-      <button onclick="showTab('sync')" id="tab-sync">Excel sync</button>
+    <div class="hero-stat-cards">
+      <div class="hstat"><div class="hstat-num">7+</div><div class="hstat-label">years in digital health</div></div>
+      <div class="hstat"><div class="hstat-num">0→1</div><div class="hstat-label">products launched</div></div>
+      <div class="hstat"><div class="hstat-num">48h</div><div class="hstat-label">time-to-care achieved</div></div>
+      <div class="hstat"><div class="hstat-num">2×</div><div class="hstat-label">NPS growth in 6mo</div></div>
     </div>
   </div>
 </div>
 
-<div id="main">
-  <div id="pane-board"></div>
-  <div id="pane-tracker" style="display:none"></div>
-  <div id="pane-tasks" style="display:none"></div>
-  <div id="pane-pomodoro" style="display:none"></div>
-  <div id="pane-network" style="display:none"></div>
-  <div id="pane-referrals" style="display:none"></div>
-  <div id="pane-targets" style="display:none"></div>
-  <div id="pane-sync" style="display:none"></div>
-</div>
+<section id="story">
+  <div class="section-eyebrow">the story</div>
+  <h2 class="section-title">Where <em>science</em> meets product.</h2>
+  <div class="story-grid fade-up">
+    <div>
+      <p class="story-text">I started in a cardiac research lab studying how hearts fail — and somewhere between the bench and the bedside, I got obsessed with the <span class="accent">systems that get people to care</span> in the first place.</p>
+      <br>
+      <p class="story-text">That led me to product management in digital health, where I've spent the last 7+ years building the kind of infrastructure that <strong>actually moves the needle</strong> — care navigation platforms, behavioral health analytics, patient engagement tools that work at scale.</p>
+      <br>
+      <p class="story-text">I've done it at <strong class="plain">Aetna/CVS</strong>, at a scrappy EAP startup, and in the University of Minnesota's commercialization engine. What I care about: <strong>problems that are genuinely hard</strong>, teams that take craft seriously, and products where the stakes are real.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2023–present</div><div class="tl-role">Senior Product Manager</div><div class="tl-co">Resources for Living / Aetna CVS</div></div>
+      <div class="tl-item"><div class="tl-dot amber"></div><div class="tl-year">2022–2023</div><div class="tl-role">Product Manager II</div><div class="tl-co">Aetna Behavioral Health</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2021–2022</div><div class="tl-role">Product Manager</div><div class="tl-co">Aetna / CVS Health</div></div>
+      <div class="tl-item"><div class="tl-dot dim"></div><div class="tl-year">2020–2021</div><div class="tl-role">Technology Commercialization Fellow</div><div class="tl-co">University of Minnesota OTC</div></div>
+      <div class="tl-item"><div class="tl-dot dim"></div><div class="tl-year">2018–2020</div><div class="tl-role">MBA — Medical Industry Leadership</div><div class="tl-co">Carlson School, University of Minnesota</div></div>
+      <div class="tl-item"><div class="tl-dot dim"></div><div class="tl-year">2013–2018</div><div class="tl-role">BS Biomedical Sciences</div><div class="tl-co">University of Minnesota · Visible Heart Lab</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="section-eyebrow">selected work</div>
+  <h2 class="section-title">Things I've <em>shipped.</em></h2>
+  <p class="section-lead">A few case studies from the work that shaped how I think about building in digital health.</p>
+  <div class="cases-grid fade-up">
+    <div class="case-card wide" onclick="toggleCase(this)">
+      <span class="case-tag">care navigation · 0→1</span>
+      <div class="case-title">Access Plus — EAP Care Navigation Platform</div>
+      <div class="case-summary">Members were authorized for mental health care but couldn't get to it. The scheduling experience was fragmented, provider matching was manual, and digital engagement was nearly absent. I built the product that fixed it.</div>
+      <div class="case-metrics">
+        <div class="case-metric"><div class="case-metric-num">48h</div><div class="case-metric-label">time-to-care</div></div>
+        <div class="case-metric"><div class="case-metric-num">2×+</div><div class="case-metric-label">NPS in 6 months</div></div>
+        <div class="case-metric"><div class="case-metric-num">1K+</div><div class="case-metric-label">automated touchpoints/mo</div></div>
+      </div>
+      <button class="case-expand-btn">read the story <span class="arrow">↓</span></button>
+      <div class="case-detail">
+        <div class="case-detail-text">Resources for Living's EAP had a fundamental access problem: members were authorized for care but couldn't get to it fast enough. Scheduling was fragmented, provider matching was manual, and the digital experience hadn't kept pace.
+          <ul class="case-detail-list">
+            <li>Led discovery across clinical, operations, and account stakeholders to map the broken workflow and find the highest-leverage intervention points</li>
+            <li>Owned the full product roadmap — prioritizing scheduling and navigation first, then building automated engagement workflows on top</li>
+            <li>Launched 1,000+ automated monthly touchpoints that reduced unused authorizations and improved care utilization</li>
+            <li>Delivered in a HIPAA-regulated environment with enterprise reporting requirements layered on top</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="case-card" onclick="toggleCase(this)">
+      <span class="case-tag">analytics platform</span>
+      <div class="case-title">Behavioral Health Analytics</div>
+      <div class="case-summary">Enterprise health clients needed to evaluate program performance, but data was siloed, inconsistent, and hard to act on. Led the build of the platform that changed that.</div>
+      <div class="case-metrics">
+        <div class="case-metric"><div class="case-metric-num" style="font-size:16px;line-height:1.2">Enterprise</div><div class="case-metric-label">national + mid-market</div></div>
+        <div class="case-metric"><div class="case-metric-num">0→1</div><div class="case-metric-label">real-time insights platform</div></div>
+      </div>
+      <button class="case-expand-btn">read the story <span class="arrow">↓</span></button>
+      <div class="case-detail">
+        <div class="case-detail-text">Aetna's behavioral health clients were making decisions with stale, inconsistent data. The opportunity: build a centralized analytics layer that surfaces real-time insights and makes them actionable.
+          <ul class="case-detail-list">
+            <li>Built a data ecosystem connecting disparate member and clinical data layers across the behavioral health portfolio</li>
+            <li>Owned product strategy and roadmap — aligning features to customer needs, regulatory requirements, and business priorities</li>
+            <li>Partnered with Sales to translate insights into client-facing tools supporting pricing decisions and account growth</li>
+            <li>Unlocked new outcome insights enabling more informed product, pricing, and go-to-market decisions at national scale</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="case-card wide" onclick="toggleCase(this)">
+      <span class="case-tag">commercialization strategy</span>
+      <div class="case-title">SDOH Mobile App · UMN Technology Commercialization</div>
+      <div class="case-summary">Academic researchers had built a compelling social determinants of health application, but had no path from desk to market. Led the strategy that got it to early-stage pilot.</div>
+      <button class="case-expand-btn">read the story <span class="arrow">↓</span></button>
+      <div class="case-detail">
+        <div class="case-detail-text">The UMN Office of Technology Commercialization works at the intersection of research and application. This project: a social determinants of health mobile app — proven in research, stranded without a viable path to market.
+          <ul class="case-detail-list">
+            <li>Conducted market assessment to identify the most viable initial deployment context and buyer profile</li>
+            <li>Developed regulatory strategy mapping the pathway from research tool to commercial product</li>
+            <li>Built financial modeling to support early-stage funding conversations and partnership development</li>
+            <li>Facilitated the transition from concept to pilot — the gap that kills most good research ideas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="section-eyebrow">skills &amp; domains</div>
+  <h2 class="section-title">Where I'm <em>strong.</em></h2>
+  <div class="skills-layout fade-up">
+    <div class="domain-items">
+      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Care navigation &amp; patient access</span><span class="domain-row-pct">95%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="95"></div></div></div>
+      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Behavioral &amp; mental health</span><span class="domain-row-pct">92%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="92"></div></div></div>
+      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">0→1 digital healthcare products</span><span class="domain-row-pct">88%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="88"></div></div></div>
+      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Analytics &amp; data platforms</span><span class="domain-row-pct">85%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="85"></div></div></div>
+      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Payer / employer markets</span><span class="domain-row-pct">80%</span></div><div class="domain-bar-bg"><div class="domain-bar" data-w="80"></div></div></div>
+      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">GTM &amp; commercialization</span><span class="domain-row-pct">78%</span></div><div class="domain-bar-bg"><div class="domain-bar rust-bar" data-w="78"></div></div></div>
+      <div class="domain-row"><div class="domain-row-top"><span class="domain-row-name">Medtech &amp; regulated devices</span><span class="domain-row-pct">76%</span></div><div class="domain-bar-bg"><div class="domain-bar rust-bar" data-w="76"></div></div></div>
+    </div>
+    <div class="skills-right">
+      <div><div class="skill-cat-label">product craft</div><div class="skill-tags"><span class="skill-tag">Roadmap ownership</span><span class="skill-tag">Discovery &amp; research</span><span class="skill-tag">Backlog prioritization</span><span class="skill-tag">Agile / Jira</span><span class="skill-tag">User stories</span><span class="skill-tag">KPI design</span><span class="skill-tag">Go-to-market</span></div></div>
+      <div><div class="skill-cat-label">technical fluency</div><div class="skill-tags"><span class="skill-tag">Tableau</span><span class="skill-tag">SQL (working)</span><span class="skill-tag">Data warehousing</span><span class="skill-tag">API integrations</span><span class="skill-tag">HIPAA compliance</span><span class="skill-tag">Salesforce CRM</span><span class="skill-tag">Applied AI in product</span></div></div>
+      <div><div class="skill-cat-label">domain knowledge</div><div class="skill-tags"><span class="skill-tag">EAP / care navigation</span><span class="skill-tag">Behavioral health</span><span class="skill-tag">Medicare Advantage</span><span class="skill-tag">Value-based care</span><span class="skill-tag">Cardiac physiology</span><span class="skill-tag">SDOH</span><span class="skill-tag">Payer markets</span></div></div>
+      <div><div class="skill-cat-label">leadership</div><div class="skill-tags"><span class="skill-tag">Cross-functional teams</span><span class="skill-tag">Executive stakeholders</span><span class="skill-tag">Vendor management</span><span class="skill-tag">Storytelling</span><span class="skill-tag">Customer discovery</span></div></div>
+      <div><div class="skill-cat-label">medtech &amp; devices</div><div class="skill-tags"><span class="skill-tag">Design controls</span><span class="skill-tag">510(k) familiarity</span><span class="skill-tag">Clinical/commercial handoff</span><span class="skill-tag">Upstream voice of customer</span><span class="skill-tag">Risk management</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="fit">
+  <div class="section-eyebrow">role fit check</div>
+  <h2 class="section-title">See how I map<br>to <em>your role.</em></h2>
+  <p class="section-lead">Paste a job description and get a real-time analysis of how my background aligns — experience, domain match, and anything worth a closer look.</p>
+  <div class="fit-widget fade-up">
+    <p class="fit-intro">Built this to make your life easier. Paste the JD below — you'll get an honest read on where there's genuine overlap, where there are gaps, and whether this conversation is worth having.</p>
+    <div class="fit-input-row">
+      <textarea class="fit-textarea" id="fit-jd" placeholder="Paste job description text here..."></textarea>
+      <button class="fit-btn" id="fit-btn" onclick="runFit()">Analyze ↗</button>
+    </div>
+    <div class="fit-hint">powered by claude · ~15 seconds · no data stored</div>
+    <div class="fit-loading" id="fit-loading"><span class="spin">↻</span> Analyzing the role...</div>
+    <div class="fit-error" id="fit-error"></div>
+    <div class="fit-result" id="fit-result">
+      <div class="fit-result-top">
+        <div class="fit-score-box"><div class="fit-score-num" id="fit-score-num">—</div><div class="fit-score-label">fit score</div></div>
+        <div class="fit-role-box"><div class="fit-role-co" id="fit-co">—</div><div class="fit-role-title" id="fit-role">—</div><div class="fit-role-comp" id="fit-comp"></div></div>
+        <div class="fit-rationale" id="fit-rationale">—</div>
+      </div>
+      <div class="fit-match" id="fit-match"></div>
+      <div class="fit-flags" id="fit-flags"></div>
+      <div class="fit-news" id="fit-news" style="display:none"><div class="fit-news-label">company news</div><div id="fit-news-text"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-eyebrow">get in touch</div>
+  <h2 class="section-title">Let's talk about<br>what you're <em>building.</em></h2>
+  <div class="contact-grid fade-up">
+    <div class="contact-links">
+      <a href="mailto:rcorcoran03@gmail.com" class="contact-link-row"><span class="contact-link-icon">✉</span><span class="contact-link-label">Email</span><span class="contact-link-val">rcorcoran03@gmail.com</span></a>
+      <a href="https://linkedin.com/in/ryancorcoran1" target="_blank" class="contact-link-row"><span class="contact-link-icon">in</span><span class="contact-link-label">LinkedIn</span><span class="contact-link-val">linkedin.com/in/ryancorcoran1</span></a>
+      <a href="#" class="contact-link-row"><span class="contact-link-icon">↓</span><span class="contact-link-label">Resume</span><span class="contact-link-val">download PDF</span></a>
+      <div class="contact-link-row" style="cursor:default"><span class="contact-link-icon">◎</span><span class="contact-link-label">Location</span><span class="contact-link-val">Minneapolis, MN · remote ok</span></div>
+    </div>
+    <p class="contact-note">"I'm drawn to teams building at the intersection of <strong>clinical complexity and consumer experience</strong>, where the stakes are real and the product craft has to match."</p>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-name">Ryan Corcoran</span>
+  <span class="footer-note">Minneapolis, MN · (651) 343-4165 · Updated May 2026</span>
+</footer>
 
 <script>
-// ── CONSTANTS ─────────────────────────────────────────────────────────────────
-
-const PROFILE = `Senior PM · Digital Health · Behavioral Health Analytics · Care Navigation · 0-1 Product Builds · MBA (Medical Industry, UMN Carlson) · BS Biomedical Sciences · Minneapolis MN · Remote-first · $120K–$160K target · 5+ yrs experience`;
-
-// Each preset runs 2-3 query variants in parallel and merges results
-const PRESETS = [
-  {l:'PM – Digital Health',        qs:['"product manager" "digital health"', 'product manager healthtech healthcare remote', '"senior product manager" health technology']},
-  {l:'Sr PM – Care Navigation',    qs:['"product manager" "care navigation"', '"product manager" "care coordination" health', 'product manager navigation "health plan"']},
-  {l:'PM – Behavioral Health',     qs:['"product manager" "behavioral health"', '"product manager" "mental health" technology', 'product manager EAP "employee assistance"']},
-  {l:'PM – Value-Based Care',      qs:['"product manager" "value-based care"', '"product manager" "population health"', 'product manager "risk adjustment" healthcare']},
-  {l:'PM – Health Analytics',      qs:['"product manager" "healthcare analytics"', '"product manager" "health data" platform', 'product manager "clinical analytics" OR "claims data"']},
-  {l:'PM – Patient Engagement',    qs:['"product manager" "patient engagement"', '"product manager" "patient experience" digital', 'product manager "member engagement" health']},
-  {l:'PM – Telehealth',            qs:['"product manager" telehealth', '"product manager" "virtual care"', 'product manager telemedicine remote digital']},
-  {l:'PM – HealthTech Startup',    qs:['product manager healthtech startup remote', '"senior product manager" "Series" health', '"product manager" "digital health" startup equity']},
-];
-
-const COMPANY_CATEGORIES = {
-  'Healthcare Startups': ['unite us','reema health','oasis health','included health','transcarent','spring health','lyra health','modern health','develop health','accolade','gravie','omada','cityblock','arcadia','aledade','innovaccer','komodo','datavant','particle health','health catalyst','nomi health','turquoise','oscar health','inovalon'],
-  'Healthcare Enterprise': ['unitedhealthgroup','uhg','optum','surest','cvs','aetna','cigna','evernorth','humana','elevance','prime therapeutics','novu health','anthem'],
-  'Medtech Enterprise': ['medtronic','boston scientific','bsc','abbott','stryker'],
-  'Medtech Startups': ['anteris','nalu','cardiovalve','shockwave','penumbra'],
-};
-
-function detectCategory(company) {
-  if (!company) return '';
-  const lower = company.toLowerCase();
-  for (const [cat, keywords] of Object.entries(COMPANY_CATEGORIES)) {
-    if (keywords.some(k => lower.includes(k))) return cat;
-  }
-  return '';
-}
-
-const CAT_COLORS = {
-  'Healthcare Startups': {bg:'var(--teal-bg)',color:'var(--teal)',border:'var(--teal-dim)'},
-  'Healthcare Enterprise': {bg:'var(--blue-bg)',color:'var(--blue)',border:'#B5D4F4'},
-  'Medtech Enterprise': {bg:'var(--rose-pale)',color:'var(--rose)',border:'var(--rose-border)'},
-  'Medtech Startups': {bg:'var(--purple-bg)',color:'#4A2870',border:'#C4A8E8'},
-};
-const STAGES = ['Saved','Coffee / Networking','Applied','Phone Screen','Interview','Final Round','Offer','Rejected','Ghosted'];
-const STAGE_COL = {Saved:'purple',Applied:'blue','Coffee / Networking':'teal','Phone Screen':'amber',Interview:'amber','Final Round':'green',Offer:'green',Rejected:'red',Ghosted:'purple'};
-const STAGE_CARD_BG = {
-  Saved:'var(--card-saved)', Applied:'var(--card-applied)',
-  'Coffee / Networking':'var(--card-coffee)',
-  'Phone Screen':'var(--card-screen)', Interview:'var(--card-interview)',
-  'Final Round':'var(--card-offer)', Offer:'var(--card-offer)',
-  Rejected:'var(--card-rejected)', Ghosted:'var(--card-ghosted)',
-};
-
-const POM_TASKS = [
-  'Search 3 new job boards','Tailor resume for a role','Write a cover letter',
-  'Send 2 networking messages','Research a target company','Update application tracker',
-  'Prep 5 interview answers','Follow up on an application','Review job alerts','Update LinkedIn',
-];
-
-const REL_COL = {Warm:'amber',Alumni:'blue',Cold:'purple',Recruiter:'green'};
-
-// ── DEFAULT DATA ──────────────────────────────────────────────────────────────
-
-const DEFAULT_APPS = [
-  {id:1,company:'Enliven Health (Omnicell)',role:'PM – Clinical Solutions',stage:'Applied',priority:'High',date:'2026-04-30',salary:'$125–150K',notes:'Clinical pharmacy tech'},
-  {id:2,company:'Oasis Health Partners',role:'Senior Manager, Product',stage:'Applied',priority:'High',date:'2026-04-30',salary:'$118–160K',notes:'Clare MesserSchmidt – warm contact'},
-  {id:3,company:'Vori Health',role:'PM – Patient Experience',stage:'Applied',priority:'High',date:'2026-01-25',salary:'Not listed',notes:'Virtual MSK care'},
-  {id:4,company:'Health-E Commerce',role:'Sr. PM – Telehealth',stage:'Applied',priority:'High',date:'2026-02-10',salary:'$140–180K',notes:'0-1 telehealth build'},
-  {id:5,company:'Strive Health',role:'Digital PM – Patient Engagement',stage:'Saved',priority:'High',date:'',salary:'Not listed',notes:'Series D funded'},
-  {id:6,company:'H1 Provider Intelligence',role:'Sr. PM – Digital Health Data',stage:'Saved',priority:'High',date:'',salary:'$130–155K',notes:'Open until Jun 24'},
-];
-
-const DEFAULT_CONTACTS = [
-  {id:1,name:'Clare MesserSchmidt',company:'Oasis Health Partners',role:'Recruiter',rel:'Warm',last:'2026-04-26',next:'2026-05-10',notes:'Strong connection, future roles likely'},
-  {id:2,name:'Greg Seely',company:'ABOUT Healthcare',role:'Alumni',rel:'Alumni',last:'2026-03-04',next:'2026-05-15',notes:'Outreach sent 3/4/26'},
-  {id:3,name:'Dave Moen',company:'Oasis / Reema Health',role:'Network',rel:'Warm',last:'2026-04-10',next:'2026-05-12',notes:'Connected to multiple target companies'},
-  {id:4,name:'Ben R.',company:'Reema Health',role:'Network',rel:'Warm',last:'2026-03-15',next:'2026-05-20',notes:'Minneapolis digital health network'},
-];
-
-// ── STATE ─────────────────────────────────────────────────────────────────────
-
-let state = {
-  tab: 'board',
-  // Cloud credentials (persisted to localStorage — device-only, not synced)
-  jbKey:  localStorage.getItem('jb_key')  || '',
-  jbBin:  localStorage.getItem('jb_bin')  || '',
-  adzunaId:  localStorage.getItem('adzuna_id')  || '',
-  adzunaKey: localStorage.getItem('adzuna_key') || '',
-  // Cloud sync status
-  cloudLoading: false, cloudStatus: '', cloudError: '',
-  // App data (loaded from JSONBin on startup, falls back to defaults)
-  apps: DEFAULT_APPS,
-  contacts: DEFAULT_CONTACTS,
-  // Ephemeral UI state
-  jobs: [], jobTotal: 0, jobPage: 1, jobLoading: false,
-  jobPreset: 0, jobCustomQ: '', jobWhere: '', jobSalary: '120000', jobDays: '30', jobSort: 'date',
-  jobBlocklist: [], // kept for backwards compat, no longer used
-  jobHidden: [],    // per-session hidden posting IDs (resets on new search)
-  jobSaved: {},
-  analyzed: {}, analyzing: {},
-  appFilter: 'all', appCatFilter: 'all', appEditing: null, appShowAdd: false, appSort: 'updated', appExpanded: {},
-  coverCo: '', coverTone: 'professional', coverJD: '', coverOut: '', coverLoading: false,
-  intRole: '', intCo: '', intQtype: 'behavioral', intQs: [], intAns: {}, intFb: {}, intLoading: false, intFbLoading: {},
-  pomMode: 0, pomSecs: 25*60, pomTotal: 25*60, pomRunning: false,
-  pomSessions: 0, pomTask: POM_TASKS[0], pomCustomTask: '', pomCustomMins: '', pomLog: [],
-  netShowAdd: false, netEditing: null, netDraft: '', netDraftFor: null, netDraftLoading: false,
-  tasks: JSON.parse(localStorage.getItem('tasks')||'null') || [
-    {id:1,  text:'Import full application history via CSV',           done:false, cat:'today',   due:'2026-05-05', priority:'high'},
-    {id:4,  text:'Follow up with Clare MesserSchmidt – Oasis',        done:false, cat:'followup',due:'2026-05-07', priority:'high'},
-    {id:5,  text:'Follow up on Enliven Health application',           done:false, cat:'followup',due:'2026-05-07', priority:'high'},
-    {id:6,  text:'Follow up on Vori Health application',              done:false, cat:'followup',due:'2026-05-07', priority:'high'},
-    {id:7,  text:'Message Dave Moen re: Reema Health intro',          done:false, cat:'network', due:'2026-05-12', priority:'high'},
-    {id:8,  text:'Sign up for UHG talent community',                  done:false, cat:'search',  due:'',           priority:'medium'},
-    {id:9,  text:'Sign up for CVS/Aetna talent community',            done:false, cat:'search',  due:'',           priority:'medium'},
-    {id:10, text:'Sign up for Medtronic talent community',            done:false, cat:'search',  due:'',           priority:'medium'},
-    {id:11, text:'Sign up for BSC talent community',                  done:false, cat:'search',  due:'',           priority:'medium'},
-    {id:12, text:'Map LinkedIn 1st-degree contacts at target cos.',   done:false, cat:'network', due:'',           priority:'medium'},
-    {id:13, text:'Tailor resume for Oasis Health role',               done:false, cat:'apply',   due:'2026-05-06', priority:'high'},
-    {id:14, text:'Search Wellfound + Remotive for new PM roles',      done:false, cat:'search',  due:'2026-05-06', priority:'medium'},
-    {id:15, text:'Update LinkedIn headline + featured section',       done:false, cat:'profile',  due:'',           priority:'low'},
-  ],
-  taskFilter: 'all',
-  taskShowAdd: false,
-  referrals: JSON.parse(localStorage.getItem('referrals')||'null') || [
-    {id:1, contact:'Clare MesserSchmidt', atCompany:'Oasis Health Partners', targetCo:'Oasis Health Partners', rel:'Warm',   status:'In conversation', notes:'Direct warm contact'},
-    {id:2, contact:'Dave Moen',           atCompany:'Oasis / Reema Health',  targetCo:'Reema Health',          rel:'Warm',   status:'Not yet asked',   notes:'Reach out this week'},
-    {id:3, contact:'Greg Seely',          atCompany:'ABOUT Healthcare',      targetCo:'ABOUT Healthcare',      rel:'Alumni', status:'Outreach sent',   notes:'Sent 3/4/26'},
-    {id:4, contact:'Ben R.',              atCompany:'Reema Health',          targetCo:'Reema Health',          rel:'Warm',   status:'Not yet asked',   notes:'Minneapolis digital health network'},
-  ],
-  referralShowAdd: false,
-  // Company profile panel
-  profilePanelApp: null,
-  profilePanelText: '',
-  profilePanelLoading: false,
-};
-
-let pomInterval = null;
-let saveTimer = null;  // debounce cloud saves
-
-// ── JSONBIN CLOUD SYNC ────────────────────────────────────────────────────────
-
-const JB_URL = 'https://api.jsonbin.io/v3/b';
-
-function jbHeaders(extra={}) {
-  return { 'Content-Type': 'application/json', 'X-Master-Key': state.jbKey, ...extra };
-}
-
-// Create a new bin — called once during first-time setup
-async function jbCreate() {
-  const payload = { apps: state.apps, contacts: state.contacts, version: 1 };
-  const resp = await fetch(JB_URL, {
-    method: 'POST',
-    headers: { ...jbHeaders(), 'X-Bin-Name': 'ryans-hunt-2026', 'X-Bin-Private': 'true' },
-    body: JSON.stringify(payload)
-  });
-  if (!resp.ok) { const e = await resp.text(); throw new Error(`Create failed ${resp.status}: ${e.slice(0,200)}`); }
-  const data = await resp.json();
-  return data.metadata.id;
-}
-
-// Read latest data from bin
-async function jbRead() {
-  const resp = await fetch(`${JB_URL}/${state.jbBin}/latest`, {
-    headers: jbHeaders({ 'X-Bin-Meta': 'false' })
-  });
-  if (!resp.ok) throw new Error(`Read failed ${resp.status}`);
-  return resp.json(); // returns the record directly when X-Bin-Meta: false
-}
-
-// Write current apps+contacts+tasks+referrals to bin (debounced)
-async function jbWrite() {
-  if (!state.jbKey || !state.jbBin) return;
-  const payload = {
-    apps: state.apps, contacts: state.contacts,
-    tasks: state.tasks, referrals: state.referrals,
-    version: 2, updatedAt: new Date().toISOString()
-  };
-  const resp = await fetch(`${JB_URL}/${state.jbBin}`, {
-    method: 'PUT', headers: jbHeaders(), body: JSON.stringify(payload)
-  });
-  if (!resp.ok) throw new Error(`Write failed ${resp.status}`);
-}
-
-// ── PERSISTENCE ───────────────────────────────────────────────────────────────
-
-// Always save credentials to localStorage (device-level, intentionally local)
-function saveCredentials() {
-  if (state.jbKey)     localStorage.setItem('jb_key',      state.jbKey);
-  if (state.jbBin)     localStorage.setItem('jb_bin',      state.jbBin);
-  if (state.adzunaId)  localStorage.setItem('adzuna_id',   state.adzunaId);
-  if (state.adzunaKey) localStorage.setItem('adzuna_key',  state.adzunaKey);
-}
-
-// Debounced cloud save — batches rapid changes into one write, 1.5s after last change
-function save() {
-  saveCredentials();
-  // Always persist tasks/referrals locally (fast, no cloud needed)
-  localStorage.setItem('tasks', JSON.stringify(state.tasks));
-  localStorage.setItem('referrals', JSON.stringify(state.referrals));
-  if (!state.jbKey || !state.jbBin) {
-    localStorage.setItem('apps_backup', JSON.stringify(state.apps));
-    localStorage.setItem('contacts_backup', JSON.stringify(state.contacts));
-    return;
-  }
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    setSyncStatus('saving…', false);
-    try {
-      await jbWrite();
-      setSyncStatus('✓ synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), false);
-    } catch(e) {
-      setSyncStatus('⚠ sync failed — ' + e.message, true);
-    }
-  }, 1500);
-}
-
-function setSyncStatus(msg, isError) {
-  state.cloudStatus = msg; state.cloudError = isError;
-  const el = document.getElementById('sync-status');
-  if (el) { el.textContent = msg; el.style.color = isError ? 'var(--red)' : 'var(--green)'; }
-}
-
-// Load data from JSONBin on startup
-async function loadFromCloud() {
-  if (!state.jbKey || !state.jbBin) {
-    // No cloud configured — try localStorage backup
-    const appsBackup = localStorage.getItem('apps_backup');
-    const contactsBackup = localStorage.getItem('contacts_backup');
-    if (appsBackup) state.apps = JSON.parse(appsBackup);
-    if (contactsBackup) state.contacts = JSON.parse(contactsBackup);
-    return;
-  }
-  try {
-    const data = await jbRead();
-    if (data.apps)    state.apps    = data.apps;
-    if (data.contacts) state.contacts = data.contacts;
-    setSyncStatus('✓ loaded from cloud', false);
-  } catch(e) {
-    setSyncStatus('⚠ cloud load failed — using local data', true);
-    // Fall back to localStorage backup
-    const appsBackup = localStorage.getItem('apps_backup');
-    if (appsBackup) state.apps = JSON.parse(appsBackup);
-  }
-}
-
-// ── RENDER ROUTER ─────────────────────────────────────────────────────────────
-
-function showTab(tab) {
-  state.tab = tab;
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  ['board','tracker','tasks','pomodoro','network','referrals','targets','sync'].forEach(t => {
-    document.getElementById('pane-' + t).style.display = t === tab ? '' : 'none';
-  });
-  render(tab);
-}
-
-function render(tab) {
-  const el = document.getElementById('pane-' + tab);
-  switch(tab) {
-    case 'board': renderBoard(el); break;
-    case 'tracker': renderTracker(el); break;
-    case 'tasks': renderTasks(el); break;
-    case 'pomodoro': renderPomodoro(el); break;
-    case 'network': renderNetwork(el); break;
-    case 'referrals': renderReferrals(el); break;
-    case 'sync': renderSync(el); break;
-  }
-}
-
-// ── HTML HELPERS ──────────────────────────────────────────────────────────────
-
-const h = (tag, attrs='', inner='') => `<${tag} ${attrs}>${inner}</${tag}>`;
-const div = (cls, inner) => `<div class="${cls}">${inner}</div>`;
-const secHead = title => `<div class="sec-head"><h1>${title}</h1><div class="bar"></div></div>`;
-const badge = (label, color) => `<span class="badge ${color}">${label}</span>`;
-const pill = label => `<span class="pill">${esc(label)}</span>`;
-const lbl = text => `<div class="lbl">${text}</div>`;
-const inp = (id, val, ph, style='') => `<input id="${id}" value="${esc(val)}" placeholder="${esc(ph)}" style="${style}">`;
-const ta = (id, val, ph, rows=5) => `<textarea id="${id}" placeholder="${esc(ph)}" rows="${rows}">${esc(val)}</textarea>`;
-const sel = (id, opts, val) => `<select id="${id}">${opts.map(o=>`<option value="${esc(o.v||o)}" ${(o.v||o)==val?'selected':''}>${esc(o.l||o)}</option>`).join('')}</select>`;
-const btn = (id, label, cls='', onclick='') => `<button id="${id}" class="${cls}" onclick="${onclick}">${label}</button>`;
-const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-const fmtDate = d => { if(!d) return ''; const days=Math.floor((Date.now()-new Date(d))/86400000); return days===0?'today':days===1?'yesterday':`${days}d ago`; };
-const fmtSal = j => { if(!j.salary_min&&!j.salary_max) return null; const f=n=>n>=1000?`$${Math.round(n/1000)}K`:`$${n}`; if(j.salary_min&&j.salary_max) return `${f(j.salary_min)}–${f(j.salary_max)}${j.salary_is_predicted?' (est.)':''}`; return j.salary_min?`${f(j.salary_min)}+`:null; };
-
-// ── API CALLS ─────────────────────────────────────────────────────────────────
-
-// Use relative /api/claude proxy unless running as a local file (file://)
-// This works on any Netlify domain including preview/branch deploys
-const CLAUDE_URL = '/api/claude';
-function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
-
-async function claudeStream(prompt, onChunk) {
-  const key = getApiKey();
-  if (!key) { showToast('Add your Anthropic API key in the Excel sync tab first'); return ''; }
-  const resp = await fetch(CLAUDE_URL, {
-    method:'POST', headers:{'Content-Type':'application/json','x-user-api-key':key},
-    body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,stream:true,messages:[{role:'user',content:prompt}]})
-  });
-  const reader = resp.body.getReader(), dec = new TextDecoder();
-  let full = '';
-  while(true) {
-    const {done,value} = await reader.read(); if(done) break;
-    for(const line of dec.decode(value).split('\n').filter(l=>l.startsWith('data: '))) {
-      try { const j=JSON.parse(line.slice(6)); if(j.delta?.text){full+=j.delta.text;onChunk?.(full);} } catch{}
-    }
-  }
-  return full;
-}
-
-async function claudeJSON(prompt) {
-  const key = getApiKey();
-  if (!key) { showToast('Add your Anthropic API key in the Excel sync tab first'); return []; }
-  const resp = await fetch(CLAUDE_URL, {
-    method:'POST', headers:{'Content-Type':'application/json','x-user-api-key':key},
-    body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:800,messages:[{role:'user',content:prompt}]})
-  });
-  const data = await resp.json();
-  const text = data.content?.filter(b=>b.type==='text').map(b=>b.text).join('')||'';
-  const s=text.indexOf('['),e=text.lastIndexOf(']');
-  if(s===-1||e===-1) return [];
-  return JSON.parse(text.slice(s,e+1));
-}
-
-async function adzunaSearch({q,where,salary,days,page=1,perPage=20}) {
-  const p = new URLSearchParams({
-    app_id:state.adzunaId, app_key:state.adzunaKey,
-    results_per_page:perPage, what:q, 'content-type':'application/json', sort_by:'date'
-  });
-  if(where) p.set('where',where);
-  if(salary) p.set('salary_min',salary);
-  if(days) p.set('max_days_old',days);
-  const resp = await fetch(`https://api.adzuna.com/v1/api/jobs/us/search/${page}?${p}`);
-  if(!resp.ok){ const e=await resp.text(); throw new Error(`Adzuna ${resp.status}: ${e.slice(0,200)}`); }
-  return resp.json();
-}
-
-// ── JOB BOARD — SMART SEARCH LAUNCHER ───────────────────────────────────────
-
-const LINKEDIN_BASE = 'https://www.linkedin.com/jobs/search/';
-const LINKEDIN_EXP  = {any:'',mid:'3',senior:'4',director:'5'};
-const LINKEDIN_TIME = {any:'','24h':'r86400','week':'r604800','month':'r2592000'};
-
-// 3-tile board data
-const BOARD_TILES = [
-  {
-    id: 'healthtech',
-    label: 'Digital Health & Care Navigation',
-    icon: '🏥',
-    searches: [
-      {name:'LinkedIn', url:'https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+digital+health+care+navigation&f_E=4&f_TPR=r2592000'},
-      {name:'Wellfound', url:'https://wellfound.com/jobs', clipboard:'senior product manager digital health care navigation'},
-      {name:'Glassdoor', url:'https://www.glassdoor.com/Job/jobs.htm?sc.keyword=senior+product+manager+digital+health&locT=N'},
-    ],
-    companies: [
-      {name:'Unite Us', url:'https://uniteus.com/company/careers/'},
-      {name:'Reema Health', url:'https://www.reemahealth.com/careers'},
-      {name:'Oasis Health', url:'https://oasishealthpartners.com/careers'},
-      {name:'Included Health', url:'https://includedhealth.com/careers/'},
-      {name:'Transcarent', url:'https://transcarent.com/careers'},
-      {name:'UHG / Optum', url:'https://careers.unitedhealthgroup.com/search-jobs?keywords=product+manager'},
-      {name:'CVS / Aetna', url:'https://jobs.cvshealth.com/us/en/search-results?keywords=product%20manager'},
-      {name:'Cigna / Evernorth', url:'https://jobs.thecignagroup.com/search-jobs?keywords=product+manager'},
-      {name:'Humana', url:'https://careers.humana.com/search-jobs?keywords=product+manager'},
-    ]
-  },
-  {
-    id: 'behavioral',
-    label: 'Behavioral & Mental Health',
-    icon: '🧠',
-    searches: [
-      {name:'LinkedIn', url:'https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+behavioral+health+EAP&f_E=4&f_TPR=r2592000'},
-      {name:'Wellfound', url:'https://wellfound.com/jobs', clipboard:'senior product manager behavioral health mental health EAP'},
-      {name:'Indeed', url:'https://www.indeed.com/jobs?q=senior+product+manager+behavioral+health+EAP&sort=date'},
-    ],
-    companies: [
-      {name:'Spring Health', url:'https://www.springhealth.com/careers'},
-      {name:'Lyra Health', url:'https://www.lyrahealth.com/company/careers/'},
-      {name:'Modern Health', url:'https://www.modernhealth.com/careers'},
-      {name:'Develop Health', url:'https://www.develophealth.com/careers'},
-      {name:'Accolade', url:'https://www.accolade.com/careers/'},
-    ]
-  },
-];
-
-const MEDTECH_COMPANIES = [
-  {name:'Boston Scientific', url:'https://www.bostonscientific.com/en-US/careers/job-search.html?keyword=product+manager'},
-  {name:'Medtronic', url:'https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers?q=product+manager'},
-  {name:'Abbott', url:'https://www.abbott.com/careers/search-jobs.html?keywords=product+manager'},
-  {name:'Anteris Medical', url:'https://anterismedical.com/careers/'},
-  {name:'Stryker', url:'https://careers.stryker.com/jobs?keywords=product+manager&page=1'},
-];
-const MEDTECH_LI_CLIP = 'Senior Product Manager medical device downstream upstream cardiovascular Minneapolis';
-
-function renderBoard(el) {
-  const liURL = buildLinkedInURL();
-
-  // Top 2 tiles side by side
-  const topTiles = BOARD_TILES.map(tile => `
-    <div class="card" style="flex:1;min-width:0">
-      <div style="font-size:15px;font-weight:600;color:var(--jade);margin-bottom:12px">${tile.icon} ${esc(tile.label)}</div>
-      <div style="font-size:11px;color:var(--jade);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Search boards</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        ${tile.searches.map(s => s.clipboard
-          ? `<button onclick="openWithClip('${esc(s.url)}','${esc(s.clipboard)}')" style="font-size:11px;color:var(--amber);border-color:var(--amber-dim)">${esc(s.name)} 📋↗</button>`
-          : `<button onclick="window.open('${esc(s.url)}','_blank')" style="font-size:11px">${esc(s.name)} ↗</button>`
-        ).join('')}
-        <button onclick="openAllTile('${tile.id}')" style="font-size:11px;background:var(--jade);color:#fff;border-color:var(--jade)">Open all ↗</button>
-      </div>
-      <div style="font-size:11px;color:var(--jade);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Target companies</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        ${tile.companies.map(c =>
-          `<button onclick="window.open('${esc(c.url)}','_blank')" style="font-size:11px;background:var(--jade-pale);color:var(--jade);border-color:var(--jade-mid)">${esc(c.name)} ↗</button>`
-        ).join('')}
-      </div>
-    </div>`).join('');
-
-  // Medtech full-width tile
-  const medtechCompanyBtns = MEDTECH_COMPANIES.map(c =>
-    `<button onclick="window.open('${esc(c.url)}','_blank')" style="font-size:11px;background:var(--rose-pale);color:var(--rose);border-color:var(--rose-border)">${esc(c.name)} ↗</button>`
-  ).join('');
-
-  el.innerHTML = secHead('Job board') + `
-
-    <div class="card" style="margin-bottom:16px;border-left:3px solid var(--jade);background:var(--jade-pale)">
-      <div style="font-size:14px;color:var(--jade);line-height:1.8;font-weight:500">
-        Senior PM with 7+ years building digital health platforms in regulated environments. Led 0-to-1 care navigation launch (Access Plus) cutting time-to-care to 48 hours, double-digit NPS gains. Built behavioral health analytics platform serving national payer clients. Drawn to teams building at the intersection of clinical complexity and consumer experience, where the stakes are real and the product craft has to match.
-      </div>
-    </div>
-
-    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
-      ${topTiles}
-    </div>
-
-    <div class="card" style="margin-bottom:24px;border-top:3px solid var(--rose)">
-      <div style="font-size:15px;font-weight:600;color:var(--rose);margin-bottom:12px">🫀 Medtech</div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
-        <div style="flex:1;min-width:200px">
-          <div style="font-size:11px;color:var(--jade);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-weight:600">Career pages</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            ${medtechCompanyBtns}
-          </div>
-        </div>
-        <div style="flex-shrink:0">
-          <div style="font-size:11px;color:var(--jade);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-weight:600">LinkedIn search</div>
-          <button onclick="openMedtechLinkedIn()" style="font-size:11px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue);white-space:nowrap">LinkedIn 📋↗ (copies keywords)</button>
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-bottom:24px">
-      <div style="font-size:12px;font-weight:600;color:var(--tx);letter-spacing:.03em;text-transform:uppercase;margin-bottom:12px">LinkedIn search builder</div>
-      <div class="card">
-        <div class="g2" style="margin-bottom:10px;gap:10px">
-          <div>${lbl('Role keywords')}${inp('li-keywords','senior product manager digital health','e.g. senior product manager health')}</div>
-          <div>${lbl('Location')}${inp('li-location','Minneapolis, MN','e.g. Minneapolis or Remote')}</div>
-          <div>${lbl('Date posted')}${sel('li-time',[{v:'month',l:'Past month'},{v:'week',l:'Past week'},{v:'24h',l:'Past 24 hours'},{v:'any',l:'Any time'}],'month')}</div>
-          <div>${lbl('Experience level')}${sel('li-exp',[{v:'senior',l:'Senior / Director'},{v:'mid',l:'Mid-Senior'},{v:'director',l:'Director'},{v:'any',l:'Any level'}],'senior')}</div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="amber" onclick="openLinkedIn()" style="flex:1;padding:8px 0;font-size:13px">Open LinkedIn search ↗</button>
-          <button onclick="copyLinkedInURL()" style="font-size:11px">Copy URL</button>
-        </div>
-        <div id="li-url-preview" style="font-size:10px;color:var(--faint);margin-top:8px;word-break:break-all">${esc(liURL)}</div>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('li-keywords').addEventListener('input', updateLiPreview);
-  document.getElementById('li-location').addEventListener('input', updateLiPreview);
-  document.getElementById('li-time').addEventListener('change', updateLiPreview);
-  document.getElementById('li-exp').addEventListener('change', updateLiPreview);
-}
-
-function openAllTile(id) {
-  const tile = BOARD_TILES.find(t => t.id === id);
-  if (!tile) return;
-  const cbSearch = tile.searches.find(s => s.clipboard);
-  if (cbSearch) { navigator.clipboard?.writeText(cbSearch.clipboard); showToast('Search term copied for boards that need it'); }
-  tile.searches.forEach(s => window.open(s.url, '_blank'));
-}
-
-function openWithClip(url, term) {
-  navigator.clipboard?.writeText(term);
-  window.open(url, '_blank');
-  showToast('Search term copied — paste it on the page that opens');
-}
-
-function openMedtechLinkedIn() {
-  navigator.clipboard?.writeText(MEDTECH_LI_CLIP);
-  window.open('https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+medical+device+downstream+upstream&location=Minneapolis%2C+MN&f_E=4&f_TPR=r2592000', '_blank');
-  showToast('Keywords copied — paste into LinkedIn search if needed');
-}
-
-function buildLinkedInURL() {
-  const kw  = document.getElementById('li-keywords')?.value || 'senior product manager digital health';
-  const loc = document.getElementById('li-location')?.value || 'Minneapolis, MN';
-  const time = document.getElementById('li-time')?.value || 'month';
-  const exp  = document.getElementById('li-exp')?.value  || 'senior';
-  const p = new URLSearchParams();
-  p.set('keywords', kw);
-  if(loc) p.set('location', loc);
-  if(LINKEDIN_TIME[time]) p.set('f_TPR', LINKEDIN_TIME[time]);
-  if(LINKEDIN_EXP[exp])   p.set('f_E',   LINKEDIN_EXP[exp]);
-  return LINKEDIN_BASE + '?' + p.toString();
-}
-
-function updateLiPreview() {
-  const url = buildLinkedInURL();
-  const el = document.getElementById('li-url-preview');
-  if(el) el.textContent = url;
-}
-
-function openLinkedIn() { window.open(buildLinkedInURL(), '_blank'); }
-
-function copyLinkedInURL() {
-  navigator.clipboard?.writeText(buildLinkedInURL());
-  const btn = event.target;
-  const orig = btn.textContent;
-  btn.textContent = 'Copied!';
-  setTimeout(() => btn.textContent = orig, 1500);
-}
-
-// Legacy kept for safety
-function openAll(idx) { showToast('Use the new tile buttons to launch searches'); }
-function openBoardWithClip(url, e) { openWithClip(url, 'senior product manager'); }
-
-function showToast(msg) {
-  let t = document.getElementById('clip-toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'clip-toast';
-    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--amber);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.2);transition:opacity .3s';
-    document.body.appendChild(t);
-  }
-  t.textContent = msg;
-  t.style.opacity = '1';
-  clearTimeout(t._hide);
-  t._hide = setTimeout(() => t.style.opacity = '0', 3000);
-}
-
-// ── APPLICATION TRACKER ───────────────────────────────────────────────────────
-
-// All 16 columns matching the Excel tracker exactly
-const APP_FORM_FIELDS = [
-  {key:'company',    label:'Company',               ph:'e.g. Strive Health',          half:true},
-  {key:'role',       label:'Role Title',             ph:'e.g. Sr. Product Manager',    half:true},
-  {key:'salary',     label:'Salary Range',           ph:'e.g. $130K–$160K',            half:true},
-  {key:'location',   label:'Location / Remote',      ph:'e.g. Remote',                 half:true},
-  {key:'date',       label:'Date Applied',           ph:'YYYY-MM-DD',                  half:true},
-  {key:'nextDate',   label:'Next Step Date',         ph:'YYYY-MM-DD',                  half:true},
-  {key:'stage',      label:'Stage',                  type:'stage',                     half:true},
-  {key:'priority',   label:'Priority',               type:'priority',                  half:true},
-  {key:'fit',        label:'Fit Score (1–10)',        ph:'e.g. 8',                      half:true},
-  {key:'source',     label:'Link / Source',          ph:'e.g. LinkedIn, Lever',        half:true},
-  {key:'contact',    label:'Recruiter / Contact',    ph:'Name, email or phone',        half:true},
-  {key:'netContact', label:'Networking Contact',     ph:'e.g. Clare MesserSchmidt',    half:true},
-  {key:'netRel',     label:'Relationship / Status',  ph:'e.g. Warm – Networking',      half:true},
-  {key:'nextStep',   label:'Next Step',              ph:'e.g. Follow up in 1 week',    half:true},
-  {key:'keyReqs',    label:'Key Requirement Match',  ph:'Strengths vs JD…',            half:false},
-  {key:'gaps',       label:'Gaps / Notes',           ph:'Gaps, concerns, context…',    half:false},
-];
-
-function appFormHTML(prefix, app={}) {
-  const pairs = [];
-  let leftover = null;
-  for(const f of APP_FORM_FIELDS) {
-    if(f.type==='stage') {
-      const field = `<div>${lbl(f.label)}${sel(`${prefix}-stage`,STAGES,app.stage||'Saved')}</div>`;
-      if(leftover){ pairs.push(`<div class="g2" style="margin-bottom:8px">${leftover}${field}</div>`); leftover=null; }
-      else leftover=field;
-      continue;
-    }
-    if(f.type==='priority') {
-      const field = `<div>${lbl(f.label)}${sel(`${prefix}-priority`,['High','Medium','Low'],app.priority||'High')}</div>`;
-      if(leftover){ pairs.push(`<div class="g2" style="margin-bottom:8px">${leftover}${field}</div>`); leftover=null; }
-      else leftover=field;
-      continue;
-    }
-    const field = `<div>${lbl(f.label)}${inp(`${prefix}-${f.key}`,app[f.key]||'',f.ph)}</div>`;
-    if(!f.half) {
-      if(leftover){ pairs.push(`<div class="g2" style="margin-bottom:8px">${leftover}<div></div></div>`); leftover=null; }
-      pairs.push(`<div style="margin-bottom:8px">${lbl(f.label)}${inp(`${prefix}-${f.key}`,app[f.key]||'',f.ph)}</div>`);
-    } else {
-      if(leftover){ pairs.push(`<div class="g2" style="margin-bottom:8px">${leftover}${field}</div>`); leftover=null; }
-      else leftover=field;
-    }
-  }
-  if(leftover) pairs.push(`<div class="g2" style="margin-bottom:8px">${leftover}<div></div></div>`);
-  return pairs.join('');
-}
-
-function readAppForm(prefix) {
-  const get = k => { const el=document.getElementById(`${prefix}-${k}`); return el?el.value.trim():''; };
-  const obj = {};
-  APP_FORM_FIELDS.forEach(f => { obj[f.key] = get(f.key); });
-  obj.stage    = get('stage');
-  obj.priority = get('priority');
-  return obj;
-}
-
-function renderTracker(el) {
-  const ACTIVE_STAGES = ['Saved','Coffee / Networking','Applied','Phone Screen','Interview','Final Round','Offer'];
-  const HIDDEN_STAGES = ['Rejected','Ghosted'];
-
-  // Category filter
-  let list = state.apps.map(a => ({...a, _cat: a.category || detectCategory(a.company)}));
-
-  // Stage filter (hide ghosted/rejected by default unless explicitly selected)
-  if (state.appFilter === 'all') {
-    list = list.filter(a => !HIDDEN_STAGES.includes(a.stage));
-  } else if (state.appFilter === 'hidden') {
-    list = list.filter(a => HIDDEN_STAGES.includes(a.stage));
-  } else {
-    list = list.filter(a => a.stage === state.appFilter);
-  }
-
-  // Category filter
-  if (state.appCatFilter && state.appCatFilter !== 'all') {
-    list = list.filter(a => a._cat === state.appCatFilter);
-  }
-
-  // Sort
-  if (state.appSort === 'updated') list.sort((a,b) => (b.updatedAt||b.date||'').localeCompare(a.updatedAt||a.date||''));
-  else if (state.appSort === 'date') list.sort((a,b) => (b.date||'').localeCompare(a.date||''));
-  else if (state.appSort === 'priority') { const p={High:3,Medium:2,Low:1}; list.sort((a,b)=>(p[b.priority]||0)-(p[a.priority]||0)); }
-
-  const counts = STAGES.reduce((acc,s)=>({...acc,[s]:state.apps.filter(x=>x.stage===s).length}),{});
-  const activeCount = state.apps.filter(a=>!HIDDEN_STAGES.includes(a.stage)).length;
-  const hiddenCount = state.apps.filter(a=>HIDDEN_STAGES.includes(a.stage)).length;
-
-  // Top 5 priorities
-  const topPriority = state.apps
-    .filter(a => a.priority === 'High' && !HIDDEN_STAGES.includes(a.stage))
-    .sort((a,b) => (b.updatedAt||b.date||'').localeCompare(a.updatedAt||a.date||''))
-    .slice(0, 5);
-
-  const topPriorityHTML = topPriority.length ? `
-    <div class="card" style="margin-bottom:16px;border-left:3px solid var(--amber);background:var(--gold-pale)">
-      <div style="font-size:11px;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:10px">Top priorities</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        ${topPriority.map(a => {
-          const cat = a.category || detectCategory(a.company);
-          const catStyle = CAT_COLORS[cat] || {};
-          return `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;background:var(--surf);border-radius:6px;border:1px solid var(--gold-border)">
-            <div style="flex:1;min-width:0">
-              <span style="font-size:13px;font-weight:600;color:var(--tx)">${esc(a.company)}</span>
-              <span style="font-size:11px;color:var(--muted);margin-left:6px">${esc(a.role||'')}</span>
-            </div>
-            <div style="display:flex;gap:4px;align-items:center;flex-shrink:0">
-              ${cat?`<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${catStyle.bg||'var(--cream)'};color:${catStyle.color||'var(--muted)'};border:1px solid ${catStyle.border||'var(--brd)'}">${cat}</span>`:''}
-              ${badge(a.stage, STAGE_COL[a.stage]||'amber')}
-              <button onclick="togglePriority(${a.id})" title="Remove from top priorities" style="font-size:10px;padding:1px 5px;color:var(--faint);border-color:transparent;background:transparent">✕</button>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>` : '';
-
-  // Stage filter buttons
-  const stageFilterBtns = [
-    {v:'all', l:`Active (${activeCount})`},
-    ...STAGES.filter(s=>!HIDDEN_STAGES.includes(s)).map(s=>({v:s,l:`${s} (${counts[s]||0})`})),
-    {v:'hidden', l:`Ghosted / Rejected (${hiddenCount})`}
-  ].map(s =>
-    `<button class="tag ${state.appFilter===s.v?'on':''}" onclick="setAppFilter('${s.v}')">${s.l}</button>`
-  ).join('');
-
-  // Category filter buttons
-  const catFilterBtns = ['all',...Object.keys(COMPANY_CATEGORIES)].map(c =>
-    `<button class="tag ${state.appCatFilter===c?'on':''}" onclick="state.appCatFilter='${c}';render('tracker')" style="font-size:10px">${c==='all'?'All categories':c}</button>`
-  ).join('');
-
-  const sortBtns = [{v:'updated',l:'Recently updated'},{v:'date',l:'Date applied'},{v:'priority',l:'Priority'}].map(s =>
-    `<button class="tag ${state.appSort===s.v?'on':''}" onclick="state.appSort='${s.v}';render('tracker')" style="font-size:10px">${s.l}</button>`
-  ).join('');
-
-  const addForm = state.appShowAdd ? `
-    <div class="card" style="border-color:var(--amber-dim);margin-bottom:12px">
-      <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:12px">New application</div>
-      ${appFormHTML('add')}
-      <div class="row" style="margin-top:10px">
-        <button class="amber" onclick="addApp()">Save application</button>
-        <button onclick="state.appShowAdd=false;render('tracker')">Cancel</button>
-      </div>
-    </div>` : '';
-
-  const cards = list.map(app => {
-    if (state.appEditing === app.id) {
-      return `<div class="card" style="margin-bottom:8px;border-left:3px solid var(--amber)">
-        <div style="font-size:12px;font-weight:500;color:var(--amber);margin-bottom:10px">Editing: ${esc(app.company)}</div>
-        ${appFormHTML(`e-${app.id}`, app)}
-        <div class="row" style="margin-top:10px">
-          <button class="amber" onclick="saveEdit(${app.id})">Save changes</button>
-          <button onclick="state.appEditing=null;render('tracker')">Cancel</button>
-        </div>
-      </div>`;
-    }
-
-    const isExpanded = state.appExpanded[app.id];
-    const borderCol = {Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--teal)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[app.stage]||'var(--brd2)';
-    const cardBg = STAGE_CARD_BG[app.stage] || 'var(--card-default)';
-
-    const cat = app.category || detectCategory(app.company);
-    const catStyle = CAT_COLORS[cat] || {};
-    const catBtn = cat ? `<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${catStyle.bg||'var(--cream)'};color:${catStyle.color||'var(--muted)'};border:1px solid ${catStyle.border||'var(--brd)'};cursor:pointer" onclick="showCatOverride(${app.id})">${cat} ▾</span>` : `<button onclick="showCatOverride(${app.id})" style="font-size:10px;padding:2px 7px;color:var(--faint);border-style:dashed">+ category</button>`;
-
-    const appliedDate = app.date ? `applied: ${app.date}` : '';
-    const updatedLabel = app.updatedAt ? `updated: ${app.updatedAt.slice(0,10)}` : '';
-
-    const contactLine = [app.contact, app.netContact].filter(s=>s&&s!=='—').map(esc).join(' · ');
-    const nextLine = [app.nextStep, app.nextDate].filter(s=>s&&s!=='—').map(esc).join(' → ');
-    const netRel = app.netRel && app.netRel !== '—' ? app.netRel : '';
-
-    // Condensed view
-    const condensed = `
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
-        <div style="flex:1;min-width:0">
-          <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
-            <span style="font-size:14px;font-weight:600;color:var(--tx)">${esc(app.company)}</span>
-            ${badge(app.stage, STAGE_COL[app.stage]||'amber')}
-            ${app.priority==='High'?badge('high priority','green'):''}
-            ${catBtn}
-          </div>
-          <div style="color:var(--muted);margin-bottom:4px;font-size:12px">${esc(app.role||'')}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">
-            ${app.salary?pill(app.salary):''}
-            ${app.location?pill(app.location):''}
-            ${appliedDate?pill(appliedDate):''}
-            ${app.fit?pill('fit: '+app.fit+'/10'):''}
-          </div>
-          ${contactLine?`<div style="font-size:11px;color:var(--faint);margin-bottom:2px">👤 ${contactLine}</div>`:''}
-          ${netRel?`<div style="font-size:11px;color:var(--faint);margin-bottom:2px">🤝 ${esc(netRel)}</div>`:''}
-          ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:2px">→ ${nextLine}</div>`:''}
-          ${updatedLabel?`<div style="font-size:10px;color:var(--faint)">${updatedLabel}</div>`:''}
-        </div>
-        <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-          ${sel(`stg-${app.id}`,STAGES,app.stage)}
-          <div class="row" style="gap:4px">
-            <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">Update</button>
-            <button onclick="openProfilePanel(${app.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢 Profile</button>
-            <button onclick="copyPrepPrompt(${app.id})" style="font-size:11px;color:var(--blue);border-color:var(--blue-bg)">📋 Prep</button>
-            <button onclick="state.appEditing=${app.id};render('tracker')" style="font-size:11px">Edit</button>
-            <button onclick="state.appExpanded[${app.id}]=true;render('tracker')" style="font-size:11px;color:var(--muted)">▾</button>
-            <button class="danger" onclick="delApp(${app.id})" style="font-size:11px">✕</button>
-          </div>
-        </div>
-      </div>`;
-
-    // Expanded extra details
-    const expanded = isExpanded ? `
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
-        ${app.keyReqs&&app.keyReqs!=='—'?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">match:</span> ${esc(app.keyReqs)}</div>`:''}
-        ${(app.gaps||app.notes)&&(app.gaps||app.notes)!=='—'?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">notes:</span> ${esc(app.gaps||app.notes||'')}</div>`:''}
-        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-          <label style="font-size:11px;color:var(--muted)">Applied on:</label>
-          <input type="date" value="${esc(app.date||'')}" onchange="updateAppField(${app.id},'date',this.value)" style="font-size:11px;padding:3px 8px;width:auto">
-          <button onclick="state.appExpanded[${app.id}]=false;render('tracker')" style="font-size:10px;color:var(--faint);border-color:transparent;margin-left:auto">▴ collapse</button>
-        </div>
-      </div>` : '';
-
-    return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid ${borderCol};border-left:3px solid ${borderCol};background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
-      ${condensed}${expanded}
-    </div>`;
-  }).join('');
-
-  el.innerHTML = secHead('Applications') + `
-    ${topPriorityHTML}
-    <div class="stage-filters" style="margin-bottom:6px">${stageFilterBtns}
-      <button class="amber" onclick="state.appShowAdd=!state.appShowAdd;render('tracker')" style="margin-left:auto">+ Add</button>
-      <button onclick="openAnalyzeModal()" style="font-size:12px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue)">🔍 Analyze JD</button>
-    </div>
-    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap">${catFilterBtns}</div>
-    <div style="display:flex;gap:6px;margin-bottom:14px;align-items:center">
-      <span style="font-size:11px;color:var(--faint)">Sort:</span>${sortBtns}
-    </div>
-    ${addForm}
-    ${cards || '<div class="empty">No applications in this view.</div>'}
-    <div id="cat-override-modal"></div>
-  `;
-}
-
-function togglePriority(id) {
-  state.apps = state.apps.map(a => a.id===id ? {...a, priority: a.priority==='High'?'Medium':'High', updatedAt: new Date().toISOString()} : a);
-  save(); render('tracker');
-}
-
-function updateAppField(id, field, val) {
-  state.apps = state.apps.map(a => a.id===id ? {...a, [field]:val, updatedAt:new Date().toISOString()} : a);
-  save();
-}
-
-function showCatOverride(id) {
-  const app = state.apps.find(a=>a.id===id); if(!app) return;
-  const current = app.category || detectCategory(app.company) || '';
-  const modal = document.getElementById('cat-override-modal');
-  if (!modal) return;
-  modal.innerHTML = `
-    <div style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;display:flex;align-items:center;justify-content:center" onclick="document.getElementById('cat-override-modal').innerHTML=''">
-      <div style="background:var(--surf);border-radius:10px;padding:20px;min-width:240px;border:1px solid var(--brd2)" onclick="event.stopPropagation()">
-        <div style="font-size:13px;font-weight:600;color:var(--tx);margin-bottom:12px">Set category for ${esc(app.company)}</div>
-        ${['Healthcare Startups','Healthcare Enterprise','Medtech Enterprise','Medtech Startups',''].map(c=>
-          `<button onclick="setCat(${id},'${c}')" style="display:block;width:100%;margin-bottom:6px;text-align:left;padding:7px 12px;font-size:12px;${c===current?'background:var(--jade-pale);color:var(--jade);border-color:var(--jade-mid)':''}">${c||'Clear category'}</button>`
-        ).join('')}
-        <button onclick="document.getElementById('cat-override-modal').innerHTML=''" style="font-size:11px;color:var(--faint);border-color:transparent;width:100%;margin-top:4px">Cancel</button>
-      </div>
-    </div>`;
-}
-
-function setCat(id, cat) {
-  state.apps = state.apps.map(a => a.id===id ? {...a, category:cat, updatedAt:new Date().toISOString()} : a);
-  save(); render('tracker');
-}
-
-function setAppFilter(f) { state.appFilter=f; state.appEditing=null; render('tracker'); }
-
-function setAppStage(id,stage) {
-  state.apps=state.apps.map(a=>a.id===id?{...a,stage,updatedAt:new Date().toISOString()}:a);
-  save(); render('tracker');
-}
-
-function delApp(id) {
-  if(confirm('Remove this application?')) { state.apps=state.apps.filter(a=>a.id!==id); save(); render('tracker'); }
-}
-
-function addApp() {
-  const fields = readAppForm('add');
-  if(!fields.company) return;
-  state.apps.push({ id: Date.now(), ...fields, updatedAt: new Date().toISOString() });
-  state.appShowAdd=false; save(); render('tracker');
-}
-
-function saveEdit(id) {
-  const fields = readAppForm(`e-${id}`);
-  state.apps = state.apps.map(a => a.id===id ? { ...a, ...fields, updatedAt: new Date().toISOString() } : a);
-  state.appEditing=null; save(); render('tracker');
-}
-
-function copyPrepPrompt(id) {
-  const app = state.apps.find(a=>a.id===id); if(!app) return;
-  const text = `Company: ${app.company}\nRole: ${app.role||''}\nStage: ${app.stage}\nMy background: Senior PM, digital health, behavioral health analytics at Aetna/CVS (care navigation platform Access Plus, 0-1 launch, double-digit NPS improvement), MBA Medical Industry Leadership UMN Carlson, BS Biomedical Sciences (Visible Heart Lab cardiac research), Minneapolis MN.\nNotes: ${app.gaps||app.notes||''}\n\nPlease produce a structured interview prep guide for this role.`;
-  navigator.clipboard?.writeText(text);
-  const t=document.createElement('div');
-  t.textContent='📋 Prep prompt copied — paste in Claude chat';
-  Object.assign(t.style,{position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',background:'var(--blue-bg)',border:'1px solid var(--blue)',color:'var(--blue)',padding:'8px 18px',borderRadius:'8px',fontSize:'12px',zIndex:'9999'});
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),2500);
-}
-
-// ── COMPANY PROFILE PANEL ─────────────────────────────────────────────────────
-
-function openProfilePanel(id) {
-  const app = state.apps.find(a=>a.id===id); if(!app) return;
-  state.profilePanelApp = app;
-  state.profilePanelText = '';
-
-  document.getElementById('profile-panel-title').textContent = app.company;
-  document.getElementById('profile-panel-sub').textContent = app.role || '';
-  document.getElementById('profile-copy-btn').style.display = 'none';
-  document.getElementById('profile-panel-content').innerHTML =
-    `<div class="profile-loading"><span class="spin"></span>Researching ${esc(app.company)}…</div>`;
-  document.getElementById('profile-panel').classList.add('open');
-  document.getElementById('profile-overlay').classList.add('open');
-  buildProfile(app);
-}
-
-function closeProfilePanel() {
-  document.getElementById('profile-panel').classList.remove('open');
-  document.getElementById('profile-overlay').classList.remove('open');
-}
-
-async function buildProfile(app) {
-  const prompt = `You are a company research assistant preparing Ryan Corcoran for a job application or coffee meeting. Ryan: Senior PM, digital health, behavioral health analytics at Aetna/CVS, care navigation platform (0-1 launch), MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences (Visible Heart Lab), Minneapolis MN.
-
-Company: ${app.company}
-Role: ${app.role || 'Product Manager'}
-Stage: ${app.stage}
-Context: ${app.gaps || app.notes || ''}
-
-Use web search to research this company. Produce a concise, scannable profile:
-
-**🏢 Snapshot** — what they do, size, stage (startup/PE/public), HQ, founded
-**💰 Business model** — how they make money, revenue or funding if known
-**🛍️ Products** — core product(s), who they serve, key features
-**🎯 Strategic position** — top 2-3 competitors with one-line differentiator each
-**📈 Tailwinds** — 2-3 macro trends they are riding
-**📰 Recent news** — last 6 months, anything relevant to this role
-**🗣️ Talking points** — 4-5 specific points bridging Ryan's background to this company (use real numbers and product names)
-**📊 Numbers to know** — 5-8 key stats to have memorized
-**❓ Smart questions to ask** — 3 specific questions tailored to this stage (${app.stage})
-
-Be specific throughout. If PE-backed, flag what that means strategically. Flag if the company has had recent layoffs or funding challenges.`;
-
-  try {
-    await claudeStream(prompt, t => {
-      state.profilePanelText = t;
-      const content = document.getElementById('profile-panel-content');
-      if(!content) return;
-      const html = t
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--tx)">$1</strong>')
-        .replace(/^(#{1,3}) (.+)$/gm, (_,h,txt) => `<div class="profile-section-head" style="margin-top:${h.length===1?'0':'14px'}">${txt}</div>`)
-        .replace(/^[-•] (.+)$/gm, '<div style="padding:2px 0 2px 10px;color:var(--muted);font-size:12px;line-height:1.7;border-left:2px solid var(--brd);margin:2px 0">$1</div>')
-        .split('\n').map(line => line.startsWith('<')||!line.trim() ? line : `<p style="font-size:12px;color:var(--muted);line-height:1.7;margin:3px 0">${line}</p>`).join('\n');
-      content.innerHTML = html;
-    });
-    document.getElementById('profile-copy-btn').style.display = 'block';
-  } catch(e) {
-    const content = document.getElementById('profile-panel-content');
-    if(content) content.innerHTML = `<div style="color:var(--red);font-size:12px;padding:10px">Profile generation failed: ${esc(e.message)}<br><br>Make sure your Anthropic API key is set in Netlify environment variables.</div>`;
-  }
-}
-
-function copyProfile() {
-  navigator.clipboard?.writeText(state.profilePanelText);
-  const btn = document.getElementById('profile-copy-btn');
-  if(btn){ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',1500); }
-}
-
-
-// ── POMODORO ──────────────────────────────────────────────────────────────────
-
-function renderPomodoro(el) {
-  const cur = [{key:'focus',label:'Focus',mins:25,col:'var(--amber)'},{key:'short',label:'Short break',mins:5,col:'var(--green)'},{key:'long',label:'Long break',mins:15,col:'var(--blue)'}][state.pomMode];
-  const R=80, Circ=2*Math.PI*R, pct=state.pomSecs/state.pomTotal;
-  const mm=String(Math.floor(state.pomSecs/60)).padStart(2,'0'), ss=String(state.pomSecs%60).padStart(2,'0');
-
-  const taskBtns = POM_TASKS.map(t => `<button class="tag ${state.pomTask===t&&!state.pomCustomTask?'on':''}" onclick="setPomTask('${esc(t)}')">${esc(t)}</button>`).join('');
-
-  const logRows = state.pomLog.slice(-6).reverse().map(l =>
-    `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--brd);font-size:12px"><span>${esc(l.task)}</span><span style="color:var(--faint)">${l.time} · ${l.mins}m</span></div>`
-  ).join('');
-
-  const dots = [...Array(4)].map((_,i) => `<div style="width:14px;height:14px;border-radius:50%;background:${i<(state.pomSessions%4)?'var(--amber)':'var(--surf)'};border:1px solid var(--brd)"></div>`).join('');
-
-  el.innerHTML = secHead('Focus timer') + `
-    <div class="row" style="margin-bottom:20px">
-      ${[{l:'Focus',c:'var(--amber)'},{l:'Short break',c:'var(--green)'},{l:'Long break',c:'var(--blue)'}].map((m,i)=>`<button onclick="switchPomMode(${i})" style="flex:1;color:${state.pomMode===i?m.c:'var(--muted)'};border-color:${state.pomMode===i?m.c:'var(--brd)'}">${m.l}</button>`).join('')}
-    </div>
-    <div style="display:flex;justify-content:center;margin-bottom:20px">
-      <div style="position:relative;width:200px;height:200px">
-        <svg id="pom-svg" width="200" height="200">
-          <circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--surf)" stroke-width="8"/>
-          <circle cx="100" cy="100" r="${R}" fill="none" stroke="${cur.col}" stroke-width="8" stroke-dasharray="${Circ}" stroke-dashoffset="${Circ*(1-pct)}" stroke-linecap="round" style="transition:${state.pomRunning?'stroke-dashoffset 1s linear':'none'}"/>
-        </svg>
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div style="font-size:42px;font-weight:500;letter-spacing:-2px;color:var(--tx)">${mm}:${ss}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">${cur.label}</div>
-        </div>
-      </div>
-    </div>
-    <div class="row" style="justify-content:center;margin-bottom:16px">
-      <button class="${state.pomRunning?'':'amber'}" style="min-width:90px;font-size:13px" onclick="togglePom()">${state.pomRunning?'Pause':state.pomSecs===state.pomTotal?'Start':'Resume'}</button>
-      <button style="font-size:13px" onclick="resetPom()">Reset</button>
-    </div>
-    <div class="row" style="margin-bottom:16px">
-      ${inp('pom-custom',state.pomCustomMins,'Custom duration (mins)','flex:1')}
-      <button onclick="applyPomCustom()">Set</button>
-    </div>
-    <div class="card" style="margin-bottom:12px">
-      ${lbl('Current task')}
-      <div class="tag-row" style="margin-top:8px">${taskBtns}</div>
-      ${inp('pom-task-custom',state.pomCustomTask,'Or type a custom task…')}
-    </div>
-    <div class="row" style="margin-bottom:${state.pomLog.length?'12px':'0'}">${dots}<span style="font-size:12px;color:var(--muted)">${state.pomSessions} session${state.pomSessions!==1?'s':''} today</span></div>
-    ${state.pomLog.length?`<div class="card">${lbl('Today\'s log')}${logRows}</div>`:''}
-  `;
-  document.getElementById('pom-custom').addEventListener('input',e=>state.pomCustomMins=e.target.value);
-  document.getElementById('pom-task-custom').addEventListener('input',e=>{ state.pomCustomTask=e.target.value; if(e.target.value) state.pomTask=''; });
-}
-
-function switchPomMode(i) {
-  clearInterval(pomInterval); pomInterval=null;
-  const mins=[25,5,15][i];
-  state.pomMode=i; state.pomRunning=false; state.pomTotal=mins*60; state.pomSecs=mins*60;
-  render('pomodoro');
-}
-
-function togglePom() {
-  if(state.pomRunning) { clearInterval(pomInterval); pomInterval=null; state.pomRunning=false; }
-  else {
-    state.pomRunning=true;
-    pomInterval=setInterval(()=>{
-      state.pomSecs--;
-      if(state.pomSecs<=0) {
-        clearInterval(pomInterval); pomInterval=null; state.pomRunning=false;
-        if(state.pomMode===0) {
-          state.pomSessions++;
-          state.pomLog.push({task:state.pomCustomTask||state.pomTask,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),mins:[25,5,15][state.pomMode]});
-        }
-        state.pomSecs=0;
-      }
-      render('pomodoro');
-    },1000);
-  }
-  render('pomodoro');
-}
-
-function resetPom() { clearInterval(pomInterval); pomInterval=null; state.pomRunning=false; state.pomSecs=state.pomTotal; render('pomodoro'); }
-
-function applyPomCustom() {
-  const m=parseInt(document.getElementById('pom-custom').value);
-  if(!m||m<1||m>120) return;
-  clearInterval(pomInterval); pomInterval=null;
-  state.pomRunning=false; state.pomTotal=m*60; state.pomSecs=m*60; state.pomCustomMins='';
-  render('pomodoro');
-}
-
-function setPomTask(t) { state.pomTask=t; state.pomCustomTask=''; render('pomodoro'); }
-
-// ── NETWORKING CRM ────────────────────────────────────────────────────────────
-
-function renderNetwork(el) {
-  const today=new Date();
-  const overdue=d=>d&&new Date(d)<today;
-  const soon=d=>d&&new Date(d)>=today&&new Date(d)<=new Date(today.getTime()+7*86400000);
-  const od=state.contacts.filter(c=>overdue(c.next)).length;
-  const sd=state.contacts.filter(c=>soon(c.next)).length;
-
-  const addForm = state.netShowAdd ? `
-    <div class="card" style="border-color:var(--jade-mid);margin-bottom:12px">
-      <div class="g2" style="margin-bottom:8px">
-        ${inp('net-name','','Name')} ${inp('net-co','','Company')}
-        ${inp('net-role','','Their role')} ${sel('net-rel',['Warm','Alumni','Cold','Recruiter'],'Warm')}
-        ${inp('net-last','','Last touch (YYYY-MM-DD)')} ${inp('net-next','','Next touch (YYYY-MM-DD)')}
-      </div>
-      ${inp('net-notes','','Notes — how you know them, context')}
-      <div class="row" style="margin-top:8px">
-        <button class="amber" onclick="addContact()">Save</button>
-        <button onclick="state.netShowAdd=false;render('network')">Cancel</button>
-      </div>
-    </div>` : '';
-
-  const cards = state.contacts.map(c => {
-    const ov=overdue(c.next), sn=soon(c.next);
-    const brdCol=ov?'var(--red)':sn?'var(--amber)':'var(--brd)';
-    const isEditing = state.netEditing === c.id;
-
-    if (isEditing) {
-      return `<div class="card" style="margin-bottom:8px;border-left:3px solid var(--amber)">
-        <div style="font-size:12px;font-weight:500;color:var(--amber);margin-bottom:10px">Editing: ${esc(c.name)}</div>
-        <div class="g2" style="margin-bottom:8px;gap:8px">
-          <div>${lbl('Name')}${inp('net-edit-name',c.name,'Name')}</div>
-          <div>${lbl('Company')}${inp('net-edit-co',c.company,'Company')}</div>
-          <div>${lbl('Their role')}${inp('net-edit-role',c.role||'','Their role')}</div>
-          <div>${lbl('Relationship')}${sel('net-edit-rel',['Warm','Alumni','Cold','Recruiter'],c.rel||'Warm')}</div>
-          <div>${lbl('Last contact')}${inp('net-edit-last',c.last||'','YYYY-MM-DD')}</div>
-          <div>${lbl('Next follow-up')}${inp('net-edit-next',c.next||'','YYYY-MM-DD')}</div>
-        </div>
-        <div style="margin-bottom:8px">${lbl('Notes')}${inp('net-edit-notes',c.notes||'','How you know them, recent interaction...')}</div>
-        <div class="row" style="margin-top:8px">
-          <button class="amber" onclick="saveContactEdit(${c.id})">Save</button>
-          <button onclick="state.netEditing=null;render('network')">Cancel</button>
-        </div>
-      </div>`;
-    }
-
-    return `<div class="card" style="margin-bottom:8px;border-left:3px solid ${brdCol};border-radius:0 10px 10px 0">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
-        <div style="flex:1;min-width:0">
-          <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
-            <span style="font-size:14px;font-weight:600;color:var(--tx)">${esc(c.name)}</span>
-            ${badge(c.rel,REL_COL[c.rel]||'amber')}
-            ${ov?badge('follow up overdue','red'):''}${!ov&&sn?badge('due soon','amber'):''}
-          </div>
-          <div style="color:var(--muted);font-size:12px">${esc(c.role||'')} · ${esc(c.company||'')}</div>
-          ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-top:2px">${esc(c.notes)}</div>`:''}
-          <div style="font-size:11px;color:var(--faint);margin-top:2px">${c.last?`last: ${c.last}`:''}${c.next?` · next: ${c.next}`:''}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end">
-          <button onclick="copyNetPrompt('linkedin','${esc(c.id)}')" style="font-size:11px;color:var(--jade);border-color:var(--jade-mid);background:var(--jade-pale);white-space:nowrap">📋 LinkedIn msg</button>
-          <button onclick="copyNetPrompt('followup','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Follow-up</button>
-          <button onclick="copyNetPrompt('intro','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Referral ask</button>
-          <button onclick="state.netEditing=${c.id};render('network')" style="font-size:11px;color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);white-space:nowrap">Edit</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  el.innerHTML = secHead('Networking') + `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div style="font-size:12px;color:var(--muted)">
-        <span style="color:var(--red)">${od} overdue</span> · <span style="color:var(--amber)">${sd} due this week</span>
-      </div>
-      <button class="amber" onclick="state.netShowAdd=!state.netShowAdd;render('network')">+ Add contact</button>
-    </div>
-    <div class="card" style="margin-bottom:16px;background:var(--jade-pale);border-color:var(--jade-mid)">
-      <div style="font-size:12px;color:var(--jade);line-height:1.7">
-        <strong>📋 Prompt buttons</strong> copy a pre-filled prompt to your clipboard — paste directly into Claude chat to generate the message. Three types: LinkedIn intro, follow-up, and referral ask.
-      </div>
-    </div>
-    ${addForm}${cards || '<div class="empty">No contacts yet. Add people from your network above.</div>'}
-  `;
-}
-
-function saveContactEdit(id) {
-  state.contacts = state.contacts.map(c => c.id===id ? {
-    ...c,
-    name:    document.getElementById('net-edit-name')?.value.trim() || c.name,
-    company: document.getElementById('net-edit-co')?.value.trim()   || c.company,
-    role:    document.getElementById('net-edit-role')?.value.trim() || c.role,
-    rel:     document.getElementById('net-edit-rel')?.value         || c.rel,
-    last:    document.getElementById('net-edit-last')?.value        || c.last,
-    next:    document.getElementById('net-edit-next')?.value        || c.next,
-    notes:   document.getElementById('net-edit-notes')?.value       || c.notes,
-  } : c);
-  state.netEditing = null;
-  save(); render('network');
-}
-
-function addContact() {
-  const name=document.getElementById('net-name').value.trim(); if(!name)return;
-  state.contacts.push({
-    id:Date.now(), name,
-    company: document.getElementById('net-co').value,
-    role:    document.getElementById('net-role').value,
-    rel:     document.getElementById('net-rel').value,
-    last:    document.getElementById('net-last').value,
-    next:    document.getElementById('net-next').value,
-    notes:   document.getElementById('net-notes').value,
-  });
-  state.netShowAdd=false; save(); render('network');
-}
-
-function copyNetPrompt(type, id) {
-  const c = state.contacts.find(x=>String(x.id)===String(id)); if(!c) return;
-  let prompt = '';
-  if(type === 'linkedin') {
-    prompt = `Write a short, warm LinkedIn connection message (3-4 sentences) from Ryan Corcoran to ${c.name}, who works as ${c.role||'a professional'} at ${c.company}. Ryan's background: Senior PM, digital health, behavioral health analytics at Aetna/CVS, care navigation platform (Access Plus, 0-1 launch), MBA Medical Industry Leadership (UMN Carlson), based in Minneapolis MN. Context about this contact: ${c.notes||'professional connection'}. Tone: genuine and specific, not generic. No subject line needed.`;
-  } else if(type === 'followup') {
-    prompt = `Write a brief follow-up message (2-3 sentences) from Ryan Corcoran to ${c.name} at ${c.company}. Last touch: ${c.last||'recently'}. Context: ${c.notes||'reconnecting after previous conversation'}. Ryan's background: Senior PM, digital health, Aetna/CVS behavioral health analytics, Minneapolis MN. Keep it warm and easy to respond to.`;
-  } else if(type === 'intro') {
-    prompt = `Write a concise, warm referral request message (4-5 sentences) from Ryan Corcoran to ${c.name}, who works at ${c.company}. Ryan is actively looking for Senior PM / product leadership roles in digital health. His background: behavioral health analytics platform at Aetna/CVS, care navigation (0-1 launch), MBA Medical Industry Leadership (UMN), BS Biomedical Sciences. Context: ${c.notes||'professional connection'}. Ask if they'd be willing to refer him or flag any relevant openings. Tone: genuine, not transactional — acknowledge the relationship first.`;
-  }
-  navigator.clipboard?.writeText(prompt);
-  const t = document.createElement('div');
-  t.textContent = `📋 ${type==='linkedin'?'LinkedIn msg':type==='followup'?'Follow-up':'Referral ask'} prompt copied — paste in Claude chat`;
-  Object.assign(t.style, {position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',background:getComputedStyle(document.documentElement).getPropertyValue('--jade-pale').trim(),border:`1px solid ${getComputedStyle(document.documentElement).getPropertyValue('--jade-mid').trim()}`,color:getComputedStyle(document.documentElement).getPropertyValue('--jade').trim(),padding:'8px 18px',borderRadius:'8px',fontSize:'12px',zIndex:'9999',fontFamily:'Avenir Next,system-ui,sans-serif'});
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(), 2500);
-}
-
-// ── COMPANY TARGETS ───────────────────────────────────────────────────────────
-
-// ── TASKS ─────────────────────────────────────────────────────────────────────
-
-const TASK_CATS = [
-  {key:'all',     label:'All'},
-  {key:'today',   label:'Today',     color:'var(--red)'},
-  {key:'followup',label:'Follow-ups', color:'var(--amber)'},
-  {key:'apply',   label:'Apply',     color:'var(--green)'},
-  {key:'search',  label:'Search',    color:'var(--blue)'},
-  {key:'network', label:'Network',   color:'var(--purple)'},
-  {key:'profile', label:'Profile',   color:'var(--muted)'},
-  {key:'other',   label:'Other',     color:'var(--faint)'},
-];
-
-function renderTasks(el) {
-  const today = new Date().toISOString().slice(0,10);
-  const filtered = state.taskFilter === 'all'
-    ? state.tasks.filter(t=>!t.done)
-    : state.taskFilter === 'done'
-      ? state.tasks.filter(t=>t.done)
-      : state.tasks.filter(t=>t.cat===state.taskFilter && !t.done);
-
-  const pending  = state.tasks.filter(t=>!t.done).length;
-  const overdue  = state.tasks.filter(t=>!t.done && t.due && t.due < today).length;
-  const done     = state.tasks.filter(t=>t.done).length;
-
-  const catBtns = [
-    ...TASK_CATS,
-    {key:'done', label:`Done (${done})`, color:'var(--faint)'}
-  ].map(c =>
-    `<button class="tag ${state.taskFilter===c.key?'on':''}" onclick="state.taskFilter='${c.key}';render('tasks')">${c.label}</button>`
-  ).join('');
-
-  const taskItems = filtered.map(t => {
-    const cat = TASK_CATS.find(c=>c.key===t.cat);
-    const isOverdue  = !t.done && t.due && t.due < today;
-    const isDueSoon  = !t.done && t.due && t.due >= today && t.due <= new Date(Date.now()+2*86400000).toISOString().slice(0,10);
-    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:6px;background:${t.done?'transparent':isOverdue?'rgba(248,81,73,0.05)':'var(--surf)'};border:1px solid ${t.done?'var(--brd)':isOverdue?'var(--red)':isDueSoon?'var(--amber-dim)':'var(--brd)'};margin-bottom:6px;opacity:${t.done?'0.5':'1'}">
-      <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${t.id})" style="width:16px;height:16px;margin-top:1px;flex-shrink:0;accent-color:var(--amber);cursor:pointer">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;color:${t.done?'var(--faint)':'var(--tx)'};text-decoration:${t.done?'line-through':'none'};margin-bottom:3px">${esc(t.text)}</div>
-        <div class="row" style="gap:6px">
-          ${cat&&cat.key!=='all'?`<span style="font-size:10px;padding:1px 7px;border-radius:10px;border:1px solid var(--brd);color:${cat.color||'var(--faint)'}">${cat.label}</span>`:''}
-          ${t.priority==='high'?`<span style="font-size:10px;color:var(--amber)">● high</span>`:''}
-          ${t.due?`<span style="font-size:10px;color:${isOverdue?'var(--red)':isDueSoon?'var(--amber)':'var(--faint)'}">${isOverdue?'overdue · ':isDueSoon?'due soon · ':''}${t.due}</span>`:''}
-        </div>
-      </div>
-      <button onclick="deleteTask(${t.id})" style="font-size:10px;padding:2px 6px;color:var(--faint);border-color:transparent;flex-shrink:0">✕</button>
-    </div>`;
-  }).join('');
-
-  const addForm = state.taskShowAdd ? `
-    <div class="card" style="margin-bottom:12px;border-color:var(--amber-dim)">
-      <div style="margin-bottom:8px">${lbl('Task')}${inp('task-text','','What needs doing…')}</div>
-      <div class="g2" style="margin-bottom:8px;gap:8px">
-        <div>${lbl('Category')}${sel('task-cat',TASK_CATS.filter(c=>c.key!=='all').map(c=>({v:c.key,l:c.label})),'today')}</div>
-        <div>${lbl('Priority')}${sel('task-pri',[{v:'high',l:'High'},{v:'medium',l:'Medium'},{v:'low',l:'Low'}],'medium')}</div>
-      </div>
-      <div style="margin-bottom:8px">${lbl('Due date (optional)')}${inp('task-due','','YYYY-MM-DD')}</div>
-      <div class="row">
-        <button class="amber" onclick="addTask()">Add task</button>
-        <button onclick="state.taskShowAdd=false;render('tasks')">Cancel</button>
-      </div>
-    </div>` : '';
-
-  el.innerHTML = secHead('Tasks') + `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div style="font-size:12px;color:var(--muted)">
-        <span style="color:var(--tx);font-weight:500">${pending}</span> pending
-        ${overdue?` · <span style="color:var(--red)">${overdue} overdue</span>`:''}
-        ${done?` · <span style="color:var(--faint)">${done} done</span>`:''}
-      </div>
-      <div class="row" style="gap:6px">
-        <button onclick="clearDoneTasks()" style="font-size:11px;color:var(--faint)">Clear done</button>
-        <button class="amber" onclick="state.taskShowAdd=!state.taskShowAdd;render('tasks')">+ Add task</button>
-      </div>
-    </div>
-    ${addForm}
-    <div class="tag-row">${catBtns}</div>
-    ${taskItems || '<div class="empty">No tasks here. Nice work — or add some above.</div>'}
-  `;
-}
-
-function toggleTask(id) {
-  state.tasks = state.tasks.map(t => t.id===id ? {...t,done:!t.done} : t);
-  save(); render('tasks');
-}
-
-function deleteTask(id) {
-  state.tasks = state.tasks.filter(t => t.id!==id);
-  save(); render('tasks');
-}
-
-function clearDoneTasks() {
-  if(!confirm('Remove all completed tasks?')) return;
-  state.tasks = state.tasks.filter(t => !t.done);
-  save(); render('tasks');
-}
-
-function addTask() {
-  const text = document.getElementById('task-text')?.value.trim();
-  if(!text) return;
-  state.tasks.push({
-    id: Date.now(), text, done: false,
-    cat:      document.getElementById('task-cat')?.value  || 'other',
-    priority: document.getElementById('task-pri')?.value  || 'medium',
-    due:      document.getElementById('task-due')?.value  || '',
-  });
-  state.taskShowAdd = false;
-  save(); render('tasks');
-}
-
-// ── REFERRAL MAP ──────────────────────────────────────────────────────────────
-
-const REF_STATUSES = ['Not yet asked','Outreach sent','In conversation','Referred','Declined','Not applicable'];
-const REF_STATUS_COL = {'Not yet asked':'faint','Outreach sent':'amber','In conversation':'blue','Referred':'green','Declined':'red','Not applicable':'faint'};
-
-function renderReferrals(el) {
-  const asked    = state.referrals.filter(r=>!['Not yet asked','Not applicable'].includes(r.status)).length;
-  const referred = state.referrals.filter(r=>r.status==='Referred').length;
-
-  const cards = state.referrals.map(r => {
-    const stCol = REF_STATUS_COL[r.status]||'faint';
-    return `<div class="card" style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
-        <div style="flex:1;min-width:0">
-          <div class="row" style="margin-bottom:4px;flex-wrap:wrap">
-            <span style="font-size:14px;font-weight:600">${esc(r.contact)}</span>
-            ${badge(r.status,stCol)}
-            ${r.rel?`<span style="font-size:11px;color:var(--muted)">${esc(r.rel)}</span>`:''}
-          </div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:2px">Works at: <strong style="color:var(--tx)">${esc(r.atCompany)}</strong></div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Referral target: <strong style="color:var(--amber)">${esc(r.targetCo)}</strong></div>
-          ${r.notes?`<div style="font-size:11px;color:var(--faint)">${esc(r.notes)}</div>`:''}
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end">
-          ${sel(`ref-status-${r.id}`,REF_STATUSES.map(s=>({v:s,l:s})),r.status)}
-          <div class="row" style="gap:4px">
-            <button onclick="updateRefStatus(${r.id})" style="font-size:11px">↑ Save</button>
-            <button onclick="genRefMsg(${r.id})" style="font-size:11px;color:var(--blue);border-color:var(--blue);background:var(--blue-bg)">Draft ask</button>
-            <button class="danger" onclick="deleteRef(${r.id})" style="font-size:11px">✕</button>
-          </div>
-        </div>
-      </div>
-      ${r.draftMsg&&r.draftMsg!=='...'?`<div style="margin-top:10px;padding:10px 12px;border-radius:6px;background:var(--gold-pale);border:1px solid var(--gold-border);font-size:12px;color:var(--tx);line-height:1.7;white-space:pre-wrap">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-          <span style="color:var(--amber);font-size:11px">referral ask draft</span>
-          <button onclick="navigator.clipboard?.writeText(document.getElementById('rdraft-${r.id}').textContent);this.textContent='Copied!'" style="font-size:10px;padding:2px 8px">Copy</button>
-        </div><span id="rdraft-${r.id}">${esc(r.draftMsg)}</span></div>`
-      :r.draftMsg==='...'?`<div class="row" style="margin-top:10px"><span class="spin"></span><span style="font-size:12px;color:var(--muted)">Writing referral message…</span></div>`:''}
-    </div>`;
-  }).join('');
-
-  const addForm = state.referralShowAdd ? `
-    <div class="card" style="margin-bottom:12px;border-color:var(--amber-dim)">
-      <div class="g2" style="margin-bottom:8px;gap:8px">
-        <div>${lbl('Contact name')}${inp('ref-contact','','e.g. Jane Smith')}</div>
-        <div>${lbl('Their current company')}${inp('ref-atco','','e.g. UnitedHealth Group')}</div>
-        <div>${lbl('Target company for referral')}${inp('ref-targetco','','e.g. Optum (leave blank if same)')}</div>
-        <div>${lbl('Relationship')}${sel('ref-rel',['Warm','Alumni','Former colleague','Cold','Other'].map(s=>({v:s,l:s})),'Warm')}</div>
-      </div>
-      <div style="margin-bottom:8px">${lbl('Notes')}${inp('ref-notes','','How you know them, context, etc.')}</div>
-      <div class="row">
-        <button class="amber" onclick="addReferral()">Save</button>
-        <button onclick="state.referralShowAdd=false;render('referrals')">Cancel</button>
-      </div>
-    </div>` : '';
-
-  el.innerHTML = secHead('Referral map') + `
-    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:16px">
-      Track who can refer you where. A referral at UHG, CVS, or MDT moves your application from the pile to a recruiter's desk within 48 hours.
-    </p>
-    <div style="display:flex;gap:10px;margin-bottom:16px">
-      <div class="card" style="flex:1;text-align:center;padding:.75rem 0">
-        <div style="font-size:24px;font-weight:500;color:var(--tx)">${state.referrals.length}</div>
-        <div style="font-size:11px;color:var(--muted)">contacts</div>
-      </div>
-      <div class="card" style="flex:1;text-align:center;padding:.75rem 0">
-        <div style="font-size:24px;font-weight:500;color:var(--amber)">${asked}</div>
-        <div style="font-size:11px;color:var(--muted)">outreach sent</div>
-      </div>
-      <div class="card" style="flex:1;text-align:center;padding:.75rem 0">
-        <div style="font-size:24px;font-weight:500;color:var(--green)">${referred}</div>
-        <div style="font-size:11px;color:var(--muted)">referred</div>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-      <button class="amber" onclick="state.referralShowAdd=!state.referralShowAdd;render('referrals')">+ Add contact</button>
-    </div>
-    ${addForm}
-    ${cards||'<div class="empty">Add people from your network who work at target companies.</div>'}
-    <div class="card" style="margin-top:16px;border-color:var(--brd2)">
-      <div style="font-size:12px;font-weight:500;color:var(--tx);margin-bottom:8px">How to find referral contacts</div>
-      <div style="font-size:12px;color:var(--muted);line-height:2">
-        1. LinkedIn → My Network → Connections → filter by company name<br>
-        2. Look for anyone with Product, Director, or Manager in title<br>
-        3. Add them here → click <strong style="color:var(--tx)">Draft ask</strong> for a personalized referral message<br>
-        4. Send it on LinkedIn, update status when they respond
-      </div>
-    </div>
-  `;
-}
-
-function updateRefStatus(id) {
-  const val = document.getElementById(`ref-status-${id}`)?.value;
-  if(!val) return;
-  state.referrals = state.referrals.map(r => r.id===id ? {...r,status:val} : r);
-  save(); render('referrals');
-}
-
-function deleteRef(id) {
-  if(confirm('Remove this contact?')) {
-    state.referrals = state.referrals.filter(r=>r.id!==id);
-    save(); render('referrals');
-  }
-}
-
-function addReferral() {
-  const contact = document.getElementById('ref-contact')?.value.trim();
-  if(!contact) return;
-  const atCo = document.getElementById('ref-atco')?.value.trim()||'';
-  state.referrals.push({
-    id: Date.now(), contact,
-    atCompany: atCo,
-    targetCo:  document.getElementById('ref-targetco')?.value.trim()||atCo,
-    rel:       document.getElementById('ref-rel')?.value||'Warm',
-    status:    'Not yet asked',
-    notes:     document.getElementById('ref-notes')?.value.trim()||'',
-    draftMsg:  '',
-  });
-  state.referralShowAdd = false;
-  save(); render('referrals');
-}
-
-async function genRefMsg(id) {
-  const r = state.referrals.find(x=>x.id===id); if(!r) return;
-  state.referrals = state.referrals.map(x=>x.id===id?{...x,draftMsg:'...'}:x);
-  render('referrals');
-  await claudeStream(
-    `Write a short, warm, genuine LinkedIn message (4-5 sentences max) from Ryan Corcoran to ${r.contact} who works at ${r.atCompany}, asking if they'd be willing to refer Ryan for a Product Manager role at ${r.targetCo||r.atCompany}. Ryan: ${PROFILE}. Context: ${r.notes||'professional connection'}. Tone: genuine, not transactional. Acknowledge how they know each other. End with a specific, easy-to-respond-to ask.`,
-    t => { state.referrals=state.referrals.map(x=>x.id===id?{...x,draftMsg:t}:x); render('referrals'); }
-  );
-  save();
-}
-const APP_COLS  = ['Company','Role Title','Salary Range','Location / Remote','Date Applied','Stage','Priority','Fit Score','Key Requirement Match','Gaps / Notes','Next Step','Next Step Date','Recruiter / Contact','Link / Source','Networking Contact','Relationship / Status'];
-const APP_KEYS  = ['company','role','salary','location','date','stage','priority','fit','keyReqs','gaps','nextStep','nextDate','contact','source','netContact','netRel'];
-const NET_COLS  = ['Company','Role','Alumni Contact','Relationship','Last Touch','Next Touch','Status','Notes'];
-const NET_KEYS  = ['company','role','name','rel','last','next','status','notes'];
-
-function csvEscape(v) {
-  const s = String(v == null ? '' : v);
-  return (s.includes(',') || s.includes('"') || s.includes('\n')) ? `"${s.replace(/"/g,'""')}"` : s;
-}
-
-function toCSV(rows, cols) {
-  return [cols.join(','), ...rows.map(r => APP_KEYS.map ? r : r)].join('\n');
-}
-
-function appsToCSV() {
-  const header = APP_COLS.join(',');
-  const rows = state.apps.map(a =>
-    APP_KEYS.map(k => csvEscape(a[k]||'')).join(',')
-  );
-  return [header, ...rows].join('\n');
-}
-
-function contactsToCSV() {
-  const header = NET_COLS.join(',');
-  const rows = state.contacts.map(c =>
-    NET_KEYS.map(k => csvEscape(c[k]||'')).join(',')
-  );
-  return [header, ...rows].join('\n');
-}
-
-function downloadCSV(content, filename) {
-  const blob = new Blob([content], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = parseCSVLine(lines[0]);
-  return lines.slice(1).filter(l=>l.trim()).map(line => {
-    const vals = parseCSVLine(line);
-    const obj = {};
-    headers.forEach((h,i) => { obj[h.trim()] = (vals[i]||'').trim(); });
-    return obj;
-  });
-}
-
-function parseCSVLine(line) {
-  const result = []; let cur = ''; let inQ = false;
-  for(let i=0;i<line.length;i++) {
-    const c=line[i];
-    if(c==='"'&&inQ&&line[i+1]==='"'){cur+='"';i++;}
-    else if(c==='"'){inQ=!inQ;}
-    else if(c===','&&!inQ){result.push(cur);cur='';}
-    else cur+=c;
-  }
-  result.push(cur);
-  return result;
-}
-
-function importAppsCSV(text) {
-  const rows = parseCSV(text);
-  if(!rows.length) return {count:0, skipped:0, msg:'No rows found in file.'};
-
-  // Try to detect column mapping — accepts both exact Excel headers and app-internal keys
-  const colMap = {};
-  const firstRow = rows[0];
-  const allHeaders = Object.keys(firstRow);
-
-  // Map Excel column names → internal keys
-  const excelToKey = {};
-  APP_COLS.forEach((col,i) => { excelToKey[col] = APP_KEYS[i]; });
-  // Also accept lowercase/trimmed variants
-  APP_COLS.forEach((col,i) => { excelToKey[col.toLowerCase()] = APP_KEYS[i]; });
-  // Also accept direct key names
-  APP_KEYS.forEach(k => { excelToKey[k] = k; excelToKey[k.toLowerCase()] = k; });
-
-  // Build per-row mapping
-  const headerMap = {}; // header name → internal key
-  allHeaders.forEach(h => {
-    const key = excelToKey[h] || excelToKey[h.trim().toLowerCase()];
-    if(key) headerMap[h] = key;
-  });
-
-  if(!headerMap['Company'] && !headerMap['company']) {
-    return {count:0, skipped:0, msg:`Could not find a "Company" column. Headers found: ${allHeaders.slice(0,5).join(', ')}…`};
-  }
-
-  let added=0, skipped=0, updated=0;
-  const existingCos = state.apps.map(a=>a.company.toLowerCase().trim());
-
-  rows.forEach(row => {
-    const mapped = {};
-    Object.entries(headerMap).forEach(([h,k]) => { mapped[k] = row[h]||''; });
-    const co = (mapped.company||'').trim();
-    if(!co) { skipped++; return; }
-
-    const existIdx = existingCos.indexOf(co.toLowerCase());
-    if(existIdx !== -1) {
-      // Update existing — merge in any non-empty fields from CSV
-      const existing = state.apps[existIdx];
-      APP_KEYS.forEach(k => { if(mapped[k]) existing[k] = mapped[k]; });
-      updated++;
-    } else {
-      state.apps.push({
-        id: Date.now() + Math.random(),
-        company: mapped.company||'',
-        role: mapped.role||'',
-        salary: mapped.salary||'',
-        location: mapped.location||'',
-        date: mapped.date||'',
-        stage: mapped.stage||'Applied',
-        priority: mapped.priority||'Medium',
-        fit: mapped.fit||'',
-        keyReqs: mapped.keyReqs||'',
-        gaps: mapped.gaps||'',
-        nextStep: mapped.nextStep||'',
-        nextDate: mapped.nextDate||'',
-        contact: mapped.contact||'',
-        source: mapped.source||'',
-        notes: mapped.notes||mapped.gaps||'',
-      });
-      added++;
-    }
-  });
-
-  save();
-  return {count:added, updated, skipped, msg:`Done — ${added} added, ${updated} updated, ${skipped} skipped (blank company).`};
-}
-
-function importContactsCSV(text) {
-  const rows = parseCSV(text);
-  if(!rows.length) return {count:0, msg:'No rows found.'};
-  let added=0, skipped=0;
-  const existingNames = state.contacts.map(c=>c.name.toLowerCase().trim());
-  rows.forEach(row => {
-    const name = (row['Alumni Contact']||row['Name']||row['name']||'').trim();
-    if(!name){skipped++;return;}
-    if(existingNames.includes(name.toLowerCase())){skipped++;return;}
-    state.contacts.push({
-      id: Date.now()+Math.random(), name,
-      company: row['Company']||row['company']||'',
-      role: row['Role']||row['role']||'',
-      rel: row['Relationship']||row['rel']||'Warm',
-      last: row['Last Touch']||row['last']||'',
-      next: row['Next Touch']||row['next']||'',
-      notes: row['Notes']||row['notes']||'',
-    });
-    added++;
-  });
-  save();
-  return {count:added, skipped, msg:`Done — ${added} contacts added, ${skipped} skipped.`};
-}
-
-function renderSync(el) {
-  const cloudConnected = state.jbKey && state.jbBin;
-  const cloudBadge = cloudConnected
-    ? `${badge('cloud connected', 'green')} <span style="font-size:11px;color:var(--faint)">bin: ${state.jbBin.slice(0,8)}…</span>`
-    : badge('local only', 'red');
-
-  const storedKey = localStorage.getItem('anthropic_api_key') || '';
-  const keyMasked = storedKey ? storedKey.slice(0,8) + '••••••••••••••••••••' : '';
-
-  el.innerHTML = secHead('Excel sync') + `
-
-    <div class="card" style="margin-bottom:16px;border-color:var(--blue);border-left:3px solid var(--blue)">
-      <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:6px">🔑 Anthropic API Key</div>
-      <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">
-        Required for <strong>Analyze JD</strong>. Stored in your browser only — never sent anywhere except directly to Anthropic.
-        Get your key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue)">console.anthropic.com</a> → API Keys.
-      </p>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="api-key-input" type="password" placeholder="sk-ant-..." value="${esc(storedKey)}"
-          style="flex:1;font-size:12px;padding:7px 10px;border:1px solid var(--brd2);border-radius:6px;background:var(--surf2);color:var(--tx)" />
-        <button onclick="saveApiKey()" style="font-size:12px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue);white-space:nowrap">Save key</button>
-        ${storedKey ? `<button onclick="clearApiKey()" style="font-size:12px;color:var(--red);border-color:var(--red-dim)">Clear</button>` : ''}
-      </div>
-      ${storedKey ? `<div style="font-size:11px;color:var(--green);margin-top:6px">✓ Key saved — ${keyMasked}</div>` : '<div style="font-size:11px;color:var(--amber);margin-top:6px">No key saved yet</div>'}
-    </div>
-
-    <div class="card" style="margin-bottom:16px;border-color:${cloudConnected?'var(--green-dim)':'var(--amber-dim)'}">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div class="row">${cloudBadge}</div>
-        ${cloudConnected
-          ? `<button class="danger" onclick="disconnectCloud()" style="font-size:11px">Disconnect</button>`
-          : `<button class="amber" onclick="location.reload()" style="font-size:11px">Set up cloud →</button>`}
-      </div>
-      <p style="font-size:12px;color:var(--muted);line-height:1.6">
-        ${cloudConnected
-          ? `Data syncs automatically to JSONBin after every change. Open <strong style="color:var(--tx)">this same HTML file</strong> on any device, enter your Master Key + Bin ID on first load, and all your data will be there.`
-          : `Cloud sync is not set up. Data is saved to this browser only. <a href="javascript:location.reload()">Click here</a> to connect JSONBin.`}
-      </p>
-      ${cloudConnected ? `<div style="margin-top:10px;padding:8px 12px;border-radius:6px;background:var(--surf2);border:1px solid var(--brd);font-size:11px;color:var(--faint)">
-        <strong style="color:var(--muted)">To open on another device:</strong> download this HTML file, open it in a browser, and when prompted enter your JSONBin Master Key and Bin ID <code style="font-size:10px">${esc(state.jbBin)}</code>
-      </div>` : ''}
-    </div>
-
-    <p style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:20px">
-      Two-way bridge between this app and your <strong style="color:var(--tx)">job_tracker.xlsx</strong>. Export to bring Excel up to date; import to load Excel data back in.
-    </p>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-      <div class="card" style="border-top:3px solid var(--green)">
-        <div style="font-size:13px;font-weight:500;margin-bottom:6px;color:var(--tx)">↓ Export to Excel</div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Downloads your app data as <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">.csv</code> files. Open in Excel and paste into the matching sheet.</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <button class="amber" onclick="exportApps()">↓ Export applications (${state.apps.length} rows)</button>
-          <button onclick="exportContacts()">↓ Export contacts (${state.contacts.length} rows)</button>
-        </div>
-        <div id="export-note" style="font-size:11px;color:var(--green);margin-top:10px;min-height:16px"></div>
-      </div>
-
-      <div class="card" style="border-top:3px solid var(--amber)">
-        <div style="font-size:13px;font-weight:500;margin-bottom:6px;color:var(--tx)">↑ Import from Excel</div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Save the Excel sheet as <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">.csv</code> (File → Save As → CSV), then drop it here.</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div>
-            ${lbl('Import applications')}
-            <input type="file" id="import-apps-file" accept=".csv" style="color:var(--muted);padding:5px 0;border:none;background:transparent">
-            <button onclick="doImportApps()" style="margin-top:6px;width:100%">↑ Import applications CSV</button>
-          </div>
-          <div>
-            ${lbl('Import contacts')}
-            <input type="file" id="import-net-file" accept=".csv" style="color:var(--muted);padding:5px 0;border:none;background:transparent">
-            <button onclick="doImportContacts()" style="margin-top:6px;width:100%">↑ Import networking CSV</button>
-          </div>
-        </div>
-        <div id="import-note" style="font-size:12px;margin-top:10px;min-height:16px"></div>
-      </div>
-    </div>
-
-    <div class="card" style="border-color:var(--brd2)">
-      <div style="font-size:13px;font-weight:500;margin-bottom:10px;color:var(--tx)">How to sync with job_tracker.xlsx</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div>
-          <div style="font-size:11px;color:var(--green);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">App → Excel</div>
-          <ol style="font-size:12px;color:var(--muted);line-height:2;padding-left:1.1rem">
-            <li>Click <strong style="color:var(--tx)">Export applications</strong></li>
-            <li>Open the downloaded CSV in Excel</li>
-            <li>Select all → copy</li>
-            <li>Paste into <strong style="color:var(--tx)">Job Tracker</strong> sheet row 5</li>
-          </ol>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--amber);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Excel → App</div>
-          <ol style="font-size:12px;color:var(--muted);line-height:2;padding-left:1.1rem">
-            <li>Open <code style="background:var(--cream-dark);padding:1px 4px;border-radius:3px;font-size:11px">job_tracker.xlsx</code></li>
-            <li>File → Save As → <strong style="color:var(--tx)">CSV UTF-8</strong></li>
-            <li>Click <strong style="color:var(--tx)">Import applications CSV</strong></li>
-            <li>Pick the file — done</li>
-          </ol>
-        </div>
-      </div>
-      <div style="margin-top:14px;padding:10px 12px;border-radius:6px;background:var(--surf2);border:1px solid var(--brd);font-size:11px;color:var(--faint);line-height:1.7">
-        <strong style="color:var(--muted)">Merge logic:</strong> Matches on Company name (case-insensitive). Existing entries are updated; new ones appended. Nothing is ever deleted automatically.
-      </div>
-    </div>
-  `;
-}
-
-function exportApps() {
-  downloadCSV(appsToCSV(), `applications_export_${new Date().toISOString().slice(0,10)}.csv`);
-  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.apps.length} rows at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
-}
-
-function exportContacts() {
-  downloadCSV(contactsToCSV(), `contacts_export_${new Date().toISOString().slice(0,10)}.csv`);
-  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.contacts.length} contacts`;
-}
-
-function doImportApps() {
-  const file = document.getElementById('import-apps-file').files[0];
-  if(!file){ alert('Pick a CSV file first.'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    const result = importAppsCSV(e.target.result);
-    const n=document.getElementById('import-note');
-    if(n){ n.style.color = result.count>0||result.updated>0 ? 'var(--green)' : 'var(--red)'; n.textContent=result.msg; }
-    render('sync');
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-function doImportContacts() {
-  const file = document.getElementById('import-net-file').files[0];
-  if(!file){ alert('Pick a CSV file first.'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    const result = importContactsCSV(e.target.result);
-    const n=document.getElementById('import-note');
-    if(n){ n.style.color = result.count>0 ? 'var(--green)' : 'var(--amber)'; n.textContent=result.msg; }
-    render('sync');
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-// ── CLOUD SETUP SCREEN ────────────────────────────────────────────────────────
-
-function renderCloudSetup(el) {
-  el.innerHTML = `
-    <div style="max-width:520px;margin:0 auto;padding-top:1rem">
-      <div class="sec-head"><h1>Connect cloud sync</h1><div class="bar"></div></div>
-      <div class="card" style="margin-bottom:14px">
-        <p style="color:var(--muted);line-height:1.7;margin-bottom:16px">
-          To access your data on <strong style="color:var(--tx)">any device</strong> — phone, laptop, work computer — you need a free JSONBin account. It's a tiny cloud database that stores your apps and contacts. Takes 3 minutes, no credit card.
-        </p>
-        <ol style="color:var(--muted);line-height:2.4;padding-left:1.2rem">
-          <li>Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → <strong style="color:var(--tx)">Sign Up Free</strong></li>
-          <li>After logging in, click <strong style="color:var(--tx)">API Keys</strong> in the left sidebar</li>
-          <li>Copy your <strong style="color:var(--tx)">Master Key</strong> (starts with <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">$2b$</code>)</li>
-          <li>Paste it below and click <strong style="color:var(--tx)">Create my data bin</strong></li>
-        </ol>
-      </div>
-      <div class="card">
-        <div style="margin-bottom:12px">
-          ${lbl('JSONBin Master Key')}
-          ${inp('setup-jb-key', '', '$2b$10$...')}
-          <p style="font-size:11px;color:var(--faint);margin-top:5px">Stored in your browser only. Never transmitted anywhere except jsonbin.io.</p>
-        </div>
-        <div id="setup-error" style="font-size:12px;color:var(--red);min-height:16px;margin-bottom:8px"></div>
-        <button id="setup-btn" class="amber full" onclick="doCloudSetup()">Create my data bin →</button>
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">
-          <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Already have a Bin ID from a previous setup?</p>
-          <div style="display:flex;gap:8px">
-            ${inp('setup-existing-key', '', 'Master Key')}
-            ${inp('setup-existing-bin', '', 'Bin ID (e.g. 6634...)')}
-            <button onclick="doExistingSetup()" style="white-space:nowrap;flex-shrink:0">Connect →</button>
-          </div>
-        </div>
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">
-          <button class="ghost" onclick="skipCloudSetup()" style="font-size:11px;width:100%">Skip for now — use this device only</button>
-        </div>
-      </div>
-    </div>`;
-}
-
-async function doCloudSetup() {
-  const key = document.getElementById('setup-jb-key').value.trim();
-  if (!key) { document.getElementById('setup-error').textContent = 'Please enter your Master Key.'; return; }
-  const btn = document.getElementById('setup-btn');
-  btn.disabled = true; btn.textContent = 'Creating bin…';
-  state.jbKey = key;
-  try {
-    const binId = await jbCreate();
-    state.jbBin = binId;
-    saveCredentials();
-    document.getElementById('setup-error').textContent = '';
-    showTab('board');
-    setSyncStatus('✓ cloud connected · bin ' + binId.slice(0,8) + '…', false);
-  } catch(e) {
-    state.jbKey = '';
-    document.getElementById('setup-error').textContent = 'Error: ' + e.message;
-    btn.disabled = false; btn.textContent = 'Create my data bin →';
-  }
-}
-
-async function doExistingSetup() {
-  const key = document.getElementById('setup-existing-key').value.trim();
-  const bin = document.getElementById('setup-existing-bin').value.trim();
-  if (!key || !bin) { document.getElementById('setup-error').textContent = 'Enter both Master Key and Bin ID.'; return; }
-  state.jbKey = key; state.jbBin = bin;
-  try {
-    const data = await jbRead();
-    if (data.apps) state.apps = data.apps;
-    if (data.contacts) state.contacts = data.contacts;
-    saveCredentials();
-    showTab('board');
-    setSyncStatus('✓ reconnected · ' + state.apps.length + ' apps loaded', false);
-  } catch(e) {
-    state.jbKey = ''; state.jbBin = '';
-    document.getElementById('setup-error').textContent = 'Could not connect: ' + e.message;
-  }
-}
-
-function skipCloudSetup() {
-  localStorage.setItem('cloud_skipped', '1');
-  showTab('board');
-}
-
-function disconnectCloud() {
-  if (!confirm('Disconnect cloud sync? Your data stays on this device but won\'t sync to other devices.')) return;
-  state.jbKey = ''; state.jbBin = '';
-  localStorage.removeItem('jb_key'); localStorage.removeItem('jb_bin');
-  localStorage.removeItem('cloud_skipped');
-  location.reload();
-}
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-
-async function init() {
-  const hasCloud = state.jbKey && state.jbBin;
-  const skipped  = localStorage.getItem('cloud_skipped');
-
-  if (!hasCloud && !skipped) {
-    // First run — show cloud setup screen overlaid on top of board pane
-    const el = document.getElementById('pane-board');
-    renderCloudSetup(el);
-    return;
-  }
-
-  if (hasCloud) {
-    setSyncStatus('loading…', false);
-    await loadFromCloud();
-  }
-
-  render('board');
-}
-
-function saveApiKey() {
-  const val = (document.getElementById('api-key-input')?.value || '').trim();
-  if (!val) return;
-  localStorage.setItem('anthropic_api_key', val);
-  showToast('API key saved ✓');
-  render('sync');
-}
-
-function clearApiKey() {
-  if (confirm('Remove saved API key?')) {
-    localStorage.removeItem('anthropic_api_key');
-    render('sync');
-  }
-}
-
-init();
-
-// ── ANALYZE JD ───────────────────────────────────────────────────────────────
-
-const ANALYZE_SYSTEM = `You are a job search analyst helping a senior product manager evaluate job postings.
-
-CANDIDATE PROFILE:
-- 7+ years Product Management experience in digital health / healthtech
-- Specialties: care navigation, behavioral health analytics, 0-to-1 product builds, subscription/SaaS models, patient engagement
-- Key experience: Aetna/CVS (behavioral health analytics platform, care navigation 0-1 launch "Access Plus", double-digit NPS improvement), digital health startups
-- Education: MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences (Visible Heart Lab cardiac research)
-- Location: Minneapolis MN — prefers remote or hybrid; open to remote EST hours
-- Target comp: $130K–$180K base
-- Stage preference: 0-to-1 builds, scaling digital products; Series A–C or large health system innovation teams
+const CLAUDE_URL='/api/claude';
+const SYSTEM=`You are analyzing a job description on behalf of Ryan Corcoran's portfolio site to help recruiters and hiring managers understand how his background maps to their role.
+
+RYAN'S PROFILE:
+- 7+ years Product Management in digital health, healthtech, regulated environments
+- Strengths: care navigation, behavioral health analytics, 0-to-1 builds, analytics platforms, patient engagement
+- Key wins: Access Plus (0-1 care nav, 48hr time-to-care, double-digit NPS in 6mo); behavioral health analytics platform at Aetna/CVS; SDOH app commercialization at UMN
+- Education: MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences (Visible Heart Lab)
+- Location: Minneapolis MN — open to remote, hybrid, in-person
+- Target comp: $130K-$180K base
+- Open to: senior PM, upstream/downstream medtech PM, product owner, payer-side roles; cardiac or neuro device experience a plus
 - Hard nos: comp below $120K, relocation required
-- Open to: medtech Senior PM (upstream or downstream), Product Owner roles, payer-side experience; cardiac or neuro device experience a plus
 
-IDEAL ROLE signals (boost fit score): digital health, care navigation, behavioral health, value-based care, 0-1 build, remote, $140K+, mission-driven, growth stage
+Be honest and direct. This helps recruiters quickly understand fit — not oversell. Strong fit: say so. Gaps: name them. Goal is useful signal, not a pitch.`;
 
-RED FLAG signals (lower fit score): "competitive salary" with no range, 10+ years required for senior title, reposted >90 days, vague tech stack, requires relocation, medtech hardware only`;
-
-let analyzeState = { open: false, loading: false, input: '', result: null, error: null };
-
-function openAnalyzeModal() {
-  analyzeState = { open: true, loading: false, input: '', result: null, error: null };
-  renderAnalyzeModal();
-}
-
-function closeAnalyzeModal() {
-  analyzeState.open = false;
-  const m = document.getElementById('analyze-modal');
-  if (m) m.remove();
-}
-
-function renderAnalyzeModal() {
-  let m = document.getElementById('analyze-modal');
-  if (!m) {
-    m = document.createElement('div');
-    m.id = 'analyze-modal';
-    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px';
-    document.body.appendChild(m);
+async function runFit(){
+  const jd=document.getElementById('fit-jd').value.trim();
+  if(!jd)return;
+  if(/^https?:\/\/|^www\./i.test(jd)){
+    const errEl=document.getElementById('fit-error');
+    errEl.textContent='For best results, paste the job description text directly. Copy it from the posting and paste here.';
+    errEl.classList.add('visible');
+    return;
   }
+  const btn=document.getElementById('fit-btn');
+  const loading=document.getElementById('fit-loading');
+  const result=document.getElementById('fit-result');
+  const error=document.getElementById('fit-error');
+  btn.disabled=true;
+  loading.classList.add('visible');
+  result.classList.remove('visible');
+  error.classList.remove('visible');
+  const prompt=`Analyze this job posting and return ONLY valid JSON (no markdown, no preamble):
+{"company":"company name","role":"job title","salary":"range or empty","location":"location","fitScore":<1-10>,"fitRationale":"2-3 honest sentences on fit","matchCriteria":"key requirements semicolon separated","redFlags":["flag1"],"compAnalysis":"1 sentence on market comp","newsSnapshot":"2-3 sentences recent company news using web search"}
 
-  const res = analyzeState.result;
-
-  m.innerHTML = `
-    <div style="background:var(--surf);border:1px solid var(--brd2);border-radius:12px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;padding:24px;position:relative">
-      <button onclick="closeAnalyzeModal()" style="position:absolute;top:12px;right:12px;font-size:16px;background:none;border:none;color:var(--muted);cursor:pointer">✕</button>
-      <div style="font-size:16px;font-weight:600;color:var(--tx);margin-bottom:4px">🔍 Analyze Job Description</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Paste JD text or a URL — Claude will extract, score, and flag it in one shot.</div>
-
-      ${!res ? `
-        <div style="margin-bottom:12px">
-          <textarea id="jd-input" placeholder="Paste job description text here, or paste a URL to fetch it…"
-            style="width:100%;height:160px;font-size:12px;padding:10px;border:1px solid var(--brd2);border-radius:6px;background:var(--surf2);color:var(--tx);resize:vertical;box-sizing:border-box"
-            oninput="analyzeState.input=this.value">${esc(analyzeState.input)}</textarea>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="amber" onclick="runAnalyze()" ${analyzeState.loading?'disabled':''} style="flex:1;padding:9px 0;font-size:13px">
-            ${analyzeState.loading ? '<span class="spin"></span> Analyzing…' : '⚡ Analyze'}
-          </button>
-          <button onclick="closeAnalyzeModal()" style="font-size:12px">Cancel</button>
-        </div>
-        ${analyzeState.error ? `<div style="margin-top:10px;font-size:12px;color:var(--red)">${esc(analyzeState.error)}</div>` : ''}
-      ` : `
-        ${renderAnalyzeResult(res)}
-        <div style="display:flex;gap:8px;margin-top:16px">
-          <button class="amber" onclick="saveAnalyzedCard()" style="flex:1;padding:9px 0;font-size:13px">💾 Save to Tracker</button>
-          <button onclick="analyzeState.result=null;analyzeState.input='';renderAnalyzeModal()" style="font-size:12px">← Analyze another</button>
-          <button onclick="closeAnalyzeModal()" style="font-size:12px">Close</button>
-        </div>
-      `}
-    </div>`;
-}
-
-function renderAnalyzeResult(r) {
-  const fitColor = r.fitScore >= 7 ? 'var(--green)' : r.fitScore >= 5 ? 'var(--amber)' : 'var(--red)';
-  const clarityColor = r.roleClarity >= 7 ? 'var(--green)' : r.roleClarity >= 5 ? 'var(--amber)' : 'var(--red)';
-
-  const flags = (r.redFlags||[]).map(f =>
-    `<div style="font-size:11px;padding:3px 8px;border-radius:4px;background:var(--red-pale,#fff0f0);border:1px solid var(--red-dim,#fcc);color:var(--red)">⚑ ${esc(f)}</div>`
-  ).join('');
-
-  return `
-    <div style="margin-bottom:14px">
-      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-        <div style="flex:1;min-width:120px;background:var(--surf2);border-radius:8px;padding:10px 14px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:${fitColor}">${r.fitScore}<span style="font-size:13px;color:var(--muted)">/10</span></div>
-          <div style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em">Fit Score</div>
-        </div>
-        <div style="flex:1;min-width:120px;background:var(--surf2);border-radius:8px;padding:10px 14px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:${clarityColor}">${r.roleClarity}<span style="font-size:13px;color:var(--muted)">/10</span></div>
-          <div style="font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em">Role Clarity</div>
-        </div>
-        <div style="flex:2;min-width:200px;background:var(--surf2);border-radius:8px;padding:10px 14px">
-          <div style="font-size:13px;font-weight:600;color:var(--tx)">${esc(r.company||'—')}</div>
-          <div style="font-size:12px;color:var(--muted)">${esc(r.role||'—')}</div>
-          <div style="font-size:11px;color:var(--faint);margin-top:2px">${esc(r.salary||'Comp not listed')} · ${esc(r.location||'Location unknown')}</div>
-        </div>
-      </div>
-
-      ${flags ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${flags}</div>` : ''}
-
-      <div style="font-size:11px;margin-bottom:6px">
-        <span style="color:var(--muted);font-weight:500">Match criteria: </span>
-        <span style="color:var(--faint)">${esc(r.matchCriteria||'—')}</span>
-      </div>
-      <div style="font-size:11px;margin-bottom:6px">
-        <span style="color:var(--muted);font-weight:500">Fit rationale: </span>
-        <span style="color:var(--faint)">${esc(r.fitRationale||'—')}</span>
-      </div>
-      ${r.compAnalysis ? `
-      <div style="font-size:11px;margin-bottom:6px">
-        <span style="color:var(--muted);font-weight:500">Comp check: </span>
-        <span style="color:var(--faint)">${esc(r.compAnalysis)}</span>
-      </div>` : ''}
-      ${r.newsSnapshot ? `
-      <div style="font-size:11px;background:var(--surf2);border-radius:6px;padding:8px 10px;margin-top:8px">
-        <div style="color:var(--muted);font-weight:500;margin-bottom:4px">📰 Company news</div>
-        <div style="color:var(--faint);line-height:1.6">${esc(r.newsSnapshot)}</div>
-      </div>` : ''}
-    </div>`;
-}
-
-async function runAnalyze() {
-  const input = (document.getElementById('jd-input')?.value || '').trim();
-  if (!input) return;
-  analyzeState.loading = true;
-  analyzeState.error = null;
-  analyzeState.input = input;
-  renderAnalyzeModal();
-
-  const userPrompt = `Analyze this job posting and return ONLY a valid JSON object (no markdown, no preamble) with these exact keys:
-{
-  "company": "company name",
-  "role": "job title",
-  "salary": "salary range or empty string",
-  "location": "location or Remote",
-  "matchCriteria": "3-6 key requirements from the JD in brief format, semicolon separated",
-  "fitScore": <number 1-10>,
-  "fitRationale": "2-3 sentence explanation of the fit score against the candidate profile",
-  "roleClarity": <number 1-10 — how well-written and specific is this JD>,
-  "redFlags": ["flag 1", "flag 2"],
-  "compAnalysis": "1-2 sentences on whether comp is above/below/at market for this role, level, and location",
-  "newsSnapshot": "2-3 sentences: recent company news — funding, product launches, leadership changes, or layoffs. Use web search."
-}
-
-Job posting input:
-${input}`;
-
-  try {
-    const key = getApiKey();
-    if (!key) { analyzeState.error = 'Add your Anthropic API key in the Excel sync tab first'; analyzeState.loading = false; renderAnalyzeModal(); return; }
-    const resp = await fetch(CLAUDE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-user-api-key': key },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
-        system: ANALYZE_SYSTEM,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: userPrompt }]
-      })
-    });
-    const data = await resp.json();
-    const text = (data.content||[]).filter(b => b.type==='text').map(b=>b.text).join('').trim();
-    // Strip markdown fences if present
-    const clean = text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-    const result = JSON.parse(clean);
-    analyzeState.result = result;
-    analyzeState.loading = false;
-  } catch(e) {
-    analyzeState.error = 'Analysis failed: ' + e.message;
-    analyzeState.loading = false;
+Job posting:
+${jd}`;
+  try{
+    const apiKey=localStorage.getItem('portfolio_api_key')||'';
+    const headers={'Content-Type':'application/json'};
+    if(apiKey)headers['x-user-api-key']=apiKey;
+    const resp=await fetch(CLAUDE_URL,{method:'POST',headers,body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,system:SYSTEM,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:prompt}]})});
+    const data=await resp.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    const clean=text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+    const r=JSON.parse(clean);
+    const sEl=document.getElementById('fit-score-num');
+    sEl.textContent=r.fitScore+'/10';
+    sEl.style.color=r.fitScore>=7?'var(--steel)':r.fitScore>=5?'var(--amber)':'var(--rust)';
+    document.getElementById('fit-co').textContent=r.company||'—';
+    document.getElementById('fit-role').textContent=r.role||'—';
+    document.getElementById('fit-comp').textContent=r.salary||'';
+    document.getElementById('fit-rationale').textContent=r.fitRationale||'';
+    const mEl=document.getElementById('fit-match');
+    mEl.innerHTML=r.matchCriteria?`<strong>Key requirements:</strong> ${r.matchCriteria}`:'';
+    const fEl=document.getElementById('fit-flags');
+    fEl.innerHTML=(r.redFlags||[]).map(f=>`<span class="fit-flag">⚑ ${f}</span>`).join('');
+    if(r.newsSnapshot){document.getElementById('fit-news').style.display='block';document.getElementById('fit-news-text').textContent=r.newsSnapshot;}
+    loading.classList.remove('visible');
+    result.classList.add('visible');
+  }catch(e){
+    loading.classList.remove('visible');
+    error.textContent='Analysis failed: '+e.message;
+    error.classList.add('visible');
   }
-  renderAnalyzeModal();
+  btn.disabled=false;
 }
 
-function saveAnalyzedCard() {
-  const r = analyzeState.result;
-  if (!r) return;
-  const notes = [r.newsSnapshot, r.compAnalysis].filter(Boolean).join(' | ');
-  state.apps.push({
-    id: Date.now(),
-    company:    r.company || '',
-    role:       r.role || '',
-    salary:     r.salary || '',
-    location:   r.location || '',
-    fit:        r.fitScore ? String(r.fitScore) : '',
-    keyReqs:    r.matchCriteria || '',
-    gaps:       notes,
-    stage:      'Saved',
-    priority:   r.fitScore >= 8 ? 'High' : r.fitScore >= 6 ? 'Medium' : 'Low',
-    date:       new Date().toISOString().slice(0,10),
-    updatedAt:  new Date().toISOString(),
+function toggleCase(card){
+  const wasOpen=card.classList.contains('open');
+  document.querySelectorAll('.case-card.open').forEach(c=>c.classList.remove('open'));
+  if(!wasOpen)card.classList.add('open');
+}
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+},{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+
+const barObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('.domain-bar').forEach(b=>{b.style.width=b.dataset.w+'%';});
+      barObs.disconnect();
+    }
   });
-  save();
-  closeAnalyzeModal();
-  render('tracker');
-  showToast('Card saved to tracker ✓');
-}
+},{threshold:0.3});
+const skillSec=document.getElementById('skills');
+if(skillSec)barObs.observe(skillSec);
 
+setTimeout(()=>{
+  document.querySelectorAll('.fade-up').forEach((el,i)=>{
+    setTimeout(()=>el.classList.add('in'),i*120);
+  });
+},100);
 </script>
 </body>
 </html>
