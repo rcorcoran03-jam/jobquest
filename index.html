@@ -303,19 +303,17 @@
     <div class="tabs">
       <button class="active" onclick="showTab('board')" id="tab-board">Job board</button>
       <button onclick="showTab('tracker')" id="tab-tracker">Applications</button>
-      <button onclick="showTab('tasks')" id="tab-tasks">Tasks</button>
       <button onclick="showTab('pomodoro')" id="tab-pomodoro">Focus timer</button>
       <button onclick="showTab('network')" id="tab-network">Networking</button>
       <button onclick="showTab('sync')" id="tab-sync">Excel sync</button>
     </div>
-    <a href="https://ryanpatrick-portfolio.pages.dev/" target="_blank" class="portfolio-link">Portfolio ↗</a>
+    <a href="https://ryan-corcoran.com" target="_blank" class="portfolio-link">Portfolio ↗</a>
   </div>
 </div>
 
 <div id="main">
   <div id="pane-board"></div>
   <div id="pane-tracker" style="display:none"></div>
-  <div id="pane-tasks" style="display:none"></div>
   <div id="pane-pomodoro" style="display:none"></div>
   <div id="pane-network" style="display:none"></div>
   <div id="pane-targets" style="display:none"></div>
@@ -401,7 +399,7 @@ let state = {
   intRole: '', intCo: '', intQtype: 'behavioral', intQs: [], intAns: {}, intFb: {}, intLoading: false, intFbLoading: {},
   pomMode: 0, pomSecs: 25*60, pomTotal: 25*60, pomRunning: false,
   pomSessions: 0, pomTask: POM_TASKS[0], pomCustomTask: '', pomCustomMins: '', pomLog: [],
-  netShowAdd: false, netDraft: '', netDraftFor: null, netDraftLoading: false,
+  netShowAdd: false, netEditing: null, netDraft: '', netDraftFor: null, netDraftLoading: false,
   tasks: JSON.parse(localStorage.getItem('tasks')||'null') || [
     {id:1,  text:'Import full application history via CSV',           done:false, cat:'today',   due:'2026-05-05', priority:'high'},
     {id:4,  text:'Follow up with Clare MesserSchmidt – Oasis',        done:false, cat:'followup',due:'2026-05-07', priority:'high'},
@@ -547,8 +545,9 @@ function showTab(tab) {
   state.tab = tab;
   document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  ['board','tracker','tasks','pomodoro','network','targets','sync'].forEach(t => {
-    document.getElementById('pane-' + t).style.display = t === tab ? '' : 'none';
+  ['board','tracker','pomodoro','network','targets','sync'].forEach(t => {
+    const el = document.getElementById('pane-' + t);
+    if (el) el.style.display = t === tab ? '' : 'none';
   });
   render(tab);
 }
@@ -558,7 +557,6 @@ function render(tab) {
   switch(tab) {
     case 'board': renderBoard(el); break;
     case 'tracker': renderTracker(el); break;
-    case 'tasks': renderTasks(el); break;
     case 'pomodoro': renderPomodoro(el); break;
     case 'network': renderNetwork(el); break;
     case 'sync': renderSync(el); break;
@@ -724,24 +722,22 @@ function renderBoard(el) {
     {name:'Medica', url:'https://www.medica.com/about-medica/careers'},
   ];
   const HT_START = [
-    {name:'Gravie', url:'https://www.gravie.com/careers'},
     {name:'Spring Health', url:'https://www.springhealth.com/careers'},
-    {name:'Lyra Health', url:'https://www.lyrahealth.com/company/careers/'},
+    {name:'Lyra Health', url:'https://careers.lyrahealth.com/all-lyra-health-jobs'},
     {name:'Modern Health', url:'https://www.modernhealth.com/careers'},
     {name:'Included Health', url:'https://includedhealth.com/careers/'},
     {name:'Transcarent', url:'https://transcarent.com/careers'},
     {name:'Reema Health', url:'https://www.reemahealth.com/careers'},
-    {name:'Unite Us', url:'https://uniteus.com/company/careers/'},
-    {name:'Oasis Health', url:'https://oasishealthpartners.com/careers'},
-    {name:'Strive Health', url:'https://strivehealthcare.com/careers'},
-    {name:'Accolade', url:'https://www.accolade.com/careers/'},
+    {name:'Unite Us', url:'https://uniteus.com/our-careers/'},
+    {name:'Oasis Health', url:'https://recruiting.paylocity.com/recruiting/jobs/All/419dcb39-7cfa-4e80-a8cb-d33db587a1ed/Oasis-Health-Partners-Inc'},
+    {name:'Gravie', url:'https://www.gravie.com/careers'},
   ];
 
   // ── Medtech boards & companies ─────────────────────────────────────────────
   const MT_BOARDS = [
     {name:'LinkedIn', url:'https://www.linkedin.com/jobs/search/?keywords=product+manager+medical+device+upstream+downstream&location=Minneapolis%2C+MN&f_E=4&f_TPR=r2592000'},
     {name:'Indeed', url:'https://www.indeed.com/jobs?q=product+manager+medical+device+Minneapolis&sort=date'},
-    {name:'MedReps', url:'https://www.medreps.com/medical-sales-jobs/product-manager'},
+    {name:'MedReps', url:'https://medreps.com/job-search/'},
   ];
   const MT_ENT = [
     {name:'Boston Scientific', url:'https://www.bostonscientific.com/en-US/careers/job-search.html?keyword=product+manager'},
@@ -1206,18 +1202,14 @@ function renderTracker(el) {
 
   const appSecHead = `<div class="sec-head" style="display:flex;align-items:flex-start;justify-content:space-between">
     <div><h1>Applications</h1><div class="bar"></div></div>
-    <button onclick="openAnalyzeModal()" style="font-size:11px;background:var(--blue);color:#fff;border-color:var(--blue);margin-top:4px;padding:5px 12px">🔍 Analyze JD</button>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;margin-top:4px">
+      <button onclick="openAnalyzeModal()" style="font-size:11px;background:var(--blue);color:#fff;border-color:var(--blue);padding:5px 12px">🔍 Analyze JD</button>
+      <span style="font-size:10px;color:var(--rose);letter-spacing:.01em">Paste a JD — get fit score, red flags &amp; save to tracker</span>
+    </div>
   </div>`;
 
   el.innerHTML = appSecHead + dashStrip + `
     ${priorityStrip}
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:10px 14px;background:var(--blue-bg);border:1px solid var(--blue);border-radius:8px;gap:12px">
-      <div>
-        <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:1px">🔍 Analyze a Job Description</div>
-        <div style="font-size:11px;color:var(--muted)">Paste a JD or URL — get fit score, key requirements, red flags, and save to tracker</div>
-      </div>
-      <button onclick="openAnalyzeModal()" style="flex-shrink:0;font-size:12px;font-weight:600;background:var(--blue);color:#fff;border-color:var(--blue);padding:8px 18px;white-space:nowrap">Analyze JD →</button>
-    </div>
     <div class="stage-filters" style="margin-bottom:6px">
       ${filterBtns}
       <button class="amber" onclick="state.appShowAdd=!state.appShowAdd;render('tracker')" style="margin-left:auto">+ Add</button>
@@ -1470,21 +1462,28 @@ function renderNetwork(el) {
   const od=state.contacts.filter(c=>overdue(c.next)).length;
   const sd=state.contacts.filter(c=>soon(c.next)).length;
 
-  const addForm = state.netShowAdd ? `
+  const contactForm = (prefix, c={}, isEdit=false) => `
     <div class="card" style="border-color:var(--jade-mid);margin-bottom:12px">
       <div class="g2" style="margin-bottom:8px">
-        ${inp('net-name','','Name')} ${inp('net-co','','Company')}
-        ${inp('net-role','','Their role')} ${sel('net-rel',['Warm','Alumni','Cold','Recruiter'],'Warm')}
-        ${inp('net-last','','Last touch (YYYY-MM-DD)')} ${inp('net-next','','Next touch (YYYY-MM-DD)')}
+        ${inp(`${prefix}-name`, c.name||'', 'Name')}
+        ${inp(`${prefix}-co`, c.company||'', 'Company')}
+        ${inp(`${prefix}-role`, c.role||'', 'Their role')}
+        ${sel(`${prefix}-rel`, ['Warm','Alumni','Cold','Recruiter'], c.rel||'Warm')}
+        ${inp(`${prefix}-last`, c.last||'', 'Last touch (YYYY-MM-DD)')}
+        ${inp(`${prefix}-next`, c.next||'', 'Next touch (YYYY-MM-DD)')}
       </div>
-      ${inp('net-notes','','Notes — how you know them, context')}
+      ${inp(`${prefix}-notes`, c.notes||'', 'Notes — how you know them, context')}
       <div class="row" style="margin-top:8px">
-        <button class="amber" onclick="addContact()">Save</button>
-        <button onclick="state.netShowAdd=false;render('network')">Cancel</button>
+        <button class="amber" onclick="${isEdit ? `saveEditContact(${c.id})` : 'addContact()'}">${isEdit ? 'Save changes' : 'Save'}</button>
+        <button onclick="${isEdit ? `state.netEditing=null;render('network')` : `state.netShowAdd=false;render('network')`}">Cancel</button>
+        ${isEdit ? `<button class="danger" onclick="deleteContact(${c.id})" style="margin-left:auto">Delete</button>` : ''}
       </div>
-    </div>` : '';
+    </div>`;
+
+  const addForm = state.netShowAdd ? contactForm('net') : '';
 
   const cards = state.contacts.map(c => {
+    if (state.netEditing === c.id) return contactForm(`edit-${c.id}`, c, true);
     const ov=overdue(c.next), sn=soon(c.next);
     const brdCol=ov?'var(--red)':sn?'var(--amber)':'var(--brd)';
     return `<div class="card" style="margin-bottom:8px;border-left:3px solid ${brdCol};border-radius:0 10px 10px 0">
@@ -1500,6 +1499,7 @@ function renderNetwork(el) {
           <div style="font-size:11px;color:var(--faint);margin-top:2px">${c.last?`last: ${c.last}`:''}${c.next?` · next: ${c.next}`:''}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end">
+          <button onclick="state.netEditing=${c.id};state.netShowAdd=false;render('network')" style="font-size:11px;color:var(--rose);border-color:var(--rose-border)">Edit</button>
           <button onclick="copyNetPrompt('linkedin','${esc(c.id)}')" style="font-size:11px;color:var(--jade);border-color:var(--jade-mid);background:var(--jade-pale);white-space:nowrap">📋 LinkedIn msg</button>
           <button onclick="copyNetPrompt('followup','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Follow-up</button>
           <button onclick="copyNetPrompt('intro','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Referral ask</button>
@@ -1513,10 +1513,10 @@ function renderNetwork(el) {
       <div style="font-size:12px;color:var(--muted)">
         <span style="color:var(--red)">${od} overdue</span> · <span style="color:var(--amber)">${sd} due this week</span>
       </div>
-      <button class="amber" onclick="state.netShowAdd=!state.netShowAdd;render('network')">+ Add contact</button>
+      <button class="amber" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>
     </div>
     <div class="card" style="margin-bottom:16px;background:var(--jade-pale);border-color:var(--jade-mid)">
-      <div style="font-size:12px;color:var(--jade);line-height:1.7">
+      <div style="font-size:12px;color:var(--jade-light);line-height:1.7">
         <strong>📋 Prompt buttons</strong> copy a pre-filled prompt to your clipboard — paste directly into Claude chat to generate the message. Three types: LinkedIn intro, follow-up, and referral ask.
       </div>
     </div>
@@ -1536,6 +1536,35 @@ function addContact() {
     notes:   document.getElementById('net-notes').value,
   });
   state.netShowAdd=false; save(); render('network');
+}
+
+function saveEditContact(id) {
+  const prefix = `edit-${id}`;
+  const get = k => { const el=document.getElementById(`${prefix}-${k}`); return el?el.value.trim():''; };
+  const name = get('name'); if(!name) return;
+  const idx = state.contacts.findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  state.contacts[idx] = {
+    ...state.contacts[idx],
+    name,
+    company: get('co'),
+    role:    get('role'),
+    rel:     get('rel'),
+    last:    get('last'),
+    next:    get('next'),
+    notes:   get('notes'),
+  };
+  state.netEditing = null;
+  save(); render('network');
+  showToast('Contact updated ✓');
+}
+
+function deleteContact(id) {
+  if (!confirm('Delete this contact?')) return;
+  state.contacts = state.contacts.filter(x=>x.id!==id);
+  state.netEditing = null;
+  save(); render('network');
+  showToast('Contact deleted');
 }
 
 function copyNetPrompt(type, id) {
