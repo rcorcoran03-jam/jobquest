@@ -19,13 +19,13 @@
     --navy-border: rgba(255,255,255,0.08);
     --navy-border2: rgba(255,255,255,0.13);  /* alias for inputs/borders */
     --rose-light:   #F4C0D1;                 /* alias — same as --rose */
-    --jade-mid:     rgba(91,158,201,0.35);   /* alias — same as new jade-mid */
+    --sky-blue-mid:     rgba(91,158,201,0.35);   /* alias — same as sky-blue-mid */
 
     /* ── Sky blue — structural/titles/links ── */
-    --jade:        #5B9EC9;
-    --jade-light:  #7ABFE0;
-    --jade-pale:   rgba(91,158,201,0.12);
-    --jade-mid:    rgba(91,158,201,0.35);
+    --sky-blue:        #5B9EC9;
+    --sky-blue-light:  #7ABFE0;
+    --sky-blue-pale:   rgba(91,158,201,0.12);
+    --sky-blue-mid:    rgba(91,158,201,0.35);
 
     /* ── Rose — nav, labels, eyebrows, Healthtech card ── */
     --rose:        #F4C0D1;   /* primary visible rose — all text/labels */
@@ -55,9 +55,9 @@
     --brd:       rgba(255,255,255,0.08); --brd2: rgba(255,255,255,0.14);
 
     /* ── Stage card backgrounds ── */
-    --card-saved:              rgba(91,158,201,0.08);
+    --card-saved:              rgba(42,181,160,0.09);
     --card-applied:            rgba(74,159,212,0.10);
-    --card-coffee:             rgba(196,96,122,0.08);
+    --card-coffee:             rgba(42,155,122,0.10);
     --card-screen:             rgba(201,138,14,0.09);
     --card-interview:          rgba(201,138,14,0.11);
     --card-offer:              rgba(42,155,122,0.10);
@@ -90,7 +90,7 @@
     font-size: 13px;
     line-height: 1.5;
   }
-  a { color: var(--jade); }
+  a { color: var(--sky-blue); }
 
   input, textarea, select, button {
     font-family: 'Avenir Next', 'Avenir', system-ui, sans-serif;
@@ -117,7 +117,7 @@
     transition: all .15s;
     letter-spacing: .01em;
   }
-  button:hover:not(:disabled) { background: rgba(91,158,201,0.15); border-color: var(--jade-mid); }
+  button:hover:not(:disabled) { background: rgba(91,158,201,0.15); border-color: var(--sky-blue-mid); }
   button:disabled { opacity: .35; cursor: not-allowed; }
   button.amber { background: var(--rose-deep); color: #fff; border-color: var(--rose-deep); font-weight: 500; }
   button.amber:hover:not(:disabled) { background: #A84E65; border-color: #A84E65; }
@@ -198,7 +198,7 @@
   .sec-head { margin-bottom: 24px; }
   .sec-eyebrow { font-size: 10px; color: var(--rose); letter-spacing: .12em; text-transform: uppercase; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .sec-eyebrow::before { content: ''; display: inline-block; width: 16px; height: 1px; background: var(--rose-deep); }
-  .sec-head h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: 28px; font-style: normal; font-weight: 400; color: var(--jade-light); letter-spacing: -.01em; line-height: 1.1; margin-bottom: 5px; }
+  .sec-head h1 { font-family: 'DM Serif Display', Georgia, serif; font-size: 28px; font-style: normal; font-weight: 400; color: #E8F1F8; letter-spacing: -.01em; line-height: 1.1; margin-bottom: 5px; }
   .sec-head h1 em { font-style: italic; color: var(--rose); font-weight: 400; }
   .sec-head .bar { width: 28px; height: 2px; background: var(--rose-deep); border-radius: 1px; margin-top: 8px; }
 
@@ -217,9 +217,9 @@
   /* BADGE */
   .badge { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 11px; letter-spacing: .02em; white-space: nowrap; font-weight: 500; border: 1px solid transparent; }
   .badge.amber { background: var(--amber-bg); color: #E8C97A; border-color: var(--gold-border); }
-  .badge.green { background: var(--green-bg); color: var(--jade-light); border-color: var(--jade-mid); }
+  .badge.green { background: var(--green-bg); color: #6DDBB8; border-color: var(--green-dim); }
   .badge.red   { background: var(--red-bg);   color: #E8907A;  border-color: var(--rose-border); }
-  .badge.blue  { background: var(--blue-bg);  color: var(--jade); border-color: rgba(74,159,212,0.4); }
+  .badge.blue  { background: var(--blue-bg);  color: var(--sky-blue); border-color: rgba(74,159,212,0.4); }
   .badge.purple{ background: var(--purple-bg);color: #C4A8E8;  border-color: rgba(155,114,204,0.4); }
   .badge.teal  { background: var(--teal-bg);  color: var(--teal); border-color: var(--teal-dim); }
 
@@ -229,11 +229,11 @@
   /* TAGS */
   .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
   .tag { font-size: 11px; padding: 4px 11px; border-radius: 20px; border: 1px solid var(--navy-border); background: rgba(255,255,255,0.04); color: var(--muted); }
-  .tag:hover { border-color: var(--jade-mid); color: var(--jade); }
-  .tag.on { background: var(--jade-pale); color: var(--jade-light); border-color: var(--jade-mid); font-weight: 500; }
+  .tag:hover { border-color: var(--sky-blue-mid); color: var(--sky-blue); }
+  .tag.on { background: var(--sky-blue-pale); color: var(--sky-blue-light); border-color: var(--sky-blue-mid); font-weight: 500; }
 
   /* SPINNER */
-  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--navy-border2); border-top-color: var(--jade); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--navy-border2); border-top-color: var(--sky-blue); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
 
   /* ROW */
   .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -242,8 +242,8 @@
   .empty { text-align: center; padding: 3rem 0; color: var(--faint); }
 
   /* FEEDBACK / MSG BOXES */
-  .fb-box { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: var(--jade-pale); border: 1px solid rgba(91,158,201,0.25); font-size: 12px; color: var(--muted); line-height: 1.7; white-space: pre-wrap; }
-  .fb-box .fb-lbl { color: var(--jade-light); font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px; }
+  .fb-box { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: var(--sky-blue-pale); border: 1px solid rgba(91,158,201,0.25); font-size: 12px; color: var(--muted); line-height: 1.7; white-space: pre-wrap; }
+  .fb-box .fb-lbl { color: var(--sky-blue-light); font-size: 11px; font-weight: 600; display: block; margin-bottom: 4px; }
   .msg-box { padding: 10px 12px; border-radius: 8px; background: var(--gold-pale); border: 1px solid var(--gold-border); font-size: 12px; color: var(--tx); line-height: 1.7; white-space: pre-wrap; }
 
   /* ERROR */
@@ -270,7 +270,7 @@
   #profile-overlay.open { display: block; }
   .profile-header { padding: 16px 20px; border-bottom: 1px solid var(--navy-border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--navy-mid); z-index: 1; }
   .profile-body { padding: 20px; flex: 1; }
-  .profile-section-head { font-size: 11px; color: var(--jade-light); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; margin-top: 16px; }
+  .profile-section-head { font-size: 11px; color: var(--sky-blue-light); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; font-weight: 600; margin-top: 16px; }
   .profile-body p { font-size: 12px; color: var(--muted); line-height: 1.7; }
   .profile-streaming { font-size: 12px; color: var(--muted); line-height: 1.8; white-space: pre-wrap; }
   .profile-loading { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; padding: 20px 0; }
@@ -308,7 +308,7 @@
         <polygon points="16,3 17.9,13 25.5,7.5 19.8,15.5 30,16 19.8,16.5 25.5,24.5 17.9,19 16,29 14.1,19 6.5,24.5 12.2,16.5 2,16 12.2,15.5 6.5,7.5 14.1,13" fill="#E8F1F8"/>
       </svg>
     </div>
-    <span class="brand-name">JobQuest</span><span class="brand-year">2026</span>
+    <span class="brand-name" onclick="showTab('board')" style="cursor:pointer" title="Back to Job Board HQ">JobQuest</span><span class="brand-year">2026</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;overflow:hidden;align-self:center">
     <span id="sync-status"></span>
@@ -350,7 +350,7 @@ const PRESETS = [
 ];
 
 const STAGES = ['Saved','Coffee / Networking','Applied','Phone Screen','Interview','Final Round','Offer','Rejected','Ghosted'];
-const STAGE_COL = {Saved:'purple',Applied:'blue','Coffee / Networking':'teal','Phone Screen':'amber',Interview:'amber','Final Round':'green',Offer:'green',Rejected:'red',Ghosted:'purple'};
+const STAGE_COL = {Saved:'teal',Applied:'blue','Coffee / Networking':'green','Phone Screen':'amber',Interview:'amber','Final Round':'green',Offer:'green',Rejected:'red',Ghosted:'purple'};
 const STAGE_CARD_BG = {
   Saved:'var(--card-saved)', Applied:'var(--card-applied)',
   'Coffee / Networking':'var(--card-coffee)',
@@ -579,7 +579,7 @@ function render(tab) {
 
 const h = (tag, attrs='', inner='') => `<${tag} ${attrs}>${inner}</${tag}>`;
 const div = (cls, inner) => `<div class="${cls}">${inner}</div>`;
-const secHead = (title, subtitle='', eyebrow='') => `<div class="sec-head">${eyebrow?`<div class="sec-eyebrow">${eyebrow}</div>`:''}<h1>${title}</h1>${subtitle?`<div style="font-family:'DM Serif Display',Georgia,serif;font-size:14px;font-style:italic;color:var(--rose);margin-top:2px">${subtitle}</div>`:''}<div class="bar"></div></div>`;
+const secHead = (title, subtitle='', eyebrow='') => `<div class="sec-head">${eyebrow?`<div class="sec-eyebrow">${eyebrow}</div>`:''}<h1>${title}</h1>${subtitle?`<div style="font-family:'DM Serif Display',Georgia,serif;font-size:14px;font-style:italic;color:var(--sky-blue-light);margin-top:2px">${subtitle}</div>`:''}<div class="bar"></div></div>`;
 const badge = (label, color) => `<span class="badge ${color}">${label}</span>`;
 const pill = label => `<span class="pill">${esc(label)}</span>`;
 const lbl = text => `<div class="lbl">${text}</div>`;
@@ -761,7 +761,7 @@ function renderBoard(el) {
 
   const boardBtns = (boards) => boards.map(b =>
     b.clipboard
-      ? `<button onclick="openWithClipboard('${esc(b.url)}','${esc(b.clipboard)}')" style="font-size:11px;color:#E8C97A;border-color:rgba(201,138,14,0.35);background:rgba(201,138,14,0.06)">${esc(b.name)} ↗</button>`
+      ? `<button onclick="openWithClipboard('${esc(b.url)}','${esc(b.clipboard)}')" style="font-size:11px">${esc(b.name)} ↗</button>`
       : `<button onclick="window.open('${esc(b.url)}','_blank')" style="font-size:11px">${esc(b.name)} ↗</button>`
   ).join('');
 
@@ -782,15 +782,14 @@ function renderBoard(el) {
   el.innerHTML = secHead('JobQuest 2026 HQ', 'Job Boards &amp; Enterprise Search Workflows', 'Job board') + `
 
     <div style="border-radius:12px;overflow:hidden;margin-bottom:0;border:1px solid rgba(91,160,210,0.20)">
-      <div style="background:linear-gradient(135deg, #0D2033 0%, #1C3A50 100%);padding:16px 24px;display:flex;align-items:center;gap:18px">
-        <img src="data:image/jpeg;base64,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" style="width:52px;height:66px;border-radius:7px;object-fit:cover;object-position:center top;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.15)">
+      <div style="background:linear-gradient(135deg, #0D2033 0%, #1C3A50 100%);padding:10px 18px;display:flex;align-items:center;gap:14px">
+        <img src="data:image/jpeg;base64,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" style="width:40px;height:50px;border-radius:5px;object-fit:cover;object-position:center top;flex-shrink:0;border:1px solid rgba(255,255,255,0.12)">
         <div style="flex:1;min-width:0">
-          <div style="font-size:10px;color:var(--rose-light);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:14px;height:1px;background:var(--rose-deep)"></span>open to new roles · minneapolis, mn</div>
-          <div style="font-size:19px;font-weight:600;color:#F4F8FC;line-height:1.1;letter-spacing:-.2px">Ryan Corcoran</div>
-          <div style="font-size:12px;color:#B8D4E8;margin-top:3px;margin-bottom:7px">Senior PM · Digital Health · Care Navigation · Medtech</div>
-          <div style="font-size:12px;color:rgba(232,241,248,0.65);line-height:1.55;max-width:540px">Senior product leader with a background in biomedical science, 0→1 digital healthcare products, and platform builds. I translate complex problems into things people actually use.</div>
+          <div style="font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px;display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:12px;height:1px;background:var(--rose-deep)"></span>open to new roles · minneapolis, mn</div>
+          <div style="font-size:16px;font-weight:600;color:#F4F8FC;line-height:1.1;letter-spacing:-.2px">Ryan Corcoran</div>
+          <div style="font-size:11px;color:#B8D4E8;margin-top:1px">Senior PM · Digital Health · Care Navigation · Medtech</div>
         </div>
-        <a href="https://ryan-corcoran.com" target="_blank" style="flex-shrink:0;font-size:11px;color:var(--rose);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:5px 12px;border-radius:5px;white-space:nowrap">Portfolio ↗</a>
+        <a href="https://ryan-corcoran.com" target="_blank" style="flex-shrink:0;font-size:10px;color:var(--rose);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:4px 10px;border-radius:4px;white-space:nowrap">Interactive Portfolio ↗</a>
       </div>
       <div style="background:rgba(10,22,36,0.6);padding:14px 20px;border-top:3px solid var(--gold);position:relative">
         <div style="display:flex;align-items:center;gap:10px">
@@ -859,7 +858,7 @@ function renderBoard(el) {
         <div>${lbl('Experience')}${sel('li-exp',[{v:'senior',l:'Senior / Director'},{v:'mid',l:'Mid-Senior'},{v:'director',l:'Director'},{v:'any',l:'Any level'}],'senior')}</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="amber" onclick="openLinkedIn()" style="flex:1;padding:7px 0;font-size:12px">Open LinkedIn search ↗</button>
+        <button class="amber" onclick="openLinkedIn()" style="flex:1;padding:7px 0;font-size:12px;background:var(--sky-blue);border-color:var(--sky-blue)">Open LinkedIn search ↗</button>
         <button onclick="copyLinkedInURL()" style="font-size:11px">Copy URL</button>
       </div>
       <div id="li-url-preview" style="font-size:10px;color:var(--faint);margin-top:6px;word-break:break-all">${esc(liURL)}</div>
@@ -1069,7 +1068,7 @@ function renderTracker(el) {
       </div>
       ${topPriority.map(a => {
         const isExp = state.appExpanded && state.appExpanded['top_'+a.id];
-        const borderCol = {Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--teal)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[a.stage]||'var(--amber)';
+        const borderCol = {Saved:'var(--teal)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--green)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[a.stage]||'var(--amber)';
         const cardBg = STAGE_CARD_BG[a.stage]||'var(--card-default)';
         const details = [a.salary&&pill(a.salary),a.location&&pill(a.location),a.date&&pill('applied: '+a.date),a.fit&&pill('fit: '+a.fit+'/10')].filter(Boolean).join('');
         const nextLine = [a.nextStep,a.nextDate].filter(s=>s&&s!=='—').map(esc).join(' → ');
@@ -1152,7 +1151,7 @@ function renderTracker(el) {
     }
 
     const isExpanded   = state.appExpanded && state.appExpanded[app.id];
-    const borderCol    = {Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--teal)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[app.stage]||'var(--brd2)';
+    const borderCol    = {Saved:'var(--teal)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--green)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[app.stage]||'var(--brd2)';
     const cardBg       = STAGE_CARD_BG[app.stage]||'var(--card-default)';
     const details      = [app.salary&&pill(app.salary),app.location&&pill(app.location),app.date&&pill('applied: '+app.date),app.fit&&pill('fit: '+app.fit+'/10')].filter(Boolean).join('');
     const contactLine  = [app.contact,app.netContact].filter(s=>s&&s!=='—').map(esc).join(' · ');
@@ -1181,7 +1180,7 @@ function renderTracker(el) {
           <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
             <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">↑ Move</button>
             <button onclick="toggleHighPriority(${app.id})" style="font-size:11px;${isHigh?'color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)':'color:var(--faint)'}" title="${isHigh?'Unpin':'Pin priority'}">⭐ ${isHigh?'Pinned':'Pin'}</button>
-            <button onclick="toggleExpand(${app.id})" style="font-size:11px;font-weight:500;color:var(--jade);border-color:var(--jade-mid);background:var(--jade-pale)">${isExpanded?'▴ Less':'▾ More'}</button>
+            <button onclick="toggleExpand(${app.id})" style="font-size:11px;font-weight:500;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴ Less':'▾ More'}</button>
           </div>
           <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
             <button onclick="openProfilePanel(${app.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢 Profile</button>
@@ -1214,8 +1213,8 @@ function renderTracker(el) {
     <!-- LEFT: stats block -->
     <div>
       <!-- Total tracked — full width top -->
-      <div onclick="setAppFilter('all')" style="background:var(--jade-pale);border:1px solid ${state.appFilter==='all'?'var(--jade)':'rgba(0,0,0,0.06)'};border-radius:8px;padding:10px 16px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:8px;${state.appFilter==='all'?'box-shadow:0 0 0 2px var(--jade);':''}" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-        <div style="font-size:24px;font-weight:600;color:var(--jade);line-height:1">${totalApps}</div>
+      <div onclick="setAppFilter('all')" style="background:var(--sky-blue-pale);border:1px solid ${state.appFilter==='all'?'var(--sky-blue)':'rgba(0,0,0,0.06)'};border-radius:8px;padding:10px 16px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:8px;${state.appFilter==='all'?'box-shadow:0 0 0 2px var(--sky-blue);':''}" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        <div style="font-size:24px;font-weight:600;color:var(--sky-blue);line-height:1">${totalApps}</div>
         <div style="font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.04em">Total tracked</div>
       </div>
       <!-- 2x2 grid -->
@@ -1234,7 +1233,7 @@ function renderTracker(el) {
     <!-- RIGHT: Claude JD panel -->
     <div style="background:rgba(201,138,14,0.07);border:1px solid rgba(201,138,14,0.30);border-top:3px solid var(--gold);border-radius:8px;padding:14px">
       <div style="font-size:11px;font-weight:700;color:#E8C97A;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">✦ Analyze a Job Description</div>
-      <textarea id="tracker-jd-quick" rows="5" placeholder="Paste JD text here — get fit score, red flags &amp; save to tracker…" style="width:100%;font-size:12px;margin-bottom:8px;background:rgba(201,138,14,0.06);border:1px solid rgba(201,138,14,0.30);border-radius:6px;color:var(--tx);resize:none;padding:8px 10px"></textarea>
+      <textarea id="tracker-jd-quick" rows="3" placeholder="Paste JD text here — get fit score, red flags &amp; save to tracker…" style="width:100%;font-size:12px;margin-bottom:8px;background:rgba(201,138,14,0.06);border:1px solid rgba(201,138,14,0.30);border-radius:6px;color:var(--tx);resize:none;padding:7px 10px"></textarea>
       <button onclick="openAnalyzeModalWithText(document.getElementById('tracker-jd-quick').value)" style="width:100%;font-size:12px;background:var(--gold);color:#fff;border-color:var(--gold);padding:8px 0;font-weight:600">⚡ Analyze JD</button>
       <div style="font-size:10px;color:rgba(201,150,26,0.6);margin-top:6px;text-align:center;letter-spacing:.02em">powered by claude · ~15 seconds · no data stored</div>
     </div>
@@ -1497,7 +1496,7 @@ function renderNetwork(el) {
   const sd=state.contacts.filter(c=>soon(c.next)).length;
 
   const contactForm = (prefix, c={}, isEdit=false) => `
-    <div class="card" style="border-color:var(--jade-mid);margin-bottom:12px">
+    <div class="card" style="border-color:var(--sky-blue-mid);margin-bottom:12px">
       <div class="g2" style="margin-bottom:8px">
         ${inp(`${prefix}-name`, c.name||'', 'Name')}
         ${inp(`${prefix}-co`, c.company||'', 'Company')}
@@ -1534,7 +1533,7 @@ function renderNetwork(el) {
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end">
           <button onclick="state.netEditing=${c.id};state.netShowAdd=false;render('network')" style="font-size:11px;color:var(--rose-light);border-color:var(--rose-border)">Edit</button>
-          <button onclick="copyNetPrompt('linkedin','${esc(c.id)}')" style="font-size:11px;color:var(--jade);border-color:var(--jade-mid);background:var(--jade-pale);white-space:nowrap">📋 LinkedIn msg</button>
+          <button onclick="copyNetPrompt('linkedin','${esc(c.id)}')" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);white-space:nowrap">📋 LinkedIn msg</button>
           <button onclick="copyNetPrompt('followup','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Follow-up</button>
           <button onclick="copyNetPrompt('intro','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Referral ask</button>
         </div>
@@ -1549,8 +1548,8 @@ function renderNetwork(el) {
       </div>
       <button class="amber" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>
     </div>
-    <div class="card" style="margin-bottom:16px;background:var(--jade-pale);border-color:var(--jade-mid)">
-      <div style="font-size:12px;color:var(--jade-light);line-height:1.7">
+    <div class="card" style="margin-bottom:16px;background:var(--sky-blue-pale);border-color:var(--sky-blue-mid)">
+      <div style="font-size:12px;color:var(--sky-blue-light);line-height:1.7">
         <strong>📋 Prompt buttons</strong> copy a pre-filled prompt to your clipboard — paste directly into Claude chat to generate the message. Three types: LinkedIn intro, follow-up, and referral ask.
       </div>
     </div>
@@ -1614,7 +1613,7 @@ function copyNetPrompt(type, id) {
   navigator.clipboard?.writeText(prompt);
   const t = document.createElement('div');
   t.textContent = `📋 ${type==='linkedin'?'LinkedIn msg':type==='followup'?'Follow-up':'Referral ask'} prompt copied — paste in Claude chat`;
-  Object.assign(t.style, {position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',background:getComputedStyle(document.documentElement).getPropertyValue('--jade-pale').trim(),border:`1px solid ${getComputedStyle(document.documentElement).getPropertyValue('--jade-mid').trim()}`,color:getComputedStyle(document.documentElement).getPropertyValue('--jade').trim(),padding:'8px 18px',borderRadius:'8px',fontSize:'12px',zIndex:'9999',fontFamily:'Avenir Next,system-ui,sans-serif'});
+  Object.assign(t.style, {position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',background:getComputedStyle(document.documentElement).getPropertyValue('--sky-blue-pale').trim(),border:`1px solid ${getComputedStyle(document.documentElement).getPropertyValue('--sky-blue-mid').trim()}`,color:getComputedStyle(document.documentElement).getPropertyValue('--sky-blue').trim(),padding:'8px 18px',borderRadius:'8px',fontSize:'12px',zIndex:'9999',fontFamily:'Avenir Next,system-ui,sans-serif'});
   document.body.appendChild(t);
   setTimeout(()=>t.remove(), 2500);
 }
