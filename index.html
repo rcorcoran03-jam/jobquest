@@ -603,16 +603,35 @@ const fmtSal = j => { if(!j.salary_min&&!j.salary_max) return null; const f=n=>n
 
 // ── API CALLS ─────────────────────────────────────────────────────────────────
 
-// Use relative /api/claude proxy unless running as a local file (file://)
-// This works on any Netlify domain including preview/branch deploys
-const CLAUDE_URL = '/api/claude';
+// Detect environment: GitHub Pages has no /api/claude proxy — call Anthropic directly
+// On Netlify the proxy handles the key; on GitHub Pages we pass x-user-api-key and hit Anthropic directly
+const ON_GITHUB_PAGES = window.location.hostname.includes('github.io') 
+  || window.location.hostname.includes('github.com')
+  || window.location.protocol === 'file:'
+  || !window.location.hostname.includes('netlify'); // fallback: anything not Netlify uses direct API
+const CLAUDE_URL = ON_GITHUB_PAGES
+  ? 'https://api.anthropic.com/v1/messages'
+  : '/api/claude';
 function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
+
+function buildClaudeHeaders(key, extra={}) {
+  if (ON_GITHUB_PAGES) {
+    return {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+      ...extra
+    };
+  }
+  return { 'Content-Type': 'application/json', 'x-user-api-key': key, ...extra };
+}
 
 async function claudeStream(prompt, onChunk) {
   const key = getApiKey();
   if (!key) { showToast('Add your Anthropic API key in the Excel sync tab first'); return ''; }
   const resp = await fetch(CLAUDE_URL, {
-    method:'POST', headers:{'Content-Type':'application/json','x-user-api-key':key},
+    method:'POST', headers: buildClaudeHeaders(key),
     body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:1000,stream:true,messages:[{role:'user',content:prompt}]})
   });
   const reader = resp.body.getReader(), dec = new TextDecoder();
@@ -630,7 +649,7 @@ async function claudeJSON(prompt) {
   const key = getApiKey();
   if (!key) { showToast('Add your Anthropic API key in the Excel sync tab first'); return []; }
   const resp = await fetch(CLAUDE_URL, {
-    method:'POST', headers:{'Content-Type':'application/json','x-user-api-key':key},
+    method:'POST', headers: buildClaudeHeaders(key),
     body: JSON.stringify({model:'claude-sonnet-4-5',max_tokens:800,messages:[{role:'user',content:prompt}]})
   });
   const data = await resp.json();
@@ -2859,18 +2878,35 @@ ${input}`;
   try {
     const key = getApiKey();
     if (!key) { analyzeState.error = 'Add your Anthropic API key in the Excel sync tab first'; analyzeState.loading = false; renderAnalyzeModal(); return; }
+    // web_search tool requires server-side proxy; skip on direct browser calls (GitHub Pages)
+    const bodyPayload = {
+      model: 'claude-sonnet-4-5',
+      max_tokens: 1000,
+      system: ANALYZE_SYSTEM,
+      messages: [{ role: 'user', content: userPrompt }]
+    };
+    if (!ON_GITHUB_PAGES) {
+      bodyPayload.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+    }
     const resp = await fetch(CLAUDE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-user-api-key': key },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 1000,
-        system: ANALYZE_SYSTEM,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: userPrompt }]
-      })
+      headers: buildClaudeHeaders(key),
+      body: JSON.stringify(bodyPayload)
     });
+    if (!resp.ok) {
+      let errMsg = `API error ${resp.status}`;
+      try {
+        const errData = await resp.json();
+        errMsg = errData?.error?.message || errMsg;
+      } catch(e2) {
+        const rawText = await resp.text().catch(()=>'');
+        if (rawText.includes('<html')) errMsg = 'Server returned HTML — check your API key is set in the Excel Sync tab.';
+        else errMsg += ': ' + rawText.slice(0, 120);
+      }
+      throw new Error(errMsg);
+    }
     const data = await resp.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     const text = (data.content||[]).filter(b => b.type==='text').map(b=>b.text).join('').trim();
     // Strip markdown fences if present
     const clean = text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
