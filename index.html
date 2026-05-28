@@ -329,7 +329,7 @@
       <button onclick="showTab('network')" id="tab-network">Networking</button>
       <button onclick="showTab('sync')" id="tab-sync">Excel sync</button>
     </div>
-    <a href="https://ryan-corcoran.com" target="_blank" class="portfolio-link">Portfolio ↗</a>
+    <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" class="portfolio-link">Portfolio ↗</a>
   </div>
 </div>
 
@@ -603,15 +603,9 @@ const fmtSal = j => { if(!j.salary_min&&!j.salary_max) return null; const f=n=>n
 
 // ── API CALLS ─────────────────────────────────────────────────────────────────
 
-// Detect environment: GitHub Pages has no /api/claude proxy — call Anthropic directly
-// On Netlify the proxy handles the key; on GitHub Pages we pass x-user-api-key and hit Anthropic directly
-const ON_GITHUB_PAGES = window.location.hostname.includes('github.io') 
-  || window.location.hostname.includes('github.com')
-  || window.location.protocol === 'file:'
-  || !window.location.hostname.includes('netlify'); // fallback: anything not Netlify uses direct API
-const CLAUDE_URL = ON_GITHUB_PAGES
-  ? 'https://api.anthropic.com/v1/messages'
-  : '/api/claude';
+// Always call Anthropic API directly using the stored API key
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
+const ON_GITHUB_PAGES = true; // always use direct API mode
 function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
 
 function buildClaudeHeaders(key, extra={}) {
@@ -868,7 +862,7 @@ function renderHQHero() {
           <div style="font-size:12px;color:#B8D4E8;margin-top:4px;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Ryan Corcoran · Senior PM · Digital Health · Care Navigation · Medtech</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap">
-          <a href="https://ryan-corcoran.com" target="_blank" style="font-size:10px;color:var(--rose);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:5px 12px;border-radius:4px;white-space:nowrap">Portfolio ↗</a>
+          <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" style="font-size:10px;color:var(--rose);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:5px 12px;border-radius:4px;white-space:nowrap">Portfolio ↗</a>
           <button onclick="showTab('tracker')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(91,158,201,0.12);border-color:var(--sky-blue-mid);color:var(--sky-blue);white-space:nowrap">Applications ↗</button>
           <button onclick="showTab('network')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(42,181,160,0.10);border-color:var(--teal-border);color:var(--teal);white-space:nowrap">Network ↗</button>
         </div>
