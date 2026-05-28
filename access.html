@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobQuest 2026 · Access</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F1B2D'/%3E%3Cpolygon points='16,3 17.8,10.2 24.5,7.5 20.5,13.5 27.5,15.5 20.5,17.5 24.5,23.5 17.8,20.8 16,28 14.2,20.8 7.5,23.5 11.5,17.5 4.5,15.5 11.5,13.5 7.5,7.5 14.2,10.2' fill='%236BA3C8'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0F1B2D;--bg2:#162030;--bg3:#1A2535;--bg4:#1E2C3F;
+  --jade:#6BA3C8;--jade2:#B8D4E8;
+  --rose:#C4848F;--rose2:#DDA8B0;
+  --gold:#C9961A;--gold2:#E8C97A;
+  --tx:#E8F2F8;--tx2:#8BAABB;--tx3:#5A7A90;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+
+/* Subtle animated background */
+.bg-glow{position:fixed;pointer-events:none;}
+.bg-glow-1{top:-200px;right:-200px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(107,163,200,.05) 0%,transparent 65%);}
+.bg-glow-2{bottom:-200px;left:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(196,132,143,.04) 0%,transparent 65%);}
+
+/* Gate card */
+.gate{
+  width:420px;max-width:calc(100vw - 40px);
+  background:var(--bg2);
+  border:0.5px solid var(--border2);
+  border-radius:16px;
+  padding:40px 36px;
+  position:relative;
+  z-index:1;
+  animation:fadeUp .4s ease;
+}
+.gate::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--jade));border-radius:16px 16px 0 0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.shake{animation:shake .35s ease;}
+
+.gate-star{display:flex;justify-content:center;margin-bottom:20px;}
+.gate-eyebrow{text-align:center;font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.gate-eyebrow::before,.gate-eyebrow::after{content:'';display:inline-block;width:20px;height:1px;background:var(--rose);}
+.gate-title{font-family:var(--serif);font-size:28px;text-align:center;color:var(--tx);margin-bottom:6px;letter-spacing:-.01em;}
+.gate-title em{font-style:italic;color:var(--jade2);}
+.gate-sub{font-size:13px;color:var(--tx2);text-align:center;line-height:1.7;margin-bottom:28px;}
+
+.gate-input-wrap{position:relative;margin-bottom:10px;}
+.gate-input{
+  width:100%;background:var(--bg3);border:0.5px solid var(--border2);
+  border-radius:8px;color:var(--tx);font-family:var(--sans);font-size:15px;
+  padding:13px 46px 13px 16px;outline:none;
+  transition:border-color .2s;letter-spacing:.08em;
+}
+.gate-input:focus{border-color:rgba(107,163,200,.4);}
+.gate-input.error{border-color:rgba(196,132,143,.6);}
+.gate-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:4px;transition:color .15s;}
+.gate-eye:hover{color:var(--tx2);}
+.gate-btn{
+  width:100%;background:var(--gold);color:#fff;border:none;
+  border-radius:8px;padding:13px;font-family:var(--sans);font-size:14px;
+  font-weight:500;cursor:pointer;letter-spacing:.04em;
+  transition:background .2s;margin-top:4px;
+}
+.gate-btn:hover{background:#B8861A;}
+.gate-btn:disabled{opacity:.5;cursor:not-allowed;}
+.gate-error{font-size:12px;color:var(--rose2);text-align:center;margin-top:8px;min-height:16px;transition:opacity .2s;}
+.gate-back{display:block;text-align:center;font-size:12px;color:var(--tx3);text-decoration:none;margin-top:20px;letter-spacing:.04em;transition:color .15s;}
+.gate-back:hover{color:var(--jade2);}
+.gate-hint{font-size:11px;color:var(--tx3);text-align:center;margin-top:16px;line-height:1.6;}
+.gate-hint a{color:var(--rose2);text-decoration:none;}
+.gate-hint a:hover{color:var(--rose);}
+
+/* Loading overlay after correct password */
+.loading-overlay{
+  display:none;position:fixed;inset:0;background:var(--bg);z-index:999;
+  flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+.loading-overlay.visible{display:flex;}
+.loading-spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--jade);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:13px;color:var(--tx3);letter-spacing:.04em;}
+</style>
+</head>
+<body>
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<div class="loading-overlay" id="loading">
+  <svg width="32" height="32" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading JobQuest…</div>
+</div>
+
+<div class="gate" id="gate">
+
+  <div class="gate-star">
+    <svg width="40" height="40" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
+  </div>
+
+  <div class="gate-eyebrow">private access</div>
+  <h1 class="gate-title">JobQuest <em>2026</em></h1>
+  <p class="gate-sub">Ryan Corcoran's job search operating system.<br>Password required to continue.</p>
+
+  <div class="gate-input-wrap">
+    <input
+      class="gate-input"
+      id="pw-input"
+      type="password"
+      placeholder="Enter password"
+      autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')tryAccess()"
+      oninput="document.getElementById('pw-error').textContent='';this.classList.remove('error')"
+    >
+    <button class="gate-eye" id="eye-btn" onclick="toggleVisibility()" title="Show/hide password">👁</button>
+  </div>
+  <button class="gate-btn" id="access-btn" onclick="tryAccess()">Access JobQuest ↗</button>
+  <div class="gate-error" id="pw-error"></div>
+
+  <a href="index.html" class="gate-back">← Back to portfolio</a>
+
+  <div class="gate-hint">
+    Looking for a walkthrough? <a href="mailto:rcorcoran03@gmail.com">Get in touch</a>
+  </div>
+
+</div>
+
+<script>
+// ── PASSWORD CONFIG ──────────────────────────────────────────────────────────
+// Store the hash of your password here — never the plaintext.
+// To generate: open your browser console on any page and run:
+//   btoa(encodeURIComponent('YOUR_PASSWORD_HERE'))
+// Paste the result below as HASH.
+// Example: btoa(encodeURIComponent('sunflower42')) → 'c3VuZmxvd2VyNDI%3D'
+//
+// SWAP THIS OUT — replace with your own generated hash:
+const HASH = 'cXVlc3RvZnJwYw==';
+
+// Path to the actual JobQuest HTML file on your server
+// If jobquest_v16.html lives in the same folder as this file, leave as-is.
+const JQ_PATH = 'index.html';
+// ─────────────────────────────────────────────────────────────────────────────
+
+function tryAccess() {
+  const input = document.getElementById('pw-input').value;
+  const inputHash = btoa(encodeURIComponent(input));
+
+  if (inputHash === HASH) {
+    // Correct — show loading and redirect
+    document.getElementById('gate').style.opacity = '0';
+    document.getElementById('gate').style.transition = 'opacity .3s';
+    document.getElementById('loading').classList.add('visible');
+    // Store session flag so you don't get gated again on reload
+    sessionStorage.setItem('jq_auth', '1');
+    setTimeout(() => { window.location.href = JQ_PATH; }, 800);
+  } else {
+    // Wrong — shake and show error
+    const btn = document.getElementById('access-btn');
+    const input_el = document.getElementById('pw-input');
+    const err = document.getElementById('pw-error');
+    input_el.classList.add('error');
+    btn.classList.add('shake');
+    err.textContent = 'Incorrect password — try again';
+    setTimeout(() => btn.classList.remove('shake'), 400);
+    document.getElementById('pw-input').select();
+  }
+}
+
+function toggleVisibility() {
+  const inp = document.getElementById('pw-input');
+  const btn = document.getElementById('eye-btn');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    inp.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+// Auto-focus
+window.addEventListener('load', () => {
+  document.getElementById('pw-input').focus();
+});
+</script>
+</body>
+</html>
