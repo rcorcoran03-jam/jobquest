@@ -214,7 +214,17 @@
   /* LABEL */
   .lbl { font-size: 11px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; font-weight: 500; }
 
-  /* BADGE */
+  /* MINI TIMER WIDGET */
+  .mini-timer-widget {
+    display:none;flex-direction:row;align-items:center;gap:8px;
+    background:rgba(201,138,14,0.10);border:1px solid rgba(201,138,14,0.28);
+    border-radius:8px;padding:6px 12px;font-size:11px;
+    position:absolute;top:0;right:0;
+  }
+  .mini-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--amber);transition:background .3s; }
+  .mini-cd  { font-family:var(--mono);font-size:13px;font-weight:500;color:var(--tx);letter-spacing:.03em; }
+  .mini-task{ color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  .mini-timer-btn { font-size:10px;color:var(--faint);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline; }
   .badge { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 11px; letter-spacing: .02em; white-space: nowrap; font-weight: 500; border: 1px solid transparent; }
   .badge.amber { background: var(--amber-bg); color: #E8C97A; border-color: var(--gold-border); }
   .badge.green { background: var(--green-bg); color: #6DDBB8; border-color: var(--green-dim); }
@@ -323,7 +333,7 @@
   </div>
 </div>
 
-<div id="main">
+<div id="main" style="position:relative">
   <div id="pane-board"></div>
   <div id="pane-tracker" style="display:none"></div>
   <div id="pane-pomodoro" style="display:none"></div>
@@ -411,7 +421,7 @@ let state = {
   intRole: '', intCo: '', intQtype: 'behavioral', intQs: [], intAns: {}, intFb: {}, intLoading: false, intFbLoading: {},
   pomMode: 0, pomSecs: 25*60, pomTotal: 25*60, pomRunning: false,
   pomSessions: 0, pomTask: POM_TASKS[0], pomCustomTask: '', pomCustomMins: '', pomLog: [],
-  netShowAdd: false, netEditing: null, netDraft: '', netDraftFor: null, netDraftLoading: false,
+  netShowAdd: false, netEditing: null, netExpanded: {}, netFilter: {view:'all', source:'', sort:'name'}, netDraft: '', netDraftFor: null, netDraftLoading: false,
   tasks: JSON.parse(localStorage.getItem('tasks')||'null') || [
     {id:1,  text:'Import full application history via CSV',           done:false, cat:'today',   due:'2026-05-05', priority:'high'},
     {id:4,  text:'Follow up with Clare MesserSchmidt – Oasis',        done:false, cat:'followup',due:'2026-05-07', priority:'high'},
@@ -718,6 +728,15 @@ const TARGET_CAREER_PAGES = [
   {name:'Gravie',              url:'https://www.gravie.com/careers'},
 ];
 
+function miniTimerWidget() {
+  return `<div class="mini-timer-widget" id="mini-timer-${Date.now()}">
+    <div class="mini-dot"></div>
+    <span class="mini-cd">--:--</span>
+    <span class="mini-task">No active session</span>
+    <button class="mini-timer-btn" onclick="showTab('pomodoro')">go to timer</button>
+  </div>`;
+}
+
 function renderBoard(el) {
   const liURL = buildLinkedInURL();
 
@@ -779,7 +798,8 @@ function renderBoard(el) {
   const mtEntBtns    = compBtns(MT_ENT,   {bg:'rgba(42,181,160,0.10)',fg:'#7ADDD0',brd:'rgba(42,181,160,0.28)'});
   const mtStartBtns  = compBtns(MT_START, {bg:'rgba(42,181,160,0.07)',fg:'#7ADDD0',brd:'rgba(42,181,160,0.22)'});
 
-  el.innerHTML = secHead('JobQuest 2026 HQ', 'Job Boards &amp; Enterprise Search Workflows', 'Job board') + `
+  el.innerHTML = secHead('JobQuest 2026 HQ', 'Job Boards &amp; Enterprise Search Workflows', 'Job board') +
+    miniTimerWidget() + `
 
     <div style="border-radius:12px;overflow:hidden;margin-bottom:0;border:1px solid rgba(91,160,210,0.20)">
       <div style="background:linear-gradient(135deg, #0D2033 0%, #1C3A50 100%);padding:10px 18px;display:flex;align-items:center;gap:14px">
@@ -883,6 +903,7 @@ function renderBoard(el) {
   document.getElementById('li-location').addEventListener('input', updateLiPreview);
   document.getElementById('li-time').addEventListener('change', updateLiPreview);
   document.getElementById('li-exp').addEventListener('change', updateLiPreview);
+  updateMiniTimer();
 }
 
 
@@ -1241,7 +1262,7 @@ function renderTracker(el) {
 
   const appSecHead = secHead('JobQuest Application Development System', 'Track, analyze, and prioritize your search', 'Applications');
 
-  el.innerHTML = appSecHead + dashAndJD + `
+  el.innerHTML = appSecHead + miniTimerWidget() + dashAndJD + `
     ${priorityStrip}
     <div class="stage-filters" style="margin-bottom:6px">
       ${filterBtns}
@@ -1256,6 +1277,7 @@ function renderTracker(el) {
     ${addForm}
     ${cards||'<div class="empty">No applications in this view.</div>'}
   `;
+  updateMiniTimer();
 }
 
 function toggleHighPriority(id) {
@@ -1422,7 +1444,7 @@ function renderPomodoro(el) {
           <circle cx="100" cy="100" r="${R}" fill="none" stroke="${cur.col}" stroke-width="8" stroke-dasharray="${Circ}" stroke-dashoffset="${Circ*(1-pct)}" stroke-linecap="round" style="transition:${state.pomRunning?'stroke-dashoffset 1s linear':'none'}"/>
         </svg>
         <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div style="font-size:42px;font-weight:500;letter-spacing:-2px;color:var(--tx)">${mm}:${ss}</div>
+          <div class="pom-countdown-display" style="font-size:42px;font-weight:500;letter-spacing:-2px;color:var(--tx)">${mm}:${ss}</div>
           <div style="font-size:11px;color:var(--muted);margin-top:4px">${cur.label}</div>
         </div>
       </div>
@@ -1467,14 +1489,42 @@ function togglePom() {
           state.pomLog.push({task:state.pomCustomTask||state.pomTask,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),mins:[25,5,15][state.pomMode]});
         }
         state.pomSecs=0;
+        render('pomodoro');
+        updateMiniTimer();
+      } else {
+        // Only update the countdown display elements — no full re-render
+        const m=Math.floor(state.pomSecs/60), s=state.pomSecs%60;
+        const timeStr=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        document.querySelectorAll('.pom-countdown-display').forEach(el=>el.textContent=timeStr);
+        updateMiniTimer();
       }
-      render('pomodoro');
     },1000);
   }
   render('pomodoro');
 }
 
-function resetPom() { clearInterval(pomInterval); pomInterval=null; state.pomRunning=false; state.pomSecs=state.pomTotal; render('pomodoro'); }
+function resetPom() { clearInterval(pomInterval); pomInterval=null; state.pomRunning=false; state.pomSecs=state.pomTotal; render('pomodoro'); updateMiniTimer(); }
+
+function updateMiniTimer() {
+  const widgets = document.querySelectorAll('.mini-timer-widget');
+  if(!widgets.length) return;
+  const active = state.pomRunning || state.pomSecs < state.pomTotal;
+  if(!active) { widgets.forEach(w=>w.style.display='none'); return; }
+  const m=Math.floor(state.pomSecs/60), s=state.pomSecs%60;
+  const timeStr=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const task=state.pomCustomTask||state.pomTask||'Focus session';
+  const modeColors=['var(--amber)','var(--green)','var(--blue)'];
+  const col=modeColors[state.pomMode]||'var(--amber)';
+  widgets.forEach(w=>{
+    w.style.display='flex';
+    const cd=w.querySelector('.mini-cd');
+    const tsk=w.querySelector('.mini-task');
+    const dot=w.querySelector('.mini-dot');
+    if(cd) cd.textContent=timeStr;
+    if(tsk) tsk.textContent=task;
+    if(dot) { dot.style.background=state.pomRunning?col:'var(--faint)'; dot.style.boxShadow=state.pomRunning?`0 0 6px ${col}`:'none'; }
+  });
+}
 
 function applyPomCustom() {
   const m=parseInt(document.getElementById('pom-custom').value);
@@ -1488,73 +1538,237 @@ function setPomTask(t) { state.pomTask=t; state.pomCustomTask=''; render('pomodo
 
 // ── NETWORKING CRM ────────────────────────────────────────────────────────────
 
-function renderNetwork(el) {
-  const today=new Date();
-  const overdue=d=>d&&new Date(d)<today;
-  const soon=d=>d&&new Date(d)>=today&&new Date(d)<=new Date(today.getTime()+7*86400000);
-  const od=state.contacts.filter(c=>overdue(c.next)).length;
-  const sd=state.contacts.filter(c=>soon(c.next)).length;
+const NET_FILTER_DEFAULT = {view:'all', source:'', sort:'name'};
+if(!state.netFilter) state.netFilter = {...NET_FILTER_DEFAULT};
 
+const ACTIVITY_TYPES = [
+  {key:'message',  label:'Sent message',  icon:'💬', col:'var(--sky-blue)'},
+  {key:'call',     label:'Call / video',  icon:'📞', col:'var(--teal)'},
+  {key:'inperson', label:'Met in person', icon:'🤝', col:'var(--green)'},
+  {key:'intro',    label:'Intro made',    icon:'✨', col:'var(--gold)'},
+  {key:'bonus',    label:'Bonus time',    icon:'⭐', col:'var(--rose)'},
+];
+
+function daysAgo(dateStr) {
+  if(!dateStr) return null;
+  const d = new Date(dateStr); if(isNaN(d)) return null;
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+
+function contactHeat(c) {
+  const days = daysAgo(c.last);
+  if(days === null) return 'new';
+  if(days <= 14) return 'warm';
+  if(days <= 28) return 'nudge';
+  return 'cold';
+}
+
+function heatMeta(heat) {
+  return {
+    warm:  {label:'Warm',   col:'var(--teal)',      bg:'var(--teal-pale)',   brd:'var(--teal-border)'},
+    nudge: {label:'Nudge',  col:'var(--amber)',     bg:'var(--gold-pale)',   brd:'var(--gold-border)'},
+    cold:  {label:'Cold',   col:'var(--faint)',     bg:'rgba(255,255,255,0.03)', brd:'var(--brd)'},
+    new:   {label:'New',    col:'var(--sky-blue)',  bg:'var(--sky-blue-pale)', brd:'var(--sky-blue-mid)'},
+  }[heat];
+}
+
+function addActivityLog(contactId, type, note, autoExpand) {
+  const idx = state.contacts.findIndex(x=>x.id===contactId); if(idx===-1) return;
+  const today = new Date().toISOString().slice(0,10);
+  if(!state.contacts[idx].activityLog) state.contacts[idx].activityLog = [];
+  state.contacts[idx].activityLog.unshift({type, note:note||'', date:today});
+  state.contacts[idx].last = today;
+  state.contacts[idx].lastActivityType = type;
+  if(autoExpand) { if(!state.netExpanded) state.netExpanded={}; state.netExpanded[contactId]=true; }
+  save(); render('network');
+  showToast('Activity logged ✓');
+}
+
+function renderNetwork(el) {
+  const contacts = state.contacts || [];
+  const filt = state.netFilter || {...NET_FILTER_DEFAULT};
+
+  // Compute heat for all contacts
+  const withHeat = contacts.map(c=>({...c, heat:contactHeat(c)}));
+
+  // Dashboard counts
+  const total  = contacts.length;
+  const warm   = withHeat.filter(c=>c.heat==='warm'||c.heat==='new').length;
+  const nudge  = withHeat.filter(c=>c.heat==='nudge').length;
+  const cold   = withHeat.filter(c=>c.heat==='cold').length;
+
+  // Filter
+  let filtered = withHeat;
+  if(filt.view==='warm')  filtered = filtered.filter(c=>c.heat==='warm'||c.heat==='new');
+  if(filt.view==='nudge') filtered = filtered.filter(c=>c.heat==='nudge');
+  if(filt.view==='cold')  filtered = filtered.filter(c=>c.heat==='cold');
+  if(filt.source) filtered = filtered.filter(c=>(c.source||'').toLowerCase().includes(filt.source.toLowerCase()));
+
+  // Sort — cold always to bottom within view
+  filtered.sort((a,b)=>{
+    if(filt.view==='all') {
+      const order={new:0,warm:1,nudge:2,cold:3};
+      if(order[a.heat]!==order[b.heat]) return order[a.heat]-order[b.heat];
+    }
+    return (a.name||'').localeCompare(b.name||'');
+  });
+
+  // Get all unique sources for filter dropdown
+  const sources = [...new Set(contacts.map(c=>c.source).filter(Boolean))];
+
+  // Tile click helper
+  const tileClick = (view) => `state.netFilter.view='${view}';render('network')`;
+  const activeTile = (view) => filt.view===view;
+
+  // Dashboard tiles
+  const tiles = [
+    {label:'Total',     val:total,  col:'var(--sky-blue)',  bg:'var(--sky-blue-pale)',  brd:'var(--sky-blue-mid)', view:'all'},
+    {label:'Warm',      val:warm,   col:'var(--teal)',      bg:'var(--teal-pale)',       brd:'var(--teal-border)',  view:'warm'},
+    {label:'Nudge',     val:nudge,  col:'var(--amber)',     bg:'var(--gold-pale)',       brd:'var(--gold-border)',  view:'nudge'},
+    {label:'Cold',      val:cold,   col:'var(--faint)',     bg:'rgba(255,255,255,0.04)', brd:'var(--brd)',          view:'cold'},
+  ].map(t=>`<div onclick="${tileClick(t.view)}" style="background:${t.bg};border:1px solid ${activeTile(t.view)?t.col:t.brd};border-radius:8px;padding:10px 12px;text-align:center;cursor:pointer;transition:all .15s;${activeTile(t.view)?`box-shadow:0 0 0 2px ${t.col};`:''}flex:1" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+    <div style="font-size:22px;font-weight:600;color:${t.col};line-height:1">${t.val}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.04em">${t.label}</div>
+  </div>`).join('');
+
+  // Contact form
   const contactForm = (prefix, c={}, isEdit=false) => `
-    <div class="card" style="border-color:var(--sky-blue-mid);margin-bottom:12px">
+    <div class="card" style="border-top:2px solid var(--sky-blue);margin-bottom:12px">
       <div class="g2" style="margin-bottom:8px">
-        ${inp(`${prefix}-name`, c.name||'', 'Name')}
-        ${inp(`${prefix}-co`, c.company||'', 'Company')}
-        ${inp(`${prefix}-role`, c.role||'', 'Their role')}
-        ${sel(`${prefix}-rel`, ['Warm','Alumni','Cold','Recruiter'], c.rel||'Warm')}
-        ${inp(`${prefix}-last`, c.last||'', 'Last touch (YYYY-MM-DD)')}
-        ${inp(`${prefix}-next`, c.next||'', 'Next touch (YYYY-MM-DD)')}
+        ${inp(`${prefix}-name`,   c.name||'',    'Name *')}
+        ${inp(`${prefix}-co`,     c.company||'', 'Company')}
+        ${inp(`${prefix}-role`,   c.role||'',    'Their role')}
+        ${inp(`${prefix}-source`, c.source||'',  'Referral source (optional)')}
+        ${sel(`${prefix}-rel`,    ['Warm','Alumni','Cold','Recruiter'], c.rel||'Warm')}
+        ${inp(`${prefix}-last`,   c.last||'',    'Last contact (YYYY-MM-DD)')}
       </div>
-      ${inp(`${prefix}-notes`, c.notes||'', 'Notes — how you know them, context')}
+      ${inp(`${prefix}-notes`, c.notes||'', 'Notes — context, how you know them')}
       <div class="row" style="margin-top:8px">
-        <button class="amber" onclick="${isEdit ? `saveEditContact(${c.id})` : 'addContact()'}">${isEdit ? 'Save changes' : 'Save'}</button>
-        <button onclick="${isEdit ? `state.netEditing=null;render('network')` : `state.netShowAdd=false;render('network')`}">Cancel</button>
-        ${isEdit ? `<button class="danger" onclick="deleteContact(${c.id})" style="margin-left:auto">Delete</button>` : ''}
+        <button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue)" onclick="${isEdit?`saveEditContact(${c.id})`:'addContact()'}">${isEdit?'Save changes':'Save contact'}</button>
+        <button onclick="${isEdit?`state.netEditing=null;render('network')`:`state.netShowAdd=false;render('network')`}">Cancel</button>
+        ${isEdit?`<button class="danger" onclick="deleteContact(${c.id})" style="margin-left:auto">Delete</button>`:''}
       </div>
     </div>`;
 
-  const addForm = state.netShowAdd ? contactForm('net') : '';
+  // Date formatter
+  const fmtDate = d => { if(!d) return '—'; const dt=new Date(d+'T00:00:00'); return isNaN(dt)?d:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'}); };
 
-  const cards = state.contacts.map(c => {
-    if (state.netEditing === c.id) return contactForm(`edit-${c.id}`, c, true);
-    const ov=overdue(c.next), sn=soon(c.next);
-    const brdCol=ov?'var(--red)':sn?'var(--amber)':'var(--brd)';
-    return `<div class="card" style="margin-bottom:8px;border-left:3px solid ${brdCol};border-radius:0 10px 10px 0">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
-        <div style="flex:1;min-width:0">
-          <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
-            <span style="font-size:14px;font-weight:600;color:var(--tx)">${esc(c.name)}</span>
-            ${badge(c.rel,REL_COL[c.rel]||'amber')}
-            ${ov?badge('follow up overdue','red'):''}${!ov&&sn?badge('due soon','amber'):''}
-          </div>
-          <div style="color:var(--muted);font-size:12px">${esc(c.role)} · ${esc(c.company)}</div>
-          ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-top:2px">${esc(c.notes)}</div>`:''}
-          <div style="font-size:11px;color:var(--faint);margin-top:2px">${c.last?`last: ${c.last}`:''}${c.next?` · next: ${c.next}`:''}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end">
-          <button onclick="state.netEditing=${c.id};state.netShowAdd=false;render('network')" style="font-size:11px;color:var(--rose-light);border-color:var(--rose-border)">Edit</button>
-          <button onclick="copyNetPrompt('linkedin','${esc(c.id)}')" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);white-space:nowrap">📋 LinkedIn msg</button>
-          <button onclick="copyNetPrompt('followup','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Follow-up</button>
-          <button onclick="copyNetPrompt('intro','${esc(c.id)}')" style="font-size:11px;white-space:nowrap">📋 Referral ask</button>
-        </div>
+  // Contact cards
+  const cards = filtered.map(c => {
+    if(state.netEditing===c.id) return contactForm(`edit-${c.id}`, c, true);
+
+    const heat = c.heat;
+    const hm = heatMeta(heat);
+    const isCold = heat==='cold';
+    const days = daysAgo(c.last);
+    const lastAct = ACTIVITY_TYPES.find(a=>a.key===c.lastActivityType);
+
+    // Last activity chip
+    const lastChip = lastAct
+      ? `<span style="font-size:10px;color:${lastAct.col};background:${lastAct.col}18;border:1px solid ${lastAct.col}33;padding:1px 7px;border-radius:8px;white-space:nowrap">${lastAct.icon} ${lastAct.label}</span>`
+      : '';
+
+    const heatBadge = `<span style="font-size:10px;color:${hm.col};background:${hm.bg};border:1px solid ${hm.brd};padding:1px 7px;border-radius:8px;font-weight:500;white-space:nowrap">${hm.label}</span>`;
+
+    const isExpanded = state.netExpanded && state.netExpanded[c.id];
+
+    // Activity quick-add row (5 compact icon buttons — always visible on card)
+    const actQuickBtns = ACTIVITY_TYPES.map(a=>
+      `<button onclick="event.stopPropagation();oneTapActivity(${c.id},'${a.key}')" title="${a.label}" style="font-size:13px;padding:3px 6px;background:${a.col}11;border:1px solid ${a.col}33;border-radius:5px;color:${a.col};min-width:28px;flex:1">${a.icon}</button>`
+    ).join('');
+
+    // Right column — Nudge, Update, activity quick-adds, Edit
+    const rightCol = `<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;width:120px" onclick="event.stopPropagation()">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">
+        <button onclick="copyNetPrompt('nudge','${c.id}')" style="font-size:10px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:3px 0;text-align:center">💬 Nudge</button>
+        <button onclick="copyNetPrompt('update','${c.id}')" style="font-size:10px;padding:3px 0;text-align:center">📋 Update</button>
       </div>
+      <div style="display:flex;gap:2px">${actQuickBtns}</div>
+      <button onclick="state.netEditing=${c.id};state.netShowAdd=false;render('network')" style="font-size:10px;color:var(--muted);padding:3px 0;width:100%;text-align:center">✏️ Edit</button>
+    </div>`;
+
+    // Middle column — dates + last activity chip
+    const midCol = `<div style="flex:0 0 130px;padding:0 10px;display:flex;flex-direction:column;gap:4px;justify-content:center;border-left:1px solid var(--brd);border-right:1px solid var(--brd)">
+      <div style="font-size:11px;color:var(--muted)">
+        <span style="color:var(--faint);font-size:10px;letter-spacing:.04em;text-transform:uppercase">Last</span><br>
+        <span style="color:var(--tx)">${fmtDate(c.last)}</span>
+        ${days!==null?`<span style="color:var(--faint);font-size:10px"> · ${days}d</span>`:''}
+      </div>
+      ${lastChip}
+      ${c.source?`<div style="font-size:10px;color:var(--faint)">via ${esc(c.source)}</div>`:''}
+    </div>`;
+
+    // Activity log (expanded only)
+    const actLog = (c.activityLog||[]).slice(0,8).map(entry=>{
+      const at = ACTIVITY_TYPES.find(a=>a.key===entry.type)||{icon:'·',col:'var(--faint)',label:entry.type};
+      return `<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--brd)">
+        <span style="font-size:13px;flex-shrink:0">${at.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;color:${at.col};font-weight:500">${at.label}
+            ${entry.note
+              ? `<span style="color:var(--muted);font-weight:400"> — ${esc(entry.note)}</span>`
+              : `<button onclick="openNoteEdit(${c.id},0)" style="font-size:10px;color:var(--faint);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;margin-left:6px">+ add note</button>`}
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--faint);flex-shrink:0">${fmtDate(entry.date)}</div>
+      </div>`;
+    }).join('');
+
+    const expandedContent = isExpanded ? `
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
+        ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-bottom:10px;line-height:1.5;padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:5px">📝 ${esc(c.notes)}</div>`:''}
+        <div style="font-size:10px;color:var(--sky-blue-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:8px">Activity Log</div>
+        ${actLog || `<div style="font-size:11px;color:var(--faint);padding:6px 0">No activity logged — tap an icon above to log your first touch</div>`}
+        <div id="act-quick-add-${c.id}" style="display:none;margin-top:8px;padding:8px;background:rgba(91,158,201,0.07);border-radius:6px;border:1px solid var(--sky-blue-mid)">
+          <div style="font-size:11px;color:var(--sky-blue-light);margin-bottom:5px">Add a note to last activity:</div>
+          ${inp(`act-note-${c.id}`,'','What happened? (optional)')}
+          <div class="row" style="margin-top:6px">
+            <button id="act-confirm-${c.id}" style="font-size:11px;background:var(--sky-blue);color:#fff;border-color:var(--sky-blue)" onclick="confirmActivityAdd(${c.id})">Save note</button>
+            <button style="font-size:11px" onclick="document.getElementById('act-quick-add-${c.id}').style.display='none'">Skip</button>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:6px">
+          <button onclick="copyNetPrompt('referral','${c.id}')" style="font-size:11px;color:var(--rose);border-color:var(--rose-border);background:var(--rose-pale)">✨ Referral ask</button>
+        </div>
+      </div>` : '';
+
+    return `<div class="card" style="margin-bottom:7px;border-left:3px solid ${hm.col};border-radius:0 10px 10px 0;padding:10px 12px;opacity:${isCold?'0.62':'1'}">
+      <div style="display:flex;gap:0;align-items:stretch">
+        <!-- LEFT: who -->
+        <div style="flex:1;min-width:0;padding-right:10px;cursor:pointer" onclick="state.netExpanded=state.netExpanded||{};state.netExpanded[${c.id}]=!state.netExpanded[${c.id}];render('network')">
+          <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:3px">
+            <span style="font-size:13px;font-weight:600;color:var(--tx)">${esc(c.name)}</span>
+            ${heatBadge}
+            ${badge(c.rel, REL_COL[c.rel]||'blue')}
+          </div>
+          <div style="color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${[c.role,c.company].filter(Boolean).map(esc).join(' · ')}</div>
+          <div style="margin-top:3px;font-size:10px;color:var(--faint)">${isExpanded?'▲ collapse':'▼ expand'}</div>
+        </div>
+        <!-- MIDDLE: dates -->
+        ${midCol}
+        <!-- RIGHT: actions -->
+        ${rightCol}
+      </div>
+      ${expandedContent}
     </div>`;
   }).join('');
 
-  el.innerHTML = secHead('Networking') + `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <div style="font-size:12px;color:var(--muted)">
-        <span style="color:var(--red)">${od} overdue</span> · <span style="color:var(--amber)">${sd} due this week</span>
-      </div>
-      <button class="amber" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>
+  el.innerHTML = secHead('Networking', 'Contacts, warm outreach &amp; referral pipeline', 'Networking') +
+    miniTimerWidget() + `
+    <div style="display:flex;gap:8px;margin-bottom:16px">${tiles}</div>
+
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      ${sources.length ? `<select onchange="state.netFilter.source=this.value;render('network')" style="font-size:11px;padding:4px 8px;flex:0 0 auto">
+        <option value="">All sources</option>
+        ${sources.map(s=>`<option value="${esc(s)}" ${filt.source===s?'selected':''}>${esc(s)}</option>`).join('')}
+      </select>` : ''}
+      <button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue);font-size:11px;margin-left:auto" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>
     </div>
-    <div class="card" style="margin-bottom:16px;background:var(--sky-blue-pale);border-color:var(--sky-blue-mid)">
-      <div style="font-size:12px;color:var(--sky-blue-light);line-height:1.7">
-        <strong>📋 Prompt buttons</strong> copy a pre-filled prompt to your clipboard — paste directly into Claude chat to generate the message. Three types: LinkedIn intro, follow-up, and referral ask.
-      </div>
-    </div>
-    ${addForm}${cards || '<div class="empty">No contacts yet. Add people from your network above.</div>'}
+
+    ${state.netShowAdd ? contactForm('net') : ''}
+    ${cards || '<div class="empty">No contacts yet — add people from your network above.</div>'}
   `;
+  updateMiniTimer();
 }
 
 function addContact() {
@@ -1564,11 +1778,14 @@ function addContact() {
     company: document.getElementById('net-co').value,
     role:    document.getElementById('net-role').value,
     rel:     document.getElementById('net-rel').value,
+    source:  document.getElementById('net-source').value,
     last:    document.getElementById('net-last').value,
-    next:    document.getElementById('net-next').value,
     notes:   document.getElementById('net-notes').value,
+    activityLog: [],
+    lastActivityType: null,
   });
   state.netShowAdd=false; save(); render('network');
+  showToast('Contact added ✓');
 }
 
 function saveEditContact(id) {
@@ -1583,8 +1800,8 @@ function saveEditContact(id) {
     company: get('co'),
     role:    get('role'),
     rel:     get('rel'),
+    source:  get('source'),
     last:    get('last'),
-    next:    get('next'),
     notes:   get('notes'),
   };
   state.netEditing = null;
@@ -1600,20 +1817,63 @@ function deleteContact(id) {
   showToast('Contact deleted');
 }
 
+function openNoteEdit(contactId, entryIdx) {
+  // Re-expand and show the note add area in expanded view
+  if(!state.netExpanded) state.netExpanded={};
+  state.netExpanded[contactId]=true;
+  render('network');
+  // Show the quick-add panel pre-filled for note editing
+  const box = document.getElementById(`act-quick-add-${contactId}`);
+  if(box) {
+    box.style.display='block';
+    const btn = document.getElementById(`act-confirm-${contactId}`);
+    if(btn) btn.textContent='Save note';
+    window._pendingActType = {contactId, type:null, entryIdx};
+  }
+}
+
+function oneTapActivity(contactId, type) {
+  // Log immediately, auto-expand card for optional note
+  addActivityLog(contactId, type, '', true);
+}
+
+function openActivityQuickAdd(contactId, type) {
+  window._pendingActType = {contactId, type};
+  const box = document.getElementById(`act-quick-add-${contactId}`);
+  if(box) { box.style.display='block'; box.dataset.type=type; }
+  const at = ACTIVITY_TYPES.find(a=>a.key===type);
+  const btn = document.getElementById(`act-confirm-${contactId}`);
+  if(btn && at) btn.textContent=`Log: ${at.icon} ${at.label}`;
+}
+
+function confirmActivityAdd(contactId) {
+  const type = window._pendingActType?.type;
+  if(!type) return;
+  const noteEl = document.getElementById(`act-note-${contactId}`);
+  const note = noteEl ? noteEl.value.trim() : '';
+  addActivityLog(contactId, type, note, false);
+  window._pendingActType = null;
+}
+
 function copyNetPrompt(type, id) {
   const c = state.contacts.find(x=>String(x.id)===String(id)); if(!c) return;
   let prompt = '';
-  if(type === 'linkedin') {
-    prompt = `Write a short, warm LinkedIn connection message (3-4 sentences) from Ryan Corcoran to ${c.name}, who works as ${c.role||'a professional'} at ${c.company}. Ryan's background: Senior PM, digital health, behavioral health analytics at Aetna/CVS, care navigation platform (Access Plus, 0-1 launch), MBA Medical Industry Leadership (UMN Carlson), based in Minneapolis MN. Context about this contact: ${c.notes||'professional connection'}. Tone: genuine and specific, not generic. No subject line needed.`;
-  } else if(type === 'followup') {
-    prompt = `Write a brief follow-up message (2-3 sentences) from Ryan Corcoran to ${c.name} at ${c.company}. Last touch: ${c.last||'recently'}. Context: ${c.notes||'reconnecting after previous conversation'}. Ryan's background: Senior PM, digital health, Aetna/CVS behavioral health analytics, Minneapolis MN. Keep it warm and easy to respond to.`;
-  } else if(type === 'intro') {
-    prompt = `Write a concise, warm referral request message (4-5 sentences) from Ryan Corcoran to ${c.name}, who works at ${c.company}. Ryan is actively looking for Senior PM / product leadership roles in digital health. His background: behavioral health analytics platform at Aetna/CVS, care navigation (0-1 launch), MBA Medical Industry Leadership (UMN), BS Biomedical Sciences. Context: ${c.notes||'professional connection'}. Ask if they'd be willing to refer him or flag any relevant openings. Tone: genuine, not transactional — acknowledge the relationship first.`;
+  const lastAct = c.activityLog?.[0];
+  const lastContext = lastAct ? `Last activity: ${lastAct.type} on ${lastAct.date}${lastAct.note?'. '+lastAct.note:''}.` : (c.last?`Last contact: ${c.last}.`:'');
+
+  if(type === 'nudge') {
+    prompt = `Write a short, warm nudge message (2-3 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. ${lastContext} Context: ${c.notes||'professional connection'}. Ryan's background: Senior PM, digital health, behavioral health analytics at Aetna/CVS, care navigation platform (Access Plus, 0→1), Minneapolis MN. Keep it light and easy to respond to — no pressure.`;
+  } else if(type === 'referral') {
+    prompt = `Write a concise, warm referral request (4-5 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. Ryan is actively looking for Senior PM / product leadership roles in digital health. Background: behavioral health analytics at Aetna/CVS, care navigation (0→1 launch), MBA Medical Industry Leadership (UMN), BS Biomedical Sciences, Minneapolis MN. Context: ${c.notes||'professional connection'}. Ask if they'd be willing to refer him or flag relevant openings. Acknowledge the relationship first — don't be transactional.`;
+  } else if(type === 'update') {
+    prompt = `Write a brief update message (3-4 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. Share a relevant update on his job search — something genuine and brief. ${lastContext} Context: ${c.notes||'professional connection'}. Ryan's background: Senior PM, digital health, Minneapolis MN. Make it feel like a natural check-in, not a status report.`;
   }
+
   navigator.clipboard?.writeText(prompt);
   const t = document.createElement('div');
-  t.textContent = `📋 ${type==='linkedin'?'LinkedIn msg':type==='followup'?'Follow-up':'Referral ask'} prompt copied — paste in Claude chat`;
-  Object.assign(t.style, {position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',background:getComputedStyle(document.documentElement).getPropertyValue('--sky-blue-pale').trim(),border:`1px solid ${getComputedStyle(document.documentElement).getPropertyValue('--sky-blue-mid').trim()}`,color:getComputedStyle(document.documentElement).getPropertyValue('--sky-blue').trim(),padding:'8px 18px',borderRadius:'8px',fontSize:'12px',zIndex:'9999',fontFamily:'Avenir Next,system-ui,sans-serif'});
+  const typeLabel = {nudge:'Nudge',referral:'Referral ask',update:'Update'}[type]||type;
+  t.textContent = `📋 ${typeLabel} prompt copied — paste in Claude chat`;
+  Object.assign(t.style,{position:'fixed',bottom:'24px',left:'50%',transform:'translateX(-50%)',background:getComputedStyle(document.documentElement).getPropertyValue('--sky-blue-pale').trim(),border:`1px solid ${getComputedStyle(document.documentElement).getPropertyValue('--sky-blue-mid').trim()}`,color:getComputedStyle(document.documentElement).getPropertyValue('--sky-blue').trim(),padding:'8px 18px',borderRadius:'8px',fontSize:'12px',zIndex:'9999',fontFamily:'Avenir Next,system-ui,sans-serif'});
   document.body.appendChild(t);
   setTimeout(()=>t.remove(), 2500);
 }
