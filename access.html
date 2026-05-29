@@ -3,551 +3,648 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JobSearch HQ · Access</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F1B2D'/%3E%3Cpolygon points='16,3 17.8,10.2 24.5,7.5 20.5,13.5 27.5,15.5 20.5,17.5 24.5,23.5 17.8,20.8 16,28 14.2,20.8 7.5,23.5 11.5,17.5 4.5,15.5 11.5,13.5 7.5,7.5 14.2,10.2' fill='%236BA3C8'/%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>JobQuest 2026 · Access</title>
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  ACCESS.HTML VERSION MANIFEST                                                ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  CURRENT:  v2  (2026-05-29)                                                  ║
+║  Deployed: https://jobs.ryan-corcoran.com/access.html                        ║
+║  Pairs with: index.html v19                                                  ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  v2  2026-05-29                                                               ║
+║  + Unified 3-tier auth: owner / named guest / generic guest                 ║
+║  + Sets jq_session in sessionStorage, redirects to index.html               ║
+║  + No double-login: index.html skips auth screen if session present         ║
+║  + Side-by-side layout on desktop (≥900px): gate left, preview right        ║
+║  + Mobile-first stacked: gate top, 3-column horizontal scroll strip below   ║
+║  + 3-column shimmer preview: Job Board HQ, Applications, Networking CRM     ║
+║  + ?guest=CODE URL param — auto-fills personalized code and logs in         ║
+║  + btoa() hash (plain, matches index.html v19)                               ║
+║  + "Have a personalized code?" toggle below guest button                    ║
+║                                                                              ║
+║  v1  (original)                                                              ║
+║  + Single password gate                                                      ║
+║  + 3 full-width stacked blurred mockup previews                             ║
+║  + Scroll-reveal animations                                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+<meta name="access-version" content="2">
+<meta name="access-date" content="2026-05-29">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F1B2D'/%3E%3Cpolygon points='16,3 17.8,10.2 24.5,7.5 20.5,13.5 27.5,15.5 20.5,17.5 24.5,23.5 17.8,20.8 16,28 13.8,20.8 7.5,23.5 11.5,17.5 4.5,15.5 11.5,13.5 7.5,7.5 13.8,10.2' fill='%236BA3C8'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0F1B2D;--bg2:#162030;--bg3:#1A2535;--bg4:#1E2C3F;
-  --jade:#6BA3C8;--jade2:#B8D4E8;--jade3:#1A3A52;
-  --rose:#C4848F;--rose2:#DDA8B0;--rose3:#3D1F25;
-  --gold:#C9961A;--gold2:#E8C97A;--gold3:#3D2800;
-  --teal:#2AB5A0;--teal2:#7ADDD0;
-  --tx:#E8F2F8;--tx2:#8BAABB;--tx3:#5A7A90;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+:root {
+  --bg:#0F1B2D; --bg2:#162030; --bg3:#1A2535; --bg4:#1E2C3F;
+  --jade:#6BA3C8; --jade2:#B8D4E8; --jade3:#1A3A52;
+  --rose:#C4848F; --rose2:#DDA8B0; --rose3:#3D1F25;
+  --gold:#C9961A; --gold2:#E8C97A; --gold3:#3D2800;
+  --teal:#2AB5A0; --teal2:#7ADDD0;
+  --tx:#E8F2F8; --tx2:#8BAABB; --tx3:#5A7A90;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12);
   --serif:'DM Serif Display',Georgia,serif;
   --sans:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--tx);font-family:var(--sans);overflow-x:hidden;}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);overflow-x:hidden;min-height:100vh;}
+
+/* ── BG GLOWS ── */
+.bg-glow{position:fixed;pointer-events:none;z-index:0;}
+.bg-glow-1{top:-200px;right:-200px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(107,163,200,.05) 0%,transparent 65%);}
+.bg-glow-2{bottom:20%;left:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(196,132,143,.04) 0%,transparent 65%);}
 
 /* ── LOADING OVERLAY ── */
 .loading-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 .loading-overlay.visible{display:flex;}
-.loading-spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--jade);border-radius:50%;animation:spin 0.8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
+.loading-spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--jade);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:13px;color:var(--tx3);letter-spacing:.04em;}
 
-/* ── GATE SECTION ── */
-.gate-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;position:relative;}
-.bg-glow{position:fixed;pointer-events:none;z-index:0;}
-.bg-glow-1{top:-200px;right:-200px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(107,163,200,.05) 0%,transparent 65%);}
-.bg-glow-2{bottom:40%;left:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(196,132,143,.04) 0%,transparent 65%);}
-
-.gate{
-  width:420px;max-width:calc(100vw - 40px);
-  background:var(--bg2);border:0.5px solid var(--border2);
-  border-radius:16px;padding:40px 36px;
+/* ── MAIN LAYOUT ── */
+.hero {
   position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;
+  align-items:stretch;
+  flex-direction:column; /* mobile: stacked */
+  padding:0;
+}
+
+/* Desktop: side-by-side */
+@media(min-width:900px){
+  .hero {
+    flex-direction:row;
+    align-items:center;
+    min-height:100vh;
+    padding:0;
+  }
+}
+
+/* ── GATE PANEL (left on desktop, top on mobile) ── */
+.gate-panel {
+  flex-shrink:0;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:48px 24px 36px;
+  position:relative;
+}
+@media(min-width:900px){
+  .gate-panel {
+    width:400px;
+    min-height:100vh;
+    padding:60px 40px;
+    border-right:0.5px solid var(--border);
+  }
+}
+
+.gate {
+  width:100%;max-width:360px;
+  background:var(--bg2);
+  border:0.5px solid var(--border2);
+  border-radius:16px;
+  padding:36px 32px 28px;
+  position:relative;
   animation:fadeUp .4s ease;
 }
 .gate::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--jade));border-radius:16px 16px 0 0;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 .shake{animation:shake .35s ease;}
 
-.gate-star{display:flex;justify-content:center;margin-bottom:20px;}
+.gate-star{display:flex;justify-content:center;margin-bottom:18px;}
 .gate-eyebrow{text-align:center;font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;}
-.gate-eyebrow::before,.gate-eyebrow::after{content:'';display:inline-block;width:20px;height:1px;background:var(--rose);}
-.gate-title{font-family:var(--serif);font-size:28px;text-align:center;color:var(--tx);margin-bottom:6px;}
+.gate-eyebrow::before,.gate-eyebrow::after{content:'';display:inline-block;width:18px;height:1px;background:var(--rose);}
+.gate-title{font-family:var(--serif);font-size:26px;text-align:center;color:var(--tx);margin-bottom:4px;}
 .gate-title em{font-style:italic;color:var(--jade2);}
-.gate-sub{font-size:13px;color:var(--tx2);text-align:center;line-height:1.7;margin-bottom:28px;}
+.gate-sub{font-size:12px;color:var(--tx2);text-align:center;line-height:1.7;margin-bottom:24px;}
 
-.gate-input-wrap{position:relative;margin-bottom:10px;}
-.gate-input{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;color:var(--tx);font-family:var(--sans);font-size:15px;padding:13px 46px 13px 16px;outline:none;transition:border-color .2s;letter-spacing:.08em;}
+.gate-input-wrap{position:relative;margin-bottom:8px;}
+.gate-input{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;color:var(--tx);font-family:var(--sans);font-size:15px;padding:12px 44px 12px 14px;outline:none;transition:border-color .2s;letter-spacing:.06em;}
 .gate-input:focus{border-color:rgba(107,163,200,.4);}
 .gate-input.error{border-color:rgba(196,132,143,.6);}
-.gate-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:4px;}
-.gate-btn{width:100%;background:var(--gold);color:#fff;border:none;border-radius:8px;padding:13px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;letter-spacing:.04em;transition:background .2s;margin-top:4px;}
+.gate-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:15px;padding:4px;}
+.gate-btn{width:100%;background:var(--gold);color:#fff;border:none;border-radius:8px;padding:12px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;letter-spacing:.04em;transition:background .2s;margin-top:4px;}
 .gate-btn:hover{background:#B8861A;}
-.gate-error{font-size:12px;color:var(--rose2);text-align:center;margin-top:8px;min-height:16px;}
-.gate-back{display:block;text-align:center;font-size:12px;color:var(--tx3);text-decoration:none;margin-top:20px;letter-spacing:.04em;transition:color .15s;}
-.gate-back:hover{color:var(--jade2);}
-.gate-hint{font-size:11px;color:var(--tx3);text-align:center;margin-top:16px;line-height:1.6;}
-.gate-hint a{color:var(--rose2);text-decoration:none;}
+.gate-btn.secondary{background:rgba(255,255,255,.05);color:var(--tx2);border:0.5px solid var(--border2);font-weight:400;font-size:13px;margin-top:8px;letter-spacing:.03em;}
+.gate-btn.secondary:hover{background:rgba(255,255,255,.09);color:var(--tx);}
+.gate-error{font-size:12px;color:var(--rose2);text-align:center;margin-top:6px;min-height:16px;}
+.gate-divider{border:none;border-top:0.5px solid var(--border);margin:18px 0;}
+.gate-hint{font-size:11px;color:var(--tx3);text-align:center;margin-top:14px;line-height:1.6;}
+.gate-hint a{color:var(--rose2);text-decoration:none;cursor:pointer;}
+.gate-hint a:hover{text-decoration:underline;}
 
-/* Scroll indicator */
-.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--tx3);font-size:11px;letter-spacing:.08em;text-transform:uppercase;animation:bobble 2.5s ease-in-out infinite;cursor:pointer;z-index:1;}
-@keyframes bobble{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
-.scroll-arrow{width:20px;height:20px;border-right:1px solid var(--tx3);border-bottom:1px solid var(--tx3);transform:rotate(45deg);}
+.gate-footer{margin-top:24px;text-align:center;font-size:11px;color:var(--tx3);line-height:1.8;}
+.gate-footer a{color:var(--jade);text-decoration:none;}
+.gate-footer a:hover{text-decoration:underline;}
 
-/* ── PREVIEW SECTIONS ── */
-.preview-section{padding:80px 40px;position:relative;overflow:hidden;}
-.preview-section + .preview-section{border-top:0.5px solid var(--border);}
+/* Named guest code view */
+#gate-view-code{display:none;}
 
-.preview-label{
-  text-align:center;margin-bottom:32px;
-  opacity:0;transform:translateY(16px);
-  transition:opacity .7s ease,transform .7s ease;
+/* ── PREVIEW PANEL (right on desktop, below on mobile) ── */
+.preview-panel {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:32px 20px 40px;
+  position:relative;
+  overflow:hidden;
 }
-.preview-label.in{opacity:1;transform:translateY(0);}
-.preview-eyebrow{font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;}
-.preview-eyebrow::before,.preview-eyebrow::after{content:'';display:inline-block;width:16px;height:1px;background:var(--rose);}
-.preview-title{font-family:var(--serif);font-size:26px;color:var(--tx);}
+@media(min-width:900px){
+  .preview-panel {
+    padding:40px 32px 40px 40px;
+    min-height:100vh;
+  }
+}
+
+.preview-label {
+  text-align:center;
+  margin-bottom:22px;
+}
+.preview-eyebrow{font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.preview-eyebrow::before,.preview-eyebrow::after{content:'';display:inline-block;width:14px;height:1px;background:var(--rose);}
+.preview-title{font-family:var(--serif);font-size:22px;color:var(--tx);}
 .preview-title em{font-style:italic;color:var(--jade2);}
 
-/* The blurred mockup container */
-.mockup-wrap{
-  position:relative;max-width:900px;margin:0 auto;
-  border-radius:12px;overflow:hidden;
-  border:0.5px solid var(--border2);
-  opacity:0;transform:translateY(24px) scale(0.98);
-  transition:opacity .8s ease,transform .8s ease;
-  box-shadow:0 24px 80px rgba(0,0,0,.5);
+/* 3-column strip */
+.preview-cols {
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:8px;
+  /* hide scrollbar but keep scroll */
+  scrollbar-width:none;
 }
-.mockup-wrap.in{opacity:1;transform:translateY(0) scale(1);}
+.preview-cols::-webkit-scrollbar{display:none;}
+
+@media(min-width:900px){
+  .preview-cols{
+    overflow-x:visible;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+}
+
+/* Each column */
+.preview-col {
+  flex:0 0 280px;
+  scroll-snap-align:start;
+  position:relative;
+  border-radius:12px;
+  overflow:hidden;
+  border:0.5px solid var(--border2);
+  box-shadow:0 12px 40px rgba(0,0,0,.4);
+  background:var(--bg2);
+}
+@media(min-width:900px){
+  .preview-col{flex:unset;min-width:0;}
+}
 
 /* Blur + overlay */
-.mockup-inner{filter:blur(3px);pointer-events:none;user-select:none;}
-.mockup-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(15,27,45,.1) 0%,rgba(15,27,45,.15) 60%,rgba(15,27,45,.55) 100%);
-  pointer-events:none;z-index:2;
-}
+.col-inner{filter:blur(2.5px);pointer-events:none;user-select:none;}
+.col-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,27,45,.05) 0%,rgba(15,27,45,.12) 60%,rgba(15,27,45,.5) 100%);pointer-events:none;z-index:2;}
 
 /* Shimmer sweep */
-.mockup-shimmer{
-  position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;border-radius:12px;
-}
-.mockup-shimmer::after{
+.col-shimmer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;border-radius:12px;}
+.col-shimmer::after{
   content:'';position:absolute;top:-100%;left:-60%;
-  width:35%;height:300%;
-  background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.045) 50%,transparent 80%);
-  animation:shimmer 4s ease-in-out infinite;
+  width:30%;height:300%;
+  background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.055) 50%,transparent 80%);
+  animation:shimmer 3.5s ease-in-out infinite;
 }
+.preview-col:nth-child(2) .col-shimmer::after{animation-delay:.8s;}
+.preview-col:nth-child(3) .col-shimmer::after{animation-delay:1.6s;}
 @keyframes shimmer{0%{left:-60%;top:-100%}100%{left:120%;top:100%}}
 
-/* Lock badge */
-.lock-badge{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  z-index:4;display:flex;flex-direction:column;align-items:center;gap:10px;
-  background:rgba(15,27,45,.75);backdrop-filter:blur(8px);
-  border:0.5px solid var(--border2);border-radius:12px;
-  padding:18px 28px;pointer-events:none;
+/* Column label badge */
+.col-label{
+  position:absolute;bottom:0;left:0;right:0;z-index:4;
+  padding:14px 14px 12px;
+  background:linear-gradient(0deg,rgba(10,20,35,.92) 60%,transparent);
+  font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
 }
-.lock-icon{font-size:22px;}
-.lock-text{font-size:12px;color:var(--tx2);letter-spacing:.06em;}
+.col-label-eyebrow{font-size:9px;color:var(--tx3);letter-spacing:.08em;margin-bottom:2px;font-weight:400;}
 
-/* ── MOCKUP STYLES — nav bar ── */
-.mock-nav{background:#0F2035;height:48px;display:flex;align-items:center;padding:0 20px;gap:14px;border-bottom:1px solid rgba(255,255,255,.07);}
-.mock-brand{font-family:var(--serif);font-size:14px;color:var(--tx);display:flex;align-items:center;gap:7px;}
-.mock-tabs{display:flex;gap:2px;margin-left:auto;}
-.mock-tab{font-size:10px;padding:4px 10px;border-radius:4px 4px 0 0;color:rgba(244,192,209,.4);border:none;background:transparent;}
-.mock-tab.on{color:var(--rose2);background:rgba(244,192,209,.07);border:1px solid rgba(244,192,209,.3);border-bottom:2px solid var(--rose);}
-.mock-body{background:#1C3348;padding:18px 20px;min-height:480px;}
+/* Swipe hint — mobile only */
+.swipe-hint{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:12px;font-size:10px;color:var(--tx3);letter-spacing:.06em;}
+@media(min-width:900px){.swipe-hint{display:none;}}
+.swipe-dots{display:flex;gap:4px;}
+.swipe-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);}
+.swipe-dot.on{background:var(--jade);}
 
-/* ── MOCKUP — Job Board ── */
-.mock-section-eyebrow{font-size:9px;color:var(--rose2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
-.mock-section-eyebrow::before{content:'';display:inline-block;width:12px;height:1px;background:var(--rose);}
-.mock-h1{font-family:var(--serif);font-size:22px;color:var(--tx);margin-bottom:3px;}
-.mock-sub{font-family:var(--serif);font-size:12px;font-style:italic;color:var(--jade2);margin-bottom:12px;}
-.mock-bar{width:22px;height:2px;background:var(--rose);border-radius:1px;margin-bottom:16px;}
+/* ── MOCKUP STYLES (shared mini versions) ── */
+.m-nav{background:#0D1E30;height:38px;display:flex;align-items:center;padding:0 14px;gap:10px;border-bottom:1px solid rgba(255,255,255,.07);}
+.m-brand{font-family:var(--serif);font-size:12px;color:var(--tx);}
+.m-tabs{display:flex;gap:1px;margin-left:auto;}
+.m-tab{font-size:8px;padding:3px 8px;border-radius:3px 3px 0 0;color:rgba(244,192,209,.35);border:none;background:transparent;}
+.m-tab.on{color:var(--rose2);background:rgba(244,192,209,.07);border:1px solid rgba(244,192,209,.25);border-bottom:1.5px solid var(--rose);}
+.m-body{background:#1A2E40;padding:14px;}
 
-.mock-profile{background:linear-gradient(135deg,#0D2033,#1C3A50);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:10px;border:1px solid rgba(91,160,210,.18);}
-.mock-photo{width:36px;height:46px;border-radius:5px;background:#243F57;flex-shrink:0;border:1px solid rgba(255,255,255,.12);}
-.mock-profile-text{flex:1;}
-.mock-profile-eye{font-size:8px;color:var(--rose2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
-.mock-profile-name{font-size:14px;font-weight:600;color:var(--tx);}
-.mock-profile-role{font-size:10px;color:var(--jade2);margin-top:1px;}
+.m-eyebrow{font-size:8px;color:var(--rose2);letter-spacing:.09em;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.m-eyebrow::before{content:'';display:inline-block;width:10px;height:1px;background:var(--rose);}
+.m-h1{font-family:var(--serif);font-size:17px;color:var(--tx);margin-bottom:2px;}
+.m-sub{font-family:var(--serif);font-size:9px;font-style:italic;color:var(--jade2);margin-bottom:8px;}
+.m-bar{width:16px;height:1.5px;background:var(--rose);border-radius:1px;margin-bottom:12px;}
 
-.mock-jd-bar{background:rgba(201,138,14,.08);border-top:2px solid var(--gold);padding:10px 16px;border-radius:0 0 10px 10px;display:flex;align-items:center;gap:8px;margin-bottom:14px;}
-.mock-jd-label{font-size:10px;color:var(--gold2);font-weight:600;white-space:nowrap;}
-.mock-jd-input{flex:1;background:rgba(201,138,14,.06);border:1px solid rgba(201,138,14,.25);border-radius:5px;height:28px;}
-.mock-jd-btn{background:var(--gold);color:#fff;border:none;border-radius:4px;padding:5px 12px;font-size:10px;font-weight:600;white-space:nowrap;}
+/* KPI strip */
+.m-kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);background:rgba(8,18,30,.7);border:0.5px solid rgba(91,160,210,.1);border-radius:6px;margin-bottom:10px;overflow:hidden;}
+.m-kpi{padding:7px 4px;text-align:center;border-right:1px solid rgba(255,255,255,.04);}
+.m-kpi:last-child{border-right:none;}
+.m-kpi-num{font-size:14px;font-weight:700;line-height:1;font-family:var(--mono);}
+.m-kpi-label{font-size:7px;color:var(--tx3);margin-top:2px;letter-spacing:.04em;}
 
-.mock-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.mock-card{background:#1E2E3E;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,.07);}
-.mock-card-ht{border-top:2px solid var(--rose);}
-.mock-card-mt{border-top:2px solid var(--teal);}
-.mock-card-title{font-size:12px;font-weight:600;color:var(--tx);margin-bottom:2px;}
-.mock-card-sub{font-size:9px;color:var(--tx3);margin-bottom:8px;}
-.mock-card-section{font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;}
-.mock-card-section.rose{color:var(--rose2);}
-.mock-card-section.teal{color:var(--teal2);}
-.mock-open-btn{font-size:8px;padding:2px 7px;border-radius:3px;border:none;color:#fff;}
-.mock-open-btn.rose{background:var(--rose);}
-.mock-open-btn.teal{background:var(--teal);}
-.mock-btns{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
-.mock-btn{font-size:9px;padding:3px 7px;border-radius:3px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx2);}
-.mock-ent-box{background:rgba(196,132,143,.07);border:1px solid rgba(196,132,143,.15);border-radius:5px;padding:7px;display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:8px;}
-.mock-ent-box.teal{background:rgba(42,181,160,.07);border-color:rgba(42,181,160,.15);}
-.mock-ent-btn{font-size:8px;padding:3px 5px;text-align:center;border-radius:3px;border:1px solid rgba(196,132,143,.2);color:var(--rose2);background:rgba(196,132,143,.1);}
-.mock-ent-btn.teal{border-color:rgba(42,181,160,.2);color:var(--teal2);background:rgba(42,181,160,.1);}
+/* Job board cards */
+.m-cards{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
+.m-card{background:#1A2B3C;border-radius:6px;padding:9px;border:0.5px solid rgba(255,255,255,.07);}
+.m-card-ht{border-top:1.5px solid var(--rose);}
+.m-card-mt{border-top:1.5px solid var(--teal);}
+.m-card-title{font-size:10px;font-weight:600;color:var(--tx);margin-bottom:2px;}
+.m-card-sub{font-size:7.5px;color:var(--tx3);margin-bottom:6px;}
+.m-card-sect{font-size:7.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between;}
+.m-card-sect.rose{color:var(--rose2);}
+.m-card-sect.teal{color:var(--teal2);}
+.m-ent-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5px;margin-bottom:6px;}
+.m-ent-btn{font-size:7px;padding:2px 4px;text-align:center;border-radius:2px;border:0.5px solid rgba(196,132,143,.2);color:var(--rose2);background:rgba(196,132,143,.08);}
+.m-ent-btn.teal{border-color:rgba(42,181,160,.2);color:var(--teal2);background:rgba(42,181,160,.08);}
+.m-btns{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px;}
+.m-btn{font-size:7px;padding:2px 5px;border-radius:2px;background:rgba(255,255,255,.05);border:0.5px solid rgba(255,255,255,.1);color:var(--tx2);}
 
-/* ── MOCKUP — Applications ── */
-.mock-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
-.mock-stat-total{background:rgba(42,181,160,.09);border:1px solid rgba(42,181,160,.2);border-radius:7px;padding:10px;text-align:center;grid-column:1/-1;}
-.mock-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:10px;text-align:center;}
-.mock-stat-num{font-family:var(--serif);font-size:20px;line-height:1;margin-bottom:2px;}
-.mock-stat-label{font-size:9px;color:var(--tx3);letter-spacing:.04em;}
-.mock-jd-panel{background:rgba(201,138,14,.07);border:1px solid rgba(201,138,14,.28);border-top:2px solid var(--gold);border-radius:8px;padding:12px;margin-bottom:12px;}
-.mock-jd-panel-label{font-size:9px;color:var(--gold2);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
-.mock-jd-panel-input{background:rgba(201,138,14,.05);border:1px solid rgba(201,138,14,.25);border-radius:5px;height:52px;margin-bottom:6px;}
-.mock-jd-panel-btn{background:var(--gold);border:none;border-radius:4px;width:100%;padding:7px;font-size:10px;color:#fff;font-weight:600;}
+/* Application cards */
+.m-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:9px;}
+.m-stat{background:rgba(255,255,255,.03);border:0.5px solid rgba(255,255,255,.08);border-radius:5px;padding:7px 5px;text-align:center;}
+.m-stat-num{font-family:var(--serif);font-size:15px;line-height:1;margin-bottom:1px;}
+.m-stat-label{font-size:7px;color:var(--tx3);letter-spacing:.03em;}
+.m-stage-row{display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap;}
+.m-stage{font-size:7.5px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.04);border:0.5px solid rgba(255,255,255,.1);color:var(--tx3);}
+.m-stage.on{background:rgba(196,132,143,.1);border-color:rgba(196,132,143,.25);color:var(--rose2);}
+.m-app{background:#1A2B3C;border-radius:5px;padding:8px 10px;margin-bottom:5px;border-left:2.5px solid var(--rose);display:flex;gap:8px;align-items:center;}
+.m-app.blue{border-left-color:var(--jade);}
+.m-app.amber{border-left-color:var(--gold);}
+.m-app.teal{border-left-color:var(--teal);}
+.m-app-co{font-size:10px;font-weight:600;color:var(--tx);}
+.m-app-role{font-size:8px;color:var(--tx2);margin-top:1px;}
+.m-badge{display:inline-block;font-size:7px;padding:1.5px 5px;border-radius:6px;font-weight:500;}
+.m-badge.rose{background:rgba(196,132,143,.1);color:var(--rose2);border:0.5px solid rgba(196,132,143,.22);}
+.m-badge.blue{background:rgba(107,163,200,.1);color:var(--jade2);border:0.5px solid rgba(107,163,200,.22);}
+.m-badge.amber{background:rgba(201,138,14,.1);color:var(--gold2);border:0.5px solid rgba(201,138,14,.22);}
+.m-badge.teal{background:rgba(42,181,160,.09);color:var(--teal2);border:0.5px solid rgba(42,181,160,.22);}
+.m-fit{font-size:10px;color:var(--jade2);font-family:var(--serif);margin-left:auto;flex-shrink:0;}
 
-.mock-app-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.mock-stage-row{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;}
-.mock-stage-tag{font-size:9px;padding:3px 8px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);}
-.mock-stage-tag.on{background:rgba(196,132,143,.12);border-color:rgba(196,132,143,.3);color:var(--rose2);}
+/* Networking */
+.m-heat-row{display:flex;gap:5px;margin-bottom:9px;}
+.m-heat{flex:1;border-radius:5px;padding:7px 5px;text-align:center;}
+.m-heat.sky{background:rgba(107,163,200,.08);border:0.5px solid rgba(107,163,200,.18);}
+.m-heat.teal{background:rgba(42,181,160,.07);border:0.5px solid rgba(42,181,160,.16);}
+.m-heat.amber{background:rgba(201,138,14,.07);border:0.5px solid rgba(201,138,14,.16);}
+.m-heat.cold{background:rgba(255,255,255,.03);border:0.5px solid rgba(255,255,255,.08);}
+.m-heat-num{font-family:var(--serif);font-size:15px;line-height:1;margin-bottom:1px;}
+.m-heat-label{font-size:7px;color:var(--tx3);letter-spacing:.03em;}
+.m-contact{background:#1A2B3C;border-radius:5px;padding:8px 10px;margin-bottom:5px;border-left:2.5px solid;display:grid;grid-template-columns:1fr 70px;gap:6px;align-items:center;}
+.m-con-name{font-size:10px;font-weight:600;color:var(--tx);margin-bottom:2px;}
+.m-con-role{font-size:8px;color:var(--tx2);}
+.m-con-date{text-align:right;font-size:8px;color:var(--tx3);}
+.m-con-chip{font-size:7px;padding:2px 5px;border-radius:5px;display:inline-block;margin-top:3px;}
 
-.mock-app-card{background:#1E2E3E;border-radius:7px;padding:10px 12px;margin-bottom:6px;border-left:3px solid var(--rose);display:flex;gap:10px;align-items:flex-start;}
-.mock-app-card.blue{border-left-color:var(--jade);}
-.mock-app-card.amber{border-left-color:var(--gold);}
-.mock-app-card.teal{border-left-color:var(--teal);}
-.mock-app-info{flex:1;}
-.mock-app-co{font-size:12px;font-weight:600;color:var(--tx);}
-.mock-app-role{font-size:10px;color:var(--tx2);margin-top:1px;}
-.mock-app-meta{font-size:9px;color:var(--tx3);margin-top:3px;}
-.mock-badge{display:inline-block;font-size:8px;padding:2px 7px;border-radius:8px;font-weight:500;}
-.mock-badge.rose{background:rgba(196,132,143,.12);color:var(--rose2);border:0.5px solid rgba(196,132,143,.25);}
-.mock-badge.blue{background:rgba(107,163,200,.12);color:var(--jade2);border:0.5px solid rgba(107,163,200,.25);}
-.mock-badge.amber{background:rgba(201,138,14,.12);color:var(--gold2);border:0.5px solid rgba(201,138,14,.25);}
-.mock-badge.teal{background:rgba(42,181,160,.10);color:var(--teal2);border:0.5px solid rgba(42,181,160,.25);}
-.mock-fit{font-size:10px;color:var(--jade2);font-family:var(--serif);}
-
-/* ── MOCKUP — Networking ── */
-.mock-net-tiles{display:flex;gap:6px;margin-bottom:12px;}
-.mock-net-tile{flex:1;border-radius:7px;padding:8px;text-align:center;}
-.mock-net-tile.sky{background:rgba(107,163,200,.09);border:1px solid rgba(107,163,200,.2);}
-.mock-net-tile.teal{background:rgba(42,181,160,.08);border:1px solid rgba(42,181,160,.18);}
-.mock-net-tile.amber{background:rgba(201,138,14,.08);border:1px solid rgba(201,138,14,.18);}
-.mock-net-tile.cold{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);}
-.mock-net-tile-num{font-family:var(--serif);font-size:18px;line-height:1;margin-bottom:2px;}
-.mock-net-tile-label{font-size:8px;color:var(--tx3);letter-spacing:.04em;}
-
-.mock-net-card{background:#1E2E3E;border-radius:7px;padding:10px 12px;margin-bottom:6px;border-left:3px solid;display:grid;grid-template-columns:1fr 100px 90px;gap:8px;align-items:center;}
-.mock-net-left .mock-name{font-size:12px;font-weight:600;color:var(--tx);margin-bottom:3px;}
-.mock-net-left .mock-role{font-size:10px;color:var(--tx2);}
-.mock-net-mid{text-align:center;padding:0 6px;border-left:1px solid rgba(255,255,255,.07);border-right:1px solid rgba(255,255,255,.07);}
-.mock-net-mid .mock-date-label{font-size:8px;color:var(--tx3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;}
-.mock-net-mid .mock-date{font-size:11px;color:var(--tx);}
-.mock-net-mid .mock-act-chip{font-size:8px;padding:2px 6px;border-radius:8px;margin-top:3px;display:inline-block;}
-.mock-net-right{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
-.mock-net-action{font-size:8px;padding:4px 4px;border-radius:3px;text-align:center;}
-.mock-net-icons{display:flex;gap:2px;grid-column:1/-1;}
-.mock-net-icon{font-size:11px;padding:3px 4px;border-radius:3px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);flex:1;text-align:center;}
-
-/* footer */
-.preview-footer{text-align:center;padding:40px 20px;border-top:0.5px solid var(--border);}
-.preview-footer-text{font-size:12px;color:var(--tx3);line-height:1.8;}
-.preview-footer-text a{color:var(--rose2);text-decoration:none;}
+/* JD Analyze teaser */
+.m-jd-bar{background:rgba(201,138,14,.07);border-top:1.5px solid var(--gold);padding:9px 14px;display:flex;align-items:center;gap:8px;}
+.m-jd-label{font-size:9px;color:var(--gold2);font-weight:600;white-space:nowrap;}
+.m-jd-input{flex:1;background:rgba(201,138,14,.05);border:0.5px solid rgba(201,138,14,.2);border-radius:4px;height:22px;}
+.m-jd-btn{background:var(--gold);color:#fff;border:none;border-radius:3px;padding:4px 10px;font-size:8px;font-weight:600;white-space:nowrap;}
 </style>
 </head>
 <body>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
 
 <!-- Loading overlay -->
 <div class="loading-overlay" id="loading">
-  <svg width="32" height="32" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
   <div class="loading-spinner"></div>
   <div class="loading-text">Loading JobQuest…</div>
 </div>
 
-<!-- Background glows -->
-<div class="bg-glow bg-glow-1"></div>
-<div class="bg-glow bg-glow-2"></div>
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
 
-<!-- ── GATE ─────────────────────────────────────────────────────────────────── -->
-<div class="gate-section">
-  <div class="gate" id="gate">
-    <div class="gate-star">
-      <svg width="40" height="40" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
-    </div>
-    <div class="gate-eyebrow">private access</div>
-    <h1 class="gate-title">JobQuest <em>2026</em></h1>
-    <p class="gate-sub">Ryan Corcoran's job search operating system —<br>application tracking, AI analysis, networking CRM.<br><br>Password required to continue.</p>
-    <div class="gate-input-wrap">
-      <input class="gate-input" id="pw-input" type="password" placeholder="Enter password"
-        autocomplete="current-password"
-        onkeydown="if(event.key==='Enter')tryAccess()"
-        oninput="document.getElementById('pw-error').textContent='';this.classList.remove('error')">
-      <button class="gate-eye" id="eye-btn" onclick="toggleVisibility()" title="Show/hide">👁</button>
-    </div>
-    <button class="gate-btn" id="access-btn" onclick="tryAccess()">Access JobQuest ↗</button>
-    <div class="gate-error" id="pw-error"></div>
-    <a href="https://www.ryan-corcoran.com" class="gate-back">← Back to portfolio</a>
-    <div class="gate-hint">Looking for a walkthrough? <a href="mailto:rcorcoran03@gmail.com">Get in touch</a></div>
-  </div>
-
-  <div class="scroll-hint" onclick="document.getElementById('preview-1').scrollIntoView({behavior:'smooth'})">
-    <span>preview below</span>
-    <div class="scroll-arrow"></div>
-  </div>
-</div>
-
-<!-- ── PREVIEW 1: JOB BOARD ──────────────────────────────────────────────────── -->
-<div class="preview-section" id="preview-1">
-  <div class="preview-label">
-    <div class="preview-eyebrow">job board hq</div>
-    <div class="preview-title">Healthtech &amp; Medtech <em>search workflows.</em></div>
-  </div>
-  <div class="mockup-wrap">
-    <div class="mockup-inner">
-      <!-- Nav -->
-      <div class="mock-nav">
-        <svg width="16" height="16" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
-        <div class="mock-brand">JobSearch HQ <span style="font-size:9px;color:var(--tx3);margin-left:4px;font-family:var(--sans)">2026</span></div>
-        <div class="mock-tabs">
-          <button class="mock-tab on">Job board</button>
-          <button class="mock-tab">Applications</button>
-          <button class="mock-tab">Focus timer</button>
-          <button class="mock-tab">Networking</button>
-        </div>
+  <!-- ── GATE PANEL ── -->
+  <div class="gate-panel">
+    <div class="gate">
+      <div class="gate-star">
+        <svg width="28" height="28" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
       </div>
-      <!-- Body -->
-      <div class="mock-body">
-        <div class="mock-section-eyebrow">Job board</div>
-        <div class="mock-h1">JobQuest 2026 HQ</div>
-        <div class="mock-sub">Job Boards &amp; Enterprise Search Workflows</div>
-        <div class="mock-bar"></div>
-        <!-- Profile card -->
-        <div class="mock-profile">
-          <div class="mock-photo"></div>
-          <div class="mock-profile-text">
-            <div class="mock-profile-eye">open to new roles · minneapolis, mn</div>
-            <div class="mock-profile-name">Ryan Corcoran</div>
-            <div class="mock-profile-role">Senior PM · Digital Health · Care Navigation · Medtech</div>
-          </div>
-          <div style="font-size:9px;color:var(--rose2);border:0.5px solid rgba(196,132,143,.3);padding:3px 9px;border-radius:4px;white-space:nowrap">Interactive Portfolio ↗</div>
-        </div>
-        <!-- JD Analyzer bar -->
-        <div class="mock-jd-bar">
-          <div class="mock-jd-label">✦ Analyze a JD:</div>
-          <div class="mock-jd-input"></div>
-          <div class="mock-jd-btn">⚡ Analyze</div>
-        </div>
-        <!-- Job board cards -->
-        <div class="mock-cards">
-          <div class="mock-card mock-card-ht">
-            <div class="mock-card-title">🏥 Healthtech</div>
-            <div class="mock-card-sub">Digital health, behavioral health, VBC, analytics, payer</div>
-            <div class="mock-card-section rose"><span>Job boards</span><div class="mock-open-btn rose">Open all ↗</div></div>
-            <div class="mock-btns"><div class="mock-btn">LinkedIn ↗</div><div class="mock-btn">Wellfound ↗</div><div class="mock-btn">Indeed ↗</div></div>
-            <div class="mock-card-section rose"><span>Enterprise</span><div class="mock-open-btn rose">Open all ↗</div></div>
-            <div class="mock-ent-box">
-              <div class="mock-ent-btn">UHG / Optum ↗</div><div class="mock-ent-btn">CVS / Aetna ↗</div>
-              <div class="mock-ent-btn">Cigna ↗</div><div class="mock-ent-btn">Medica ↗</div>
-            </div>
-            <div class="mock-card-section rose"><span>Growth / Startup</span><div class="mock-open-btn rose">Open all ↗</div></div>
-            <div class="mock-btns"><div class="mock-btn">Spring Health ↗</div><div class="mock-btn">Transcarent ↗</div><div class="mock-btn">Gravie ↗</div></div>
-          </div>
-          <div class="mock-card mock-card-mt">
-            <div class="mock-card-title">🫀 Medtech</div>
-            <div class="mock-card-sub">Medical devices, upstream/downstream PM, BSC/MDT ecosystem</div>
-            <div class="mock-card-section teal"><span>Job boards</span><div class="mock-open-btn teal">Open all ↗</div></div>
-            <div class="mock-btns"><div class="mock-btn">LinkedIn ↗</div><div class="mock-btn">Indeed ↗</div></div>
-            <div class="mock-card-section teal"><span>Enterprise</span><div class="mock-open-btn teal">Open all ↗</div></div>
-            <div class="mock-ent-box teal">
-              <div class="mock-ent-btn teal">Boston Scientific ↗</div><div class="mock-ent-btn teal">Medtronic ↗</div>
-              <div class="mock-ent-btn teal">Abbott ↗</div><div class="mock-ent-btn teal">Stryker ↗</div>
-            </div>
-            <div class="mock-card-section teal"><span>Growth / Smaller</span><div class="mock-open-btn teal">Open all ↗</div></div>
-            <div class="mock-btns"><div class="mock-btn">Anteris Medical ↗</div><div class="mock-btn">Nalu Medical ↗</div><div class="mock-btn">Kestra ↗</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mockup-overlay"></div>
-    <div class="mockup-shimmer"></div>
-    <div class="lock-badge"><span class="lock-icon">🔒</span><span class="lock-text">enter password above to access</span></div>
-  </div>
-</div>
+      <div class="gate-eyebrow">Ryan Corcoran · 2026</div>
+      <div class="gate-title">Job<em>Quest</em></div>
+      <div class="gate-sub">Senior PM · Digital Health · Care Navigation · Medtech</div>
 
-<!-- ── PREVIEW 2: APPLICATIONS ──────────────────────────────────────────────── -->
-<div class="preview-section" id="preview-2">
-  <div class="preview-label">
-    <div class="preview-eyebrow">application tracker</div>
-    <div class="preview-title">Pipeline dashboard with <em>AI fit scoring.</em></div>
-  </div>
-  <div class="mockup-wrap">
-    <div class="mockup-inner">
-      <div class="mock-nav">
-        <svg width="16" height="16" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
-        <div class="mock-brand">JobSearch HQ <span style="font-size:9px;color:var(--tx3);margin-left:4px;font-family:var(--sans)">2026</span></div>
-        <div class="mock-tabs">
-          <button class="mock-tab">Job board</button>
-          <button class="mock-tab on">Applications</button>
-          <button class="mock-tab">Focus timer</button>
-          <button class="mock-tab">Networking</button>
+      <!-- ── Owner / named-guest code view ── -->
+      <div id="gate-view-login">
+        <div class="gate-input-wrap">
+          <input id="pw-input" type="password" class="gate-input" placeholder="Enter access code…" autocomplete="current-password" onkeydown="if(event.key==='Enter')tryAccess()">
+          <button class="gate-eye" id="eye-btn" onclick="toggleVisibility()" tabindex="-1">👁</button>
         </div>
+        <button class="gate-btn" id="access-btn" onclick="tryAccess()">Enter →</button>
+        <div id="pw-error" class="gate-error"></div>
+        <hr class="gate-divider">
+        <button class="gate-btn secondary" onclick="guestAccess()">Continue as Guest →</button>
+        <div class="gate-hint">Guests see a curated read-only view · <a onclick="showCodeView()">Have a personalized code?</a></div>
       </div>
-      <div class="mock-body">
-        <div class="mock-section-eyebrow">Applications</div>
-        <div class="mock-h1">JobQuest Application Development System</div>
-        <div class="mock-sub">Track, analyze, and prioritize your search</div>
-        <div class="mock-bar"></div>
-        <!-- Stat tiles + JD panel side by side -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-          <div>
-            <div class="mock-stat-total">
-              <div class="mock-stat-num" style="color:var(--teal2)">74</div>
-              <div class="mock-stat-label">total tracked</div>
+
+      <!-- ── Named guest personalized code view ── -->
+      <div id="gate-view-code">
+        <div style="font-size:12px;color:var(--tx2);margin-bottom:16px;line-height:1.6;">Enter the code Ryan shared with you for a personalized view.</div>
+        <div class="gate-input-wrap">
+          <input id="pcode-input" type="text" class="gate-input" placeholder="e.g. SARAH2026" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')tryPersonalCode()" style="letter-spacing:.1em;">
+        </div>
+        <button class="gate-btn" onclick="tryPersonalCode()">Enter →</button>
+        <div id="pcode-error" class="gate-error"></div>
+        <hr class="gate-divider">
+        <button class="gate-btn secondary" onclick="showLoginView()">← Back</button>
+      </div>
+
+    </div>
+
+    <div class="gate-footer">
+      Built by Ryan Corcoran during an active job search · May 2026<br>
+      <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank">Portfolio</a> ·
+      <a href="mailto:rcorcoran03@gmail.com">rcorcoran03@gmail.com</a>
+    </div>
+  </div>
+
+  <!-- ── PREVIEW PANEL ── -->
+  <div class="preview-panel">
+    <div class="preview-label">
+      <div class="preview-eyebrow">live job search command center</div>
+      <div class="preview-title">A complete <em>search OS</em>, built in public.</div>
+    </div>
+
+    <!-- 3-column shimmer strip -->
+    <div class="preview-cols">
+
+      <!-- Col 1: Job Board HQ -->
+      <div class="preview-col">
+        <div class="col-inner">
+          <div class="m-nav">
+            <svg width="12" height="12" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
+            <div class="m-brand">JobQuest</div>
+            <div class="m-tabs"><button class="m-tab on">HQ</button><button class="m-tab">Apps</button><button class="m-tab">Net</button></div>
+          </div>
+          <div class="m-body">
+            <div class="m-eyebrow">Job Search HQ</div>
+            <div class="m-h1">HQ Command</div>
+            <div class="m-sub">Ryan Corcoran · Sr PM / Director · Medtech + Digital Health</div>
+            <div class="m-bar"></div>
+            <!-- KPI strip -->
+            <div class="m-kpi-strip">
+              <div class="m-kpi"><div class="m-kpi-num" style="color:var(--jade2)">12</div><div class="m-kpi-label">active</div></div>
+              <div class="m-kpi"><div class="m-kpi-num" style="color:var(--gold2)">3</div><div class="m-kpi-label">screen</div></div>
+              <div class="m-kpi"><div class="m-kpi-num" style="color:var(--teal2)">24</div><div class="m-kpi-label">network</div></div>
+              <div class="m-kpi"><div class="m-kpi-num" style="color:var(--rose2)">5</div><div class="m-kpi-label">high pri</div></div>
             </div>
-            <div class="mock-stat-grid" style="margin-top:6px;margin-bottom:0">
-              <div class="mock-stat"><div class="mock-stat-num" style="color:var(--jade2)">22</div><div class="mock-stat-label">saved</div></div>
-              <div class="mock-stat"><div class="mock-stat-num" style="color:var(--gold2)">14</div><div class="mock-stat-label">applied</div></div>
-              <div class="mock-stat"><div class="mock-stat-num" style="color:var(--gold2)">3</div><div class="mock-stat-label">interviewing</div></div>
-              <div class="mock-stat"><div class="mock-stat-num" style="color:var(--rose2)">8</div><div class="mock-stat-label">high priority</div></div>
+            <!-- Job board cards -->
+            <div class="m-cards">
+              <div class="m-card m-card-ht">
+                <div class="m-card-title">HealthTech</div>
+                <div class="m-card-sub">Digital health, SDOH, care nav</div>
+                <div class="m-card-sect rose"><span>Enterprise</span></div>
+                <div class="m-ent-grid">
+                  <div class="m-ent-btn">Unite Us ↗</div><div class="m-ent-btn">Aetna ↗</div>
+                  <div class="m-ent-btn">Optum ↗</div><div class="m-ent-btn">Humana ↗</div>
+                </div>
+              </div>
+              <div class="m-card m-card-mt">
+                <div class="m-card-title">MedTech</div>
+                <div class="m-card-sub">Upstream / downstream PM</div>
+                <div class="m-card-sect teal"><span>Enterprise</span></div>
+                <div class="m-ent-grid">
+                  <div class="m-ent-btn teal">Medtronic ↗</div><div class="m-ent-btn teal">BSC ↗</div>
+                  <div class="m-ent-btn teal">Philips ↗</div><div class="m-ent-btn teal">Stryker ↗</div>
+                </div>
+              </div>
+            </div>
+            <!-- JD analyze bar -->
+            <div class="m-jd-bar">
+              <div class="m-jd-label">✦ Analyze JD:</div>
+              <div class="m-jd-input"></div>
+              <div class="m-jd-btn">⚡ Analyze</div>
             </div>
           </div>
-          <div class="mock-jd-panel">
-            <div class="mock-jd-panel-label">✦ Analyze a Job Description</div>
-            <div class="mock-jd-panel-input"></div>
-            <div class="mock-jd-panel-btn">⚡ Analyze JD</div>
-            <div style="font-size:8px;color:rgba(201,150,26,.5);margin-top:5px;text-align:center">powered by claude · ~15 seconds · no data stored</div>
+        </div>
+        <div class="col-overlay"></div>
+        <div class="col-shimmer"></div>
+        <div class="col-label">
+          <div class="col-label-eyebrow">Job Board + Command Center</div>
+          <div style="color:var(--jade2)">HQ Dashboard</div>
+        </div>
+      </div>
+
+      <!-- Col 2: Applications -->
+      <div class="preview-col">
+        <div class="col-inner">
+          <div class="m-nav">
+            <svg width="12" height="12" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
+            <div class="m-brand">JobQuest</div>
+            <div class="m-tabs"><button class="m-tab">HQ</button><button class="m-tab on">Apps</button><button class="m-tab">Net</button></div>
+          </div>
+          <div class="m-body">
+            <div class="m-eyebrow">Applications</div>
+            <div class="m-h1">Pipeline</div>
+            <div class="m-sub">AI fit scoring · stage tracking · red flags</div>
+            <div class="m-bar"></div>
+            <div class="m-stat-row">
+              <div class="m-stat"><div class="m-stat-num" style="color:var(--teal2)">74</div><div class="m-stat-label">tracked</div></div>
+              <div class="m-stat"><div class="m-stat-num" style="color:var(--gold2)">14</div><div class="m-stat-label">applied</div></div>
+              <div class="m-stat"><div class="m-stat-num" style="color:var(--rose2)">3</div><div class="m-stat-label">screens</div></div>
+            </div>
+            <div class="m-stage-row">
+              <div class="m-stage on">All</div><div class="m-stage">Saved</div><div class="m-stage">Applied</div><div class="m-stage">Interview</div><div class="m-stage">Offer</div>
+            </div>
+            <div class="m-app">
+              <div style="flex:1"><div class="m-app-co">Reema Health <span class="m-badge rose">Interview</span></div><div class="m-app-role">PM, Care Navigation · Minneapolis</div></div>
+              <div class="m-fit">9/10</div>
+            </div>
+            <div class="m-app blue">
+              <div style="flex:1"><div class="m-app-co">Unite Us <span class="m-badge blue">Applied</span></div><div class="m-app-role">Sr PM · SDOH Platform · Remote</div></div>
+              <div class="m-fit">9/10</div>
+            </div>
+            <div class="m-app amber">
+              <div style="flex:1"><div class="m-app-co">Oasis Health <span class="m-badge amber">Screen</span></div><div class="m-app-role">Sr Manager Product · Remote</div></div>
+              <div class="m-fit">7/10</div>
+            </div>
+            <div class="m-app teal">
+              <div style="flex:1"><div class="m-app-co">Stryker Medical <span class="m-badge teal">Applied</span></div><div class="m-app-role">PM, Downstream Marketing · Hybrid</div></div>
+              <div class="m-fit">8/10</div>
+            </div>
           </div>
         </div>
-        <!-- Stage filters -->
-        <div class="mock-stage-row">
-          <div class="mock-stage-tag on">All</div>
-          <div class="mock-stage-tag">Saved</div>
-          <div class="mock-stage-tag">Applied</div>
-          <div class="mock-stage-tag">Interview</div>
-          <div class="mock-stage-tag">Offer</div>
-          <div class="mock-stage-tag">Rejected</div>
+        <div class="col-overlay"></div>
+        <div class="col-shimmer"></div>
+        <div class="col-label">
+          <div class="col-label-eyebrow">Application Tracker</div>
+          <div style="color:var(--gold2)">Pipeline + AI Scoring</div>
         </div>
-        <!-- App cards -->
-        <div class="mock-app-card">
-          <div class="mock-app-info">
-            <div class="mock-app-co">Health Platform Co. <span class="mock-badge rose">Saved</span></div>
-            <div class="mock-app-role">Senior Product Manager – Care Navigation</div>
-            <div class="mock-app-meta">Remote · Applied May 12</div>
+      </div>
+
+      <!-- Col 3: Networking CRM -->
+      <div class="preview-col">
+        <div class="col-inner">
+          <div class="m-nav">
+            <svg width="12" height="12" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
+            <div class="m-brand">JobQuest</div>
+            <div class="m-tabs"><button class="m-tab">HQ</button><button class="m-tab">Apps</button><button class="m-tab on">Net</button></div>
           </div>
-          <div class="mock-fit">9/10</div>
-        </div>
-        <div class="mock-app-card blue">
-          <div class="mock-app-info">
-            <div class="mock-app-co">Analytics Platform Inc. <span class="mock-badge blue">Applied</span></div>
-            <div class="mock-app-role">Senior PM – Payor Analytics</div>
-            <div class="mock-app-meta">Remote · Applied May 1</div>
+          <div class="m-body">
+            <div class="m-eyebrow">Networking CRM</div>
+            <div class="m-h1">Network</div>
+            <div class="m-sub">Heat tracking · AI outreach · referral pipeline</div>
+            <div class="m-bar"></div>
+            <div class="m-heat-row">
+              <div class="m-heat sky"><div class="m-heat-num" style="color:var(--jade2)">24</div><div class="m-heat-label">total</div></div>
+              <div class="m-heat teal"><div class="m-heat-num" style="color:var(--teal2)">11</div><div class="m-heat-label">warm</div></div>
+              <div class="m-heat amber"><div class="m-heat-num" style="color:var(--gold2)">8</div><div class="m-heat-label">nudge</div></div>
+              <div class="m-heat cold"><div class="m-heat-num" style="color:var(--tx3)">5</div><div class="m-heat-label">cold</div></div>
+            </div>
+            <div class="m-contact" style="border-left-color:var(--teal)">
+              <div><div class="m-con-name">A. Chen <span class="m-badge teal">Warm</span></div><div class="m-con-role">Director of Product · Health Co.</div></div>
+              <div class="m-con-date">May 14<div><span class="m-con-chip" style="background:rgba(107,163,200,.1);color:var(--jade2);border:0.5px solid rgba(107,163,200,.2)">💬 Sent</span></div></div>
+            </div>
+            <div class="m-contact" style="border-left-color:var(--gold)">
+              <div><div class="m-con-name">M. Torres <span class="m-badge amber">Nudge</span></div><div class="m-con-role">Sr PM · Digital Health Startup</div></div>
+              <div class="m-con-date">Apr 28<div><span class="m-con-chip" style="background:rgba(42,181,160,.08);color:var(--teal2);border:0.5px solid rgba(42,181,160,.18)">📞 Call</span></div></div>
+            </div>
+            <div class="m-contact" style="border-left-color:var(--tx3);opacity:.55">
+              <div><div class="m-con-name">J. Park <span class="m-badge" style="background:rgba(255,255,255,.04);color:var(--tx3);border:0.5px solid rgba(255,255,255,.1)">Cold</span></div><div class="m-con-role">VP Product · Payer Co.</div></div>
+              <div class="m-con-date" style="color:var(--tx3)">Mar 10<div style="font-size:7px;margin-top:2px">48d ago</div></div>
+            </div>
           </div>
-          <div class="mock-fit">8/10</div>
         </div>
-        <div class="mock-app-card amber">
-          <div class="mock-app-info">
-            <div class="mock-app-co">Digital Health Startup <span class="mock-badge amber">Phone Screen</span></div>
-            <div class="mock-app-role">Senior Digital Product Manager</div>
-            <div class="mock-app-meta">Remote · Screening May 18</div>
-          </div>
-          <div class="mock-fit">7/10</div>
+        <div class="col-overlay"></div>
+        <div class="col-shimmer"></div>
+        <div class="col-label">
+          <div class="col-label-eyebrow">Networking CRM</div>
+          <div style="color:var(--teal2)">Heat Tracking + AI Outreach</div>
         </div>
-        <div class="mock-app-card teal">
-          <div class="mock-app-info">
-            <div class="mock-app-co">Medtech Enterprise Co. <span class="mock-badge teal">Saved</span></div>
-            <div class="mock-app-role">Upstream PM – Remote Monitoring</div>
-            <div class="mock-app-meta">Minneapolis MN · Closes Jun 4</div>
-          </div>
-          <div class="mock-fit">7/10</div>
-        </div>
+      </div>
+
+    </div><!-- /preview-cols -->
+
+    <!-- Mobile swipe hint -->
+    <div class="swipe-hint">
+      <span>swipe to explore</span>
+      <div class="swipe-dots">
+        <div class="swipe-dot on"></div>
+        <div class="swipe-dot"></div>
+        <div class="swipe-dot"></div>
       </div>
     </div>
-    <div class="mockup-overlay"></div>
-    <div class="mockup-shimmer"></div>
-    <div class="lock-badge"><span class="lock-icon">🔒</span><span class="lock-text">enter password above to access</span></div>
-  </div>
-</div>
 
-<!-- ── PREVIEW 3: NETWORKING ─────────────────────────────────────────────────── -->
-<div class="preview-section" id="preview-3">
-  <div class="preview-label">
-    <div class="preview-eyebrow">networking crm</div>
-    <div class="preview-title">Warm contacts, heat tracking, <em>AI outreach.</em></div>
-  </div>
-  <div class="mockup-wrap">
-    <div class="mockup-inner">
-      <div class="mock-nav">
-        <svg width="16" height="16" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
-        <div class="mock-brand">JobSearch HQ <span style="font-size:9px;color:var(--tx3);margin-left:4px;font-family:var(--sans)">2026</span></div>
-        <div class="mock-tabs">
-          <button class="mock-tab">Job board</button>
-          <button class="mock-tab">Applications</button>
-          <button class="mock-tab">Focus timer</button>
-          <button class="mock-tab on">Networking</button>
-        </div>
-      </div>
-      <div class="mock-body">
-        <div class="mock-section-eyebrow">Networking</div>
-        <div class="mock-h1">Networking</div>
-        <div class="mock-sub">Contacts, warm outreach &amp; referral pipeline</div>
-        <div class="mock-bar"></div>
-        <!-- Heat tiles -->
-        <div class="mock-net-tiles">
-          <div class="mock-net-tile sky"><div class="mock-net-tile-num" style="color:var(--jade2)">24</div><div class="mock-net-tile-label">total</div></div>
-          <div class="mock-net-tile teal"><div class="mock-net-tile-num" style="color:var(--teal2)">11</div><div class="mock-net-tile-label">warm</div></div>
-          <div class="mock-net-tile amber"><div class="mock-net-tile-num" style="color:var(--gold2)">8</div><div class="mock-net-tile-label">nudge</div></div>
-          <div class="mock-net-tile cold"><div class="mock-net-tile-num" style="color:var(--tx3)">5</div><div class="mock-net-tile-label">cold</div></div>
-        </div>
-        <!-- Contact cards -->
-        <div class="mock-net-card" style="border-left-color:var(--teal)">
-          <div class="mock-net-left"><div class="mock-name">A. Chen <span class="mock-badge teal">Warm</span> <span class="mock-badge blue" style="margin-left:2px">Alumni</span></div><div class="mock-role">Director of Product · Health Co.</div></div>
-          <div class="mock-net-mid"><div class="mock-date-label">Last</div><div class="mock-date">May 14</div><div class="mock-act-chip" style="background:rgba(107,163,200,.12);color:var(--jade2);border:1px solid rgba(107,163,200,.2)">💬 Sent message</div></div>
-          <div class="mock-net-right">
-            <div class="mock-net-action" style="background:rgba(107,163,200,.1);color:var(--jade2);border:1px solid rgba(107,163,200,.2);font-size:8px">💬 Nudge</div>
-            <div class="mock-net-action" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);font-size:8px;color:var(--tx2)">📋 Update</div>
-            <div class="mock-net-icons"><div class="mock-net-icon">💬</div><div class="mock-net-icon">📞</div><div class="mock-net-icon">🤝</div><div class="mock-net-icon">✨</div><div class="mock-net-icon">⭐</div></div>
-            <div class="mock-net-action" style="grid-column:1/-1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);font-size:8px;color:var(--tx3);text-align:center">✏️ Edit</div>
-          </div>
-        </div>
-        <div class="mock-net-card" style="border-left-color:var(--gold)">
-          <div class="mock-net-left"><div class="mock-name">M. Torres <span class="mock-badge amber">Nudge</span> <span class="mock-badge rose" style="margin-left:2px">Warm</span></div><div class="mock-role">Senior PM · Digital Health Startup</div></div>
-          <div class="mock-net-mid"><div class="mock-date-label">Last</div><div class="mock-date">Apr 28</div><div class="mock-act-chip" style="background:rgba(42,181,160,.10);color:var(--teal2);border:1px solid rgba(42,181,160,.2)">📞 Call / video</div></div>
-          <div class="mock-net-right">
-            <div class="mock-net-action" style="background:rgba(107,163,200,.1);color:var(--jade2);border:1px solid rgba(107,163,200,.2);font-size:8px">💬 Nudge</div>
-            <div class="mock-net-action" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);font-size:8px;color:var(--tx2)">📋 Update</div>
-            <div class="mock-net-icons"><div class="mock-net-icon">💬</div><div class="mock-net-icon">📞</div><div class="mock-net-icon">🤝</div><div class="mock-net-icon">✨</div><div class="mock-net-icon">⭐</div></div>
-            <div class="mock-net-action" style="grid-column:1/-1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);font-size:8px;color:var(--tx3);text-align:center">✏️ Edit</div>
-          </div>
-        </div>
-        <div class="mock-net-card" style="border-left-color:var(--tx3);opacity:.55">
-          <div class="mock-net-left"><div class="mock-name">J. Park <span class="mock-badge" style="background:rgba(255,255,255,.04);color:var(--tx3);border:0.5px solid rgba(255,255,255,.1)">Cold</span></div><div class="mock-role">VP Product · Payer Co.</div></div>
-          <div class="mock-net-mid"><div class="mock-date-label">Last</div><div class="mock-date">Mar 10</div><div style="font-size:8px;color:var(--tx3);margin-top:3px">48 days ago</div></div>
-          <div class="mock-net-right">
-            <div class="mock-net-action" style="background:rgba(107,163,200,.1);color:var(--jade2);border:1px solid rgba(107,163,200,.2);font-size:8px">💬 Nudge</div>
-            <div class="mock-net-action" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);font-size:8px;color:var(--tx2)">📋 Update</div>
-            <div class="mock-net-icons"><div class="mock-net-icon">💬</div><div class="mock-net-icon">📞</div><div class="mock-net-icon">🤝</div><div class="mock-net-icon">✨</div><div class="mock-net-icon">⭐</div></div>
-            <div class="mock-net-action" style="grid-column:1/-1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);font-size:8px;color:var(--tx3);text-align:center">✏️ Edit</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mockup-overlay"></div>
-    <div class="mockup-shimmer"></div>
-    <div class="lock-badge"><span class="lock-icon">🔒</span><span class="lock-text">enter password above to access</span></div>
-  </div>
-</div>
+  </div><!-- /preview-panel -->
 
-<!-- Footer -->
-<div class="preview-footer">
-  <div class="preview-footer-text">
-    Built by Ryan Corcoran during an active job search · May 2026<br>
-    <a href="https://www.ryan-corcoran.com">ryan-corcoran.com</a> · <a href="mailto:rcorcoran03@gmail.com">rcorcoran03@gmail.com</a>
-  </div>
-</div>
+</div><!-- /hero -->
 
 <script>
-// ── PASSWORD ─────────────────────────────────────────────────────────────────
-// Replace PASTE_YOUR_HASH_HERE with: btoa(encodeURIComponent('yourpassword'))
-const HASH = 'dGhldWx0aW1hdGVqb2JxdWVzdA==';
-const JQ_PATH = 'https://jobs.ryan-corcoran.com';
+// ── AUTH CONFIG ────────────────────────────────────────────────────────────────
+// Owner code: change OWNER_HASH to btoa('yournewpassword') to update.
+// Default: jq2026
+const OWNER_HASH = btoa('jq2026');
+const JQ_PATH = 'index.html';
 
+// Named guest accounts — shared localStorage with index.html (same origin)
+function getGuestUsers() {
+  try { return JSON.parse(localStorage.getItem('jq_guests') || '[]'); } catch { return []; }
+}
+
+function setSession(userObj) {
+  sessionStorage.setItem('jq_session', JSON.stringify(userObj));
+}
+
+function redirectToApp() {
+  document.getElementById('gate').style.cssText += 'opacity:0;transition:opacity .25s';
+  document.getElementById('loading').classList.add('visible');
+  setTimeout(() => { window.location.href = JQ_PATH; }, 650);
+}
+
+// ── Check for ?guest=CODE URL param on load ───────────────────────────────────
+function checkGuestParam() {
+  const g = new URLSearchParams(location.search).get('guest');
+  if (!g) return false;
+  const match = getGuestUsers().find(u => u.code === g.toUpperCase());
+  if (match) {
+    setSession({ type: 'named', name: match.name, code: match.code, greeting: match.greeting || '' });
+    redirectToApp();
+    return true;
+  }
+  return false;
+}
+
+// ── Views ─────────────────────────────────────────────────────────────────────
+function showLoginView() {
+  document.getElementById('gate-view-login').style.display = '';
+  document.getElementById('gate-view-code').style.display = 'none';
+  document.getElementById('pw-error').textContent = '';
+}
+function showCodeView() {
+  document.getElementById('gate-view-login').style.display = 'none';
+  document.getElementById('gate-view-code').style.display = '';
+  document.getElementById('pcode-error').textContent = '';
+  setTimeout(() => document.getElementById('pcode-input').focus(), 50);
+}
+
+// ── Owner / named-guest login ─────────────────────────────────────────────────
 function tryAccess() {
-  const val = document.getElementById('pw-input').value;
-  const inputHash = btoa(encodeURIComponent(val));
-  if (inputHash === HASH) {
-    document.getElementById('gate').style.cssText += 'opacity:0;transition:opacity .3s';
-    document.getElementById('loading').classList.add('visible');
-    sessionStorage.setItem('jq_auth', '1');
-    setTimeout(() => { window.location.href = JQ_PATH; }, 800);
+  const val = document.getElementById('pw-input').value.trim();
+
+  // Check owner hash
+  if (btoa(val) === OWNER_HASH) {
+    setSession({ type: 'owner', name: 'Ryan' });
+    redirectToApp();
+    return;
+  }
+
+  // Check named guest codes (entered in the main field)
+  const match = getGuestUsers().find(g => g.code === val.toUpperCase());
+  if (match) {
+    setSession({ type: 'named', name: match.name, code: match.code, greeting: match.greeting || '' });
+    redirectToApp();
+    return;
+  }
+
+  // Wrong
+  const btn = document.getElementById('access-btn');
+  document.getElementById('pw-input').classList.add('error');
+  btn.classList.add('shake');
+  document.getElementById('pw-error').textContent = 'Incorrect code — try again';
+  setTimeout(() => { btn.classList.remove('shake'); document.getElementById('pw-input').classList.remove('error'); }, 420);
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-input').focus();
+}
+
+// ── Generic guest ─────────────────────────────────────────────────────────────
+function guestAccess() {
+  setSession({ type: 'guest', name: 'Guest' });
+  redirectToApp();
+}
+
+// ── Personalized code view ────────────────────────────────────────────────────
+function tryPersonalCode() {
+  const code = document.getElementById('pcode-input').value.trim().toUpperCase();
+  const match = getGuestUsers().find(g => g.code === code);
+  if (match) {
+    setSession({ type: 'named', name: match.name, code: match.code, greeting: match.greeting || '' });
+    redirectToApp();
   } else {
-    const btn = document.getElementById('access-btn');
-    document.getElementById('pw-input').classList.add('error');
-    btn.classList.add('shake');
-    document.getElementById('pw-error').textContent = 'Incorrect password — try again';
-    setTimeout(() => btn.classList.remove('shake'), 400);
-    document.getElementById('pw-input').select();
+    document.getElementById('pcode-error').textContent = 'Code not found — check with Ryan.';
+    document.getElementById('pcode-input').select();
   }
 }
 
+// ── Visibility toggle ─────────────────────────────────────────────────────────
 function toggleVisibility() {
   const inp = document.getElementById('pw-input');
   const btn = document.getElementById('eye-btn');
@@ -555,22 +652,22 @@ function toggleVisibility() {
   btn.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 
-// ── SCROLL ANIMATIONS ─────────────────────────────────────────────────────────
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('in');
-      // Stagger label then mockup
-      const mockup = e.target.closest('.preview-section')?.querySelector('.mockup-wrap');
-      if (mockup) setTimeout(() => mockup.classList.add('in'), 120);
-    }
-  });
-}, { threshold: 0.12 });
+// ── Mobile swipe dot update ───────────────────────────────────────────────────
+function initSwipeDots() {
+  const cols = document.querySelector('.preview-cols');
+  const dots = document.querySelectorAll('.swipe-dot');
+  if (!cols || !dots.length) return;
+  cols.addEventListener('scroll', () => {
+    const idx = Math.round(cols.scrollLeft / (cols.scrollWidth / 3));
+    dots.forEach((d, i) => d.classList.toggle('on', i === idx));
+  }, { passive: true });
+}
 
-document.querySelectorAll('.preview-label').forEach(el => obs.observe(el));
-
+// ── Init ──────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
+  if (checkGuestParam()) return; // auto-login from URL param
   document.getElementById('pw-input').focus();
+  initSwipeDots();
 });
 </script>
 </body>

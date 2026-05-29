@@ -8,13 +8,31 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v18  (2026-05-29)                                                 ║
-║  Owner:    Ryan Corcoran · ryan@ryan-corcoran.com                            ║
-║  Deployed: https://ryanpatrick-portfolio.pages.dev                           ║
+║  CURRENT:  v19  (2026-05-29)                                                 ║
+║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
+║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  v19  2026-05-29  UNIFIED AUTH + PROFILE SYNC + ACCESS REDESIGN             ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + access.html v2: unified front door for all 3 auth tiers                  ║
+║  + access.html: side-by-side desktop layout, stacked mobile                 ║
+║  + access.html: 3-column shimmer preview (Job Board, Apps, Network)         ║
+║  + access.html: sets jq_session then redirects — no double-login            ║
+║  + access.html: ?guest=CODE URL param support                                ║
+║  + index.html: init() skips auth screen if session already set              ║
+║  + index.html: auth screen is now fallback only (direct nav / expired)      ║
+║  + Philips added to MT_ENT and TARGET_CAREER_PAGES                          ║
+║  + PROFILE constant: $130K-$180K, Hybrid Minneapolis, Sr PM/Director,       ║
+║    Medtech Crossover (upstream/downstream marketing, Visible Heart Lab)      ║
+║  + All 6 credential locations synced to new PROFILE                         ║
+║  + ANALYZE_SYSTEM: honest gaps added (no hands-on FHIR/USCDI/Gravity)      ║
+║  + btoa() hash normalized across both files (was mixed with encodeURI)      ║
+║  + Version badge updated                                                     ║
+║  Based on: v18                                                               ║
 ║                                                                              ║
 ║  v18  2026-05-29  AUTH + GUEST SYSTEM                                        ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
@@ -67,16 +85,16 @@
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║  ~ Guest can view company profiles (read-only, no AI calls)                  ║
 ║  ~ Owner can annotate which apps to highlight for specific guests            ║
-║  ~ Version badge visible in UI footer                                        ║
-║  ~ Auto-detect GitHub Pages vs Netlify vs local for CLAUDE_URL              ║
+║  ~ Auto-detect GitHub Pages vs custom domain for CLAUDE_URL                 ║
+║  ~ Weekly README sync: pull salary/pipeline from README into app state      ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
-<meta name="jq-version" content="18">
-<meta name="jq-base" content="17.4">
+<meta name="jq-version" content="19">
+<meta name="jq-base" content="18">
 <meta name="jq-date" content="2026-05-29">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JobQuest · v18</title>
+<title>JobQuest · v19</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8F1F8'/%3E%3Cpolygon points='16,4 17.8,13.5 25,8 19.5,15.5 29,16 19.5,16.5 25,24 17.8,18.5 16,28 14.2,18.5 7,24 12.5,16.5 3,16 12.5,15.5 7,8 14.2,13.5' fill='%231C3347'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Avenir+Next:wght@400;500;600&display=swap" rel="stylesheet">
@@ -427,7 +445,7 @@
 <body>
 
 <!-- ── v18: VERSION BADGE ──────────────────────────────────────────── -->
-<div id="version-badge">JobQuest v18</div>
+<div id="version-badge">JobQuest v19</div>
 
 <!-- ── v18: AUTH SCREEN ───────────────────────────────────────────── -->
 <div id="auth-screen">
@@ -770,7 +788,7 @@ function checkGuestParam() {
 
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
-const PROFILE = `Senior PM · Digital Health · Behavioral Health Analytics · Care Navigation · 0-1 Product Builds · MBA (Medical Industry, UMN Carlson) · BS Biomedical Sciences · Minneapolis MN · Remote-first · $120K–$160K target · 5+ yrs experience`;
+const PROFILE = `Senior PM / Director of Product · Digital Health · Behavioral Health Analytics · Care Navigation · 0-1 Product Builds · Medtech Crossover (upstream/downstream marketing, Visible Heart Lab, cardiac devices) · MBA Medical Industry Leadership (UMN Carlson) · BS Biomedical Sciences · Hybrid · Minneapolis MN · $130K–$180K · 5+ yrs`;
 
 // Each preset runs 2-3 query variants in parallel and merges results
 const PRESETS = [
@@ -1160,6 +1178,8 @@ const TARGET_CAREER_PAGES = [
   {name:'CVS / Aetna',         url:'https://jobs.cvshealth.com/us/en/search-results?keywords=product%20manager'},
   {name:'Medtronic',           url:'https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers?q=product+manager'},
   {name:'Boston Scientific',   url:'https://www.bostonscientific.com/en-US/careers/job-search.html?keyword=product+manager'},
+  {name:'Philips',             url:'https://www.careers.philips.com/search-jobs?keywords=product+manager'},
+  {name:'Stryker',             url:'https://careers.stryker.com/jobs?keywords=product+manager&page=1'},
   {name:'Elevance Health',     url:'https://elevancehealth.jobs/search/?q=product+manager'},
   {name:'Humana',              url:'https://careers.humana.com/search-jobs?keywords=product+manager'},
   {name:'Cigna / Evernorth',   url:'https://jobs.thecignagroup.com/search-jobs?keywords=product+manager'},
@@ -1294,7 +1314,7 @@ function renderHQHero() {
             <span style="display:inline-block;width:12px;height:1px;background:var(--rose-deep)"></span>open to new roles · minneapolis, mn
           </div>
           <div style="font-size:24px;font-weight:700;color:#F4F8FC;line-height:1;letter-spacing:-.4px;font-family:'DM Serif Display',Georgia,serif">JobSearch HQ</div>
-          <div style="font-size:12px;color:#B8D4E8;margin-top:4px;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Ryan Corcoran · Senior PM · Digital Health · Care Navigation · Medtech</div>
+          <div style="font-size:12px;color:#B8D4E8;margin-top:4px;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Ryan Corcoran · Senior PM / Director · Digital Health · Care Navigation · Medtech</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap">
           <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" style="font-size:10px;color:var(--rose);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:5px 12px;border-radius:4px;white-space:nowrap">Portfolio ↗</a>
@@ -1387,9 +1407,10 @@ function renderBoard(el) {
     {name:'Boston Scientific', url:'https://www.bostonscientific.com/en-US/careers/job-search.html?keyword=product+manager'},
     {name:'Medtronic', url:'https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers?q=product+manager'},
     {name:'Abbott', url:'https://www.abbott.com/careers/search-jobs.html?keywords=product+manager'},
+    {name:'Philips', url:'https://www.careers.philips.com/search-jobs?keywords=product+manager'},
+    {name:'Stryker', url:'https://careers.stryker.com/jobs?keywords=product+manager&page=1'},
   ];
   const MT_START = [
-    {name:'Stryker', url:'https://careers.stryker.com/jobs?keywords=product+manager&page=1'},
     {name:'Anteris Medical', url:'https://anterismedical.com/careers/'},
     {name:'Nalu Medical', url:'https://www.nalumed.com/careers/'},
     {name:'Penumbra', url:'https://www.penumbrainc.com/about-penumbra/careers'},
@@ -1948,7 +1969,7 @@ function saveEdit(id) {
 
 function copyPrepPrompt(id) {
   const app = state.apps.find(a=>a.id===id); if(!app) return;
-  const text = `Company: ${app.company}\nRole: ${app.role||''}\nStage: ${app.stage}\nMy background: Senior PM, digital health, behavioral health analytics at Aetna/CVS (care navigation platform Access Plus, 0-1 launch, double-digit NPS improvement), MBA Medical Industry Leadership UMN Carlson, BS Biomedical Sciences (Visible Heart Lab cardiac research), Minneapolis MN.\nNotes: ${app.gaps||app.notes||''}\n\nPlease produce a structured interview prep guide for this role.`;
+  const text = `Company: ${app.company}\nRole: ${app.role||''}\nStage: ${app.stage}\nMy background: Senior PM / Director of Product, digital health and medtech crossover. Aetna/CVS: behavioral health analytics platform for enterprise clients (0-1 build), care navigation platform Access Plus (0-1 launch, reduced time-to-care to under 48 hrs, double-digit NPS improvement, 1,000+ automated monthly member touchpoints). Medtech: upstream/downstream product marketing framing, Visible Heart Lab cardiac device research (ex vivo), 510(k) familiarity, MBA Medical Industry Leadership UMN Carlson, BS Biomedical Sciences. Hybrid, Minneapolis MN. $130K-$180K target.\nNotes: ${app.gaps||app.notes||''}\n\nPlease produce a structured interview prep guide for this role.`;
   navigator.clipboard?.writeText(text);
   const t=document.createElement('div');
   t.textContent='📋 Prep prompt copied — paste in Claude chat';
@@ -1980,7 +2001,7 @@ function closeProfilePanel() {
 }
 
 async function buildProfile(app) {
-  const prompt = `You are a company research assistant preparing Ryan Corcoran for a job application or coffee meeting. Ryan: Senior PM, digital health, behavioral health analytics at Aetna/CVS, care navigation platform (0-1 launch), MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences (Visible Heart Lab), Minneapolis MN.
+  const prompt = `You are a company research assistant preparing Ryan Corcoran for a job application or coffee meeting. Ryan: Senior PM / Director of Product, digital health and medtech crossover. Aetna/CVS: behavioral health analytics platform (enterprise clients, National and Middle Market), care navigation platform Access Plus (0-1 launch), MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences (Visible Heart Lab cardiac device research), upstream/downstream product marketing background, hybrid Minneapolis MN. Target comp $130K-$180K.
 
 Company: ${app.company}
 Role: ${app.role || 'Product Manager'}
@@ -2472,11 +2493,11 @@ function copyNetPrompt(type, id) {
   const lastContext = lastAct ? `Last activity: ${lastAct.type} on ${lastAct.date}${lastAct.note?'. '+lastAct.note:''}.` : (c.last?`Last contact: ${c.last}.`:'');
 
   if(type === 'nudge') {
-    prompt = `Write a short, warm nudge message (2-3 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. ${lastContext} Context: ${c.notes||'professional connection'}. Ryan's background: Senior PM, digital health, behavioral health analytics at Aetna/CVS, care navigation platform (Access Plus, 0→1), Minneapolis MN. Keep it light and easy to respond to — no pressure.`;
+    prompt = `Write a short, warm nudge message (2-3 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. ${lastContext} Context: ${c.notes||'professional connection'}. Ryan's background: Senior PM / Director of Product, digital health and medtech crossover, care navigation and behavioral health analytics at Aetna/CVS (Access Plus, 0-1 launch), hybrid Minneapolis MN. Keep it light and easy to respond to — no pressure.`;
   } else if(type === 'referral') {
-    prompt = `Write a concise, warm referral request (4-5 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. Ryan is actively looking for Senior PM / product leadership roles in digital health. Background: behavioral health analytics at Aetna/CVS, care navigation (0→1 launch), MBA Medical Industry Leadership (UMN), BS Biomedical Sciences, Minneapolis MN. Context: ${c.notes||'professional connection'}. Ask if they'd be willing to refer him or flag relevant openings. Acknowledge the relationship first — don't be transactional.`;
+    prompt = `Write a concise, warm referral request (4-5 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. Ryan is actively looking for Senior PM / Director of Product roles in digital health and medtech. Background: behavioral health analytics platform and care navigation (Access Plus, 0-1 launch) at Aetna/CVS, medtech crossover (upstream/downstream marketing, Visible Heart Lab, MBA Medical Industry Leadership UMN), BS Biomedical Sciences, hybrid Minneapolis MN, $130K-$180K target. Context: ${c.notes||'professional connection'}. Ask if they'd be willing to refer him or flag relevant openings. Acknowledge the relationship first — don't be transactional.`;
   } else if(type === 'update') {
-    prompt = `Write a brief update message (3-4 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. Share a relevant update on his job search — something genuine and brief. ${lastContext} Context: ${c.notes||'professional connection'}. Ryan's background: Senior PM, digital health, Minneapolis MN. Make it feel like a natural check-in, not a status report.`;
+    prompt = `Write a brief update message (3-4 sentences) from Ryan Corcoran to ${c.name}${c.company?' at '+c.company:''}. Share a relevant update on his job search — something genuine and brief. ${lastContext} Context: ${c.notes||'professional connection'}. Ryan's background: Senior PM / Director of Product, digital health and medtech crossover, hybrid Minneapolis MN. Make it feel like a natural check-in, not a status report.`;
   }
 
   navigator.clipboard?.writeText(prompt);
@@ -3151,12 +3172,15 @@ async function initApp() {
   render('board');
 }
 
-// ── v18: AUTH ENTRY POINT ─────────────────────────────────────────────────────
-// Checks for existing session → URL param → shows login screen
+// ── v19: AUTH ENTRY POINT ─────────────────────────────────────────────────────
+// Priority: 1) existing session (set by access.html or prior login)
+//           2) ?guest=CODE URL param (direct shareable link)
+//           3) Show auth screen as fallback (direct navigation / expired session)
 
 function init() {
   const session = authGetSession();
   if (session) {
+    // Session already established — either by access.html redirect or previous login
     currentUser = session;
     document.getElementById('auth-screen').classList.add('hidden');
     setupGuestUI();
@@ -3164,10 +3188,11 @@ function init() {
     return;
   }
   if (checkGuestParam()) {
+    // ?guest=CODE param present and valid — auto-login named guest
     initApp();
     return;
   }
-  // Show auth screen — initApp() fired by authDismiss() after login
+  // No session — show auth screen as fallback (direct URL navigation or expired tab)
 }
 
 function saveApiKey() {
@@ -3192,18 +3217,21 @@ init();
 const ANALYZE_SYSTEM = `You are a job search analyst helping a senior product manager evaluate job postings.
 
 CANDIDATE PROFILE:
-- 7+ years Product Management experience in digital health / healthtech
-- Specialties: care navigation, behavioral health analytics, 0-to-1 product builds, subscription/SaaS models, patient engagement
-- Key experience: Aetna/CVS (behavioral health analytics platform, care navigation 0-1 launch "Access Plus", double-digit NPS improvement), digital health startups
-- Education: MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences (Visible Heart Lab cardiac research)
-- Location: Minneapolis MN — prefers remote or hybrid; open to remote EST hours
+- Name: Ryan Corcoran
+- Title target: Senior PM / Director of Product / Head of Product / Senior Manager Product
+- 5+ years Product Management experience spanning digital health, healthtech, and medtech crossover
+- Specialties: care navigation, behavioral health analytics, 0-to-1 product builds, upstream and downstream product marketing, patient engagement, SaaS/subscription models
+- Key experience: Aetna/CVS (behavioral health analytics platform for enterprise health clients, care navigation 0-1 launch "Access Plus" — reduced time-to-care to under 48 hrs, double-digit NPS improvement, 1,000+ automated monthly member touchpoints, reduced unused authorizations by 8%), UMN Office of Technology Commercialization (SDOH mobile app commercialization), Claros Technologies (GTM strategy, P&L ownership)
+- Education: MBA Medical Industry Leadership (UMN Carlson), BS Biomedical Sciences (Visible Heart Lab — ex vivo cardiac device research: pacemakers, valves, stents, catheters)
+- Medtech crossover: upstream voice of customer, downstream product marketing, clinical/commercial handoff, 510(k) familiarity, design controls. Use MedTech resume framing for MDT, BSC, Abbott, Philips, Stryker roles.
+- Location: Minneapolis MN — hybrid preferred, remote open, no relocation
 - Target comp: $130K–$180K base
-- Stage preference: 0-to-1 builds, scaling digital products; Series A–C or large health system innovation teams
-- Hard nos: pure medtech hardware PM (not digital), comp below $120K, relocation required
+- Stage preference: 0-to-1 builds, scaling digital products; Series A–C or large health system / medtech innovation teams
+- Hard nos: comp below $120K, relocation required
+- HONEST GAPS: No hands-on FHIR, USCDI, or Gravity Project experience. Limited Medicaid-specific regulatory depth. Do NOT overstate these — frame as adjacent foundation, motivated to learn.
 
-IDEAL ROLE signals (boost fit score): digital health, care navigation, behavioral health, value-based care, 0-1 build, remote, $140K+, mission-driven, growth stage
-
-RED FLAG signals (lower fit score): "competitive salary" with no range, 10+ years required for senior title, reposted >90 days, vague tech stack, requires relocation, medtech hardware only`;
+IDEAL ROLE signals (boost fit score): digital health, care navigation, behavioral health, value-based care, SDOH, 0-1 build, hybrid or remote, $140K+, mission-driven, growth stage, upstream/downstream medtech PM
+RED FLAG signals (lower fit score): "competitive salary" with no range, 10+ years required for senior title, reposted >90 days, vague tech stack, requires relocation, FHIR/interoperability depth explicitly required as hard must-have, pure hardware engineering PM with no clinical or commercial scope`;
 
 let analyzeState = { open: false, loading: false, input: '', result: null, error: null };
 
