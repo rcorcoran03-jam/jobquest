@@ -2,8 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  JOBQUEST VERSION MANIFEST  —  machine-readable changelog for Claude        ║
+║  When diffing or building the next version, read this block first.          ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  CURRENT:  v18  (2026-05-29)                                                 ║
+║  Owner:    Ryan Corcoran · ryan@ryan-corcoran.com                            ║
+║  Deployed: https://ryanpatrick-portfolio.pages.dev                           ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  VERSION HISTORY                                                             ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  v18  2026-05-29  AUTH + GUEST SYSTEM                                        ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + Login screen (3 tiers: owner / named guest / generic guest)               ║
+║  + OWNER_HASH — btoa-encoded password, default code: jq2026                 ║
+║  + Named guest accounts stored in localStorage (jq_guests)                  ║
+║  + Session persisted in sessionStorage (clears on tab close)                 ║
+║  + Guest manager modal (owner-only) — create / delete / copy link           ║
+║  + ?guest=CODE URL param for shareable personalized links                   ║
+║  + Guest view: salary blurred, contact last names blurred, notes blurred    ║
+║  + Guest view: edit/add/delete controls hidden, sync tab hidden             ║
+║  + Guest banner with portfolio link and sign-out                             ║
+║  + Board: guest intro card replaces JD analyzer (read-only context)         ║
+║  + save() no-ops for guests (no data mutation)                               ║
+║  + 👥 Guests button in owner nav                                             ║
+║  Based on: v17.4                                                             ║
+║                                                                              ║
+║  v17.4  2026-05-XX  HQ HERO + DIRECT API MODE                                ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + renderHQHero() — new board homepage with KPI strip (8 metrics)           ║
+║  + Daily Focus Tasks (3 tasks, resets daily, timer integration)              ║
+║  + getDailyTaskState / setDailyTaskDone / launchDailyTaskTimer               ║
+║  + buildClaudeHeaders() — direct Anthropic API mode for GitHub Pages        ║
+║  + ON_GITHUB_PAGES flag — bypasses /api/claude proxy                        ║
+║  + CLAUDE_URL → https://api.anthropic.com/v1/messages (direct)              ║
+║  + anthropic-dangerous-direct-browser-access header enabled                 ║
+║  + web_search tool conditionally excluded for direct browser calls          ║
+║  + Improved runAnalyze error handling (HTML response detection)             ║
+║  + Health Analytics PM added to QUICK_LAUNCHES                               ║
+║  + TARGET_CAREER_PAGES constant added                                        ║
+║  + Updated HT_START: Spring Health, Modern Health, Included Health,         ║
+║    Transcarent, Reema Health, Gravie                                         ║
+║  Based on: v17.0 → v17.1 → v17.2 → v17.3 → v17.4                           ║
+║                                                                              ║
+║  v16  (baseline)  CORE TRACKER                                               ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + Full application tracker (CRUD, stages, priority, sort/filter)            ║
+║  + Networking contacts (heat map, activity log, referral pipeline)           ║
+║  + Pomodoro focus timer                                                      ║
+║  + Job board launcher (Healthtech + Medtech boards, LinkedIn builder)       ║
+║  + JD Analyzer (Claude AI — fit score, red flags, comp check)               ║
+║  + JSONBin cloud sync                                                        ║
+║  + Excel sync tab                                                            ║
+║  + Cover letter + Interview prep AI tools                                   ║
+║  + Task manager                                                              ║
+║  + Referral tracker                                                          ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  PENDING / WISHLIST (for next version)                                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  ~ Guest can view company profiles (read-only, no AI calls)                  ║
+║  ~ Owner can annotate which apps to highlight for specific guests            ║
+║  ~ Version badge visible in UI footer                                        ║
+║  ~ Auto-detect GitHub Pages vs Netlify vs local for CLAUDE_URL              ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+<meta name="jq-version" content="18">
+<meta name="jq-base" content="17.4">
+<meta name="jq-date" content="2026-05-29">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JobSearch HQ · 2026</title>
+<title>JobQuest · v18</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8F1F8'/%3E%3Cpolygon points='16,4 17.8,13.5 25,8 19.5,15.5 29,16 19.5,16.5 25,24 17.8,18.5 16,28 14.2,18.5 7,24 12.5,16.5 3,16 12.5,15.5 7,8 14.2,13.5' fill='%231C3347'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Avenir+Next:wght@400;500;600&display=swap" rel="stylesheet">
@@ -290,9 +363,131 @@
 
   /* STAGE FILTERS */
   .stage-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+
+  /* ── v18: AUTH / LOGIN SCREEN ── */
+  #auth-screen {
+    position: fixed; inset: 0; background: var(--navy-deep);
+    z-index: 9999; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    background-image: radial-gradient(ellipse at 20% 50%, rgba(91,158,201,0.06) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, rgba(196,96,122,0.06) 0%, transparent 50%);
+  }
+  #auth-screen.hidden { display: none; }
+  .auth-card {
+    width: 100%; max-width: 400px;
+    background: var(--navy-mid);
+    border: 1px solid rgba(91,160,210,0.20);
+    border-radius: 16px;
+    padding: 36px 32px 30px;
+    box-shadow: 0 16px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+    animation: authIn .35s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes authIn { from { opacity:0; transform:translateY(16px) scale(.97) } to { opacity:1; transform:none } }
+  .auth-logo-row { display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+  .auth-logo { width:36px; height:36px; border-radius:9px; background:rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; }
+  .auth-brand { font-size:20px; font-weight:600; color:#E8F1F8; letter-spacing:-.3px; }
+  .auth-brand-yr { font-size:11px; color:rgba(244,192,209,0.45); letter-spacing:.06em; margin-left:2px; }
+  .auth-heading { font-family: 'DM Serif Display', Georgia, serif; font-size:22px; color:#E8F1F8; margin-bottom:4px; }
+  .auth-sub { font-size:12px; color:var(--muted); margin-bottom:24px; line-height:1.6; }
+  .auth-label { font-size:11px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:5px; font-weight:500; }
+  .auth-input { width:100%; background:rgba(255,255,255,0.06); color:var(--tx); border:1px solid var(--navy-border2); border-radius:8px; padding:10px 13px; font-size:14px; outline:none; transition:border-color .15s; margin-bottom:14px; box-sizing:border-box; }
+  .auth-input:focus { border-color:var(--sky-blue-mid); }
+  .auth-btn { width:100%; padding:11px 0; font-size:14px; font-weight:600; border-radius:8px; border:none; background:var(--rose-deep); color:#fff; cursor:pointer; transition:background .15s; margin-top:4px; letter-spacing:.01em; }
+  .auth-btn:hover { background:#A84E65; }
+  .auth-btn.secondary { background:rgba(255,255,255,0.06); color:var(--muted); border:1px solid var(--navy-border2); font-weight:400; font-size:13px; margin-top:8px; }
+  .auth-btn.secondary:hover { background:rgba(255,255,255,0.10); color:var(--tx); }
+  .auth-error { font-size:12px; color:#E8907A; background:var(--rose-pale); border:1px solid var(--rose-border); border-radius:6px; padding:8px 11px; margin-top:10px; display:none; }
+  .auth-divider { border:none; border-top:1px solid var(--navy-border); margin:18px 0; }
+  .auth-guest-hint { font-size:11px; color:var(--faint); text-align:center; margin-top:14px; }
+  .auth-guest-hint a { color:var(--sky-blue); cursor:pointer; text-decoration:underline; }
+
+  /* v18: Guest banner */
+  #guest-banner {
+    background: linear-gradient(90deg, rgba(196,96,122,0.10), rgba(196,96,122,0.06));
+    border-bottom: 1px solid rgba(196,96,122,0.22);
+    padding: 6px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: var(--rose); letter-spacing: .03em;
+  }
+  #guest-banner.hidden { display: none; }
+  .guest-badge { background: var(--rose-pale); border: 1px solid var(--rose-border); border-radius: 4px; padding: 2px 8px; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; font-weight: 600; margin-right: 6px; }
+
+  /* v18: Redacted data */
+  .redacted { filter: blur(5px); user-select: none; pointer-events: none; border-radius: 3px; }
+
+  /* v18: Guest manager modal */
+  #guest-mgr-modal { position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px; }
+  #guest-mgr-modal.hidden { display:none; }
+  .guest-mgr-card { background:var(--navy-mid);border:1px solid var(--navy-border2);border-radius:14px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:28px 26px; }
+
+  /* v18: Version badge */
+  #version-badge { position:fixed;bottom:10px;right:14px;font-size:9px;font-family:var(--mono);color:rgba(255,255,255,0.18);letter-spacing:.05em;z-index:50;pointer-events:none; }
 </style>
 </head>
 <body>
+
+<!-- ── v18: VERSION BADGE ──────────────────────────────────────────── -->
+<div id="version-badge">JobQuest v18</div>
+
+<!-- ── v18: AUTH SCREEN ───────────────────────────────────────────── -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo-row">
+      <div class="auth-logo">
+        <svg width="22" height="22" viewBox="0 0 32 32"><polygon points="16,3 17.9,13 25.5,7.5 19.8,15.5 30,16 19.8,16.5 25.5,24.5 17.9,19 16,29 14.1,19 6.5,24.5 12.2,16.5 2,16 12.2,15.5 6.5,7.5 14.1,13" fill="#E8F1F8"/></svg>
+      </div>
+      <span class="auth-brand">JobQuest</span><span class="auth-brand-yr">2026</span>
+    </div>
+
+    <!-- Login view -->
+    <div id="auth-view-login">
+      <div class="auth-heading">Welcome back</div>
+      <div class="auth-sub">Ryan's job search command center. Enter your access code to continue.</div>
+      <div class="auth-label">Access code</div>
+      <input id="auth-code-input" type="password" class="auth-input" placeholder="Enter code…" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()">
+      <button class="auth-btn" onclick="authLogin()">Continue →</button>
+      <div id="auth-error" class="auth-error">Incorrect code — try again.</div>
+      <hr class="auth-divider">
+      <button class="auth-btn secondary" onclick="authGuestLogin()">Continue as Guest →</button>
+      <div class="auth-guest-hint">Guests see a curated read-only view · <a onclick="authShowGuestCodes()">Have a personalized code?</a></div>
+    </div>
+
+    <!-- Named guest code view -->
+    <div id="auth-view-guestcode" style="display:none">
+      <div class="auth-heading">Personalized access</div>
+      <div class="auth-sub">Enter the code Ryan shared with you for your personalized view.</div>
+      <div class="auth-label">Your code</div>
+      <input id="auth-pcode-input" type="text" class="auth-input" placeholder="e.g. SARAH2026" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')authPersonalLogin()">
+      <button class="auth-btn" onclick="authPersonalLogin()">Enter →</button>
+      <div id="auth-perr" class="auth-error">Code not found — check with Ryan.</div>
+      <hr class="auth-divider">
+      <button class="auth-btn secondary" onclick="authShowLogin()">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── v18: GUEST BANNER ──────────────────────────────────────────── -->
+<div id="guest-banner" class="hidden">
+  <div>
+    <span class="guest-badge" id="guest-badge-label">Guest</span>
+    <span id="guest-welcome-msg">You're viewing a read-only snapshot of Ryan's job search.</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" style="color:var(--rose);font-size:11px;text-decoration:none;border:1px solid var(--rose-border);padding:3px 9px;border-radius:4px;white-space:nowrap">Portfolio ↗</a>
+    <button onclick="authLogout()" style="font-size:11px;background:none;border:1px solid var(--navy-border2);color:var(--faint);padding:3px 9px;border-radius:4px">Sign out</button>
+  </div>
+</div>
+
+<!-- ── v18: GUEST MANAGER MODAL (owner only) ──────────────────────── -->
+<div id="guest-mgr-modal" class="hidden">
+  <div class="guest-mgr-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:16px;font-weight:600;color:var(--tx)">👥 Guest Access Manager</div>
+      <button onclick="closeGuestMgr()" style="background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer">×</button>
+    </div>
+    <div id="guest-mgr-body"></div>
+  </div>
+</div>
 
 <div id="profile-overlay" onclick="closeProfilePanel()"></div>
 <div id="profile-panel">
@@ -329,7 +524,7 @@
       <button onclick="showTab('network')" id="tab-network">Networking</button>
       <button onclick="showTab('sync')" id="tab-sync">Excel sync</button>
     </div>
-    <a href="https://www.ryan-corcoran.com" target="_blank" class="portfolio-link">Portfolio ↗</a>
+    <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" class="portfolio-link">Portfolio ↗</a>
   </div>
 </div>
 
@@ -343,6 +538,236 @@
 </div>
 
 <script>
+// ── v18: AUTH / USER SYSTEM ───────────────────────────────────────────────────
+// Owner password: change OWNER_HASH to btoa('yournewpassword') before deploying.
+// Default code: jq2026  →  btoa('jq2026') = 'anEyMDI2'
+const OWNER_HASH = btoa('jq2026');
+
+// Named guest accounts — stored in localStorage as JSON array
+// Each entry: { name, code, greeting, createdAt }
+function getGuestUsers() {
+  try { return JSON.parse(localStorage.getItem('jq_guests') || '[]'); } catch { return []; }
+}
+function saveGuestUsers(u) { localStorage.setItem('jq_guests', JSON.stringify(u)); }
+
+// Session — sessionStorage so it resets when the tab closes
+let currentUser = null; // { type:'owner'|'guest'|'named', name, code, greeting }
+
+function authGetSession() { try { return JSON.parse(sessionStorage.getItem('jq_session')||'null'); } catch { return null; } }
+function authSetSession(u) { currentUser = u; sessionStorage.setItem('jq_session', JSON.stringify(u)); }
+function authClearSession() { currentUser = null; sessionStorage.removeItem('jq_session'); }
+
+function isOwner() { return currentUser?.type === 'owner'; }
+function isGuest() { return currentUser?.type === 'guest' || currentUser?.type === 'named'; }
+
+// ── Auth UI ──────────────────────────────────────────────────────────────────
+
+function authShowLogin() {
+  document.getElementById('auth-view-login').style.display = '';
+  document.getElementById('auth-view-guestcode').style.display = 'none';
+  document.getElementById('auth-error').style.display = 'none';
+}
+function authShowGuestCodes() {
+  document.getElementById('auth-view-login').style.display = 'none';
+  document.getElementById('auth-view-guestcode').style.display = '';
+  document.getElementById('auth-perr').style.display = 'none';
+}
+
+function authLogin() {
+  const code = document.getElementById('auth-code-input').value.trim();
+  if (btoa(code) === OWNER_HASH) {
+    authSetSession({ type: 'owner', name: 'Ryan' });
+    authDismiss();
+    return;
+  }
+  // Also check named guest codes
+  const guests = getGuestUsers();
+  const match = guests.find(g => g.code === code.toUpperCase());
+  if (match) {
+    authSetSession({ type: 'named', name: match.name, code: match.code, greeting: match.greeting || '' });
+    authDismiss();
+    return;
+  }
+  const err = document.getElementById('auth-error');
+  err.style.display = 'block';
+  err.textContent = 'Incorrect code — try again.';
+  document.getElementById('auth-code-input').value = '';
+  document.getElementById('auth-code-input').focus();
+}
+
+function authGuestLogin() {
+  authSetSession({ type: 'guest', name: 'Guest' });
+  authDismiss();
+}
+
+function authPersonalLogin() {
+  const code = document.getElementById('auth-pcode-input').value.trim().toUpperCase();
+  const match = getGuestUsers().find(g => g.code === code);
+  if (match) {
+    authSetSession({ type: 'named', name: match.name, code: match.code, greeting: match.greeting || '' });
+    authDismiss();
+  } else {
+    document.getElementById('auth-perr').style.display = 'block';
+    document.getElementById('auth-pcode-input').select();
+  }
+}
+
+function authDismiss() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  setupGuestUI();
+  initApp();
+}
+
+function authLogout() { authClearSession(); location.reload(); }
+
+// ── Guest UI setup ────────────────────────────────────────────────────────────
+
+function setupGuestUI() {
+  const banner = document.getElementById('guest-banner');
+  if (isGuest()) {
+    banner.classList.remove('hidden');
+    const label = document.getElementById('guest-badge-label');
+    const msg   = document.getElementById('guest-welcome-msg');
+    if (currentUser.type === 'named') {
+      label.textContent = currentUser.name;
+      msg.textContent   = currentUser.greeting
+        ? currentUser.greeting
+        : `Hi ${currentUser.name}! You're viewing a curated snapshot of Ryan's job search. Questions? ryan@ryan-corcoran.com`;
+    } else {
+      label.textContent = 'Guest View';
+      msg.textContent   = "You're viewing a read-only snapshot of Ryan's 2026 job search.";
+    }
+    // Hide sync tab for guests
+    const syncTab = document.getElementById('tab-sync');
+    if (syncTab) syncTab.style.display = 'none';
+  } else {
+    banner.classList.add('hidden');
+    addOwnerNavButtons();
+  }
+}
+
+function addOwnerNavButtons() {
+  const navRight = document.querySelector('#nav > div:last-child');
+  if (navRight && !document.getElementById('guest-mgr-btn')) {
+    const btn = document.createElement('button');
+    btn.id = 'guest-mgr-btn';
+    btn.textContent = '👥 Guests';
+    btn.title = 'Manage guest access codes';
+    btn.style.cssText = 'font-size:10px;letter-spacing:.05em;color:var(--sky-blue);border:1px solid rgba(91,158,201,0.3);padding:4px 10px;border-radius:5px;background:rgba(91,158,201,0.07);white-space:nowrap;flex-shrink:0;cursor:pointer';
+    btn.onclick = openGuestMgr;
+    const portfolioLink = navRight.querySelector('a');
+    if (portfolioLink) navRight.insertBefore(btn, portfolioLink);
+    else navRight.appendChild(btn);
+  }
+}
+
+// ── Guest redaction helpers ───────────────────────────────────────────────────
+
+function guestBlur(html) {
+  if (!isGuest()) return html;
+  return `<span class="redacted" title="Sign in for full details">${html}</span>`;
+}
+
+function guestContactName(name) {
+  if (!isGuest()) return String(name || '');
+  const parts = String(name || '').split(' ');
+  if (parts.length < 2) return parts[0] || '';
+  // Return first name as plain text; last name blurred — unescaped intentionally here,
+  // caller should handle escaping around this
+  return parts[0] + ' <span class="redacted" style="font-size:11px">████</span>';
+}
+
+// ── Guest Manager (owner only) ────────────────────────────────────────────────
+
+function openGuestMgr() { if (!isOwner()) return; renderGuestMgr(); document.getElementById('guest-mgr-modal').classList.remove('hidden'); }
+function closeGuestMgr() { document.getElementById('guest-mgr-modal').classList.add('hidden'); }
+
+function renderGuestMgr() {
+  const guests = getGuestUsers();
+  const rows = guests.length ? guests.map((g, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--navy-border);margin-bottom:6px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;color:var(--tx)">${esc(g.name)}</div>
+        <div style="font-size:11px;color:var(--faint);font-family:var(--mono);margin-top:1px">code: ${esc(g.code)}</div>
+        ${g.greeting ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;font-style:italic">"${esc(g.greeting)}"</div>` : ''}
+      </div>
+      <button onclick="copyGuestLink('${esc(g.code)}')" style="font-size:11px;padding:4px 10px">Copy link</button>
+      <button onclick="deleteGuest(${i})" class="danger" style="font-size:11px;padding:4px 10px">Remove</button>
+    </div>`).join('') : `<div style="font-size:12px;color:var(--faint);padding:10px 0 6px">No personalized guests yet.</div>`;
+
+  document.getElementById('guest-mgr-body').innerHTML = `
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.7">
+      Create a unique code for each person. They enter it at login for a personalized greeting and read-only view with sensitive data blurred.
+    </div>
+    ${rows}
+    <hr style="border:none;border-top:1px solid var(--navy-border);margin:18px 0">
+    <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:12px">Add new guest</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><div class="lbl">Name</div><input id="gm-name" placeholder="e.g. Sarah" style="font-size:13px"></div>
+      <div><div class="lbl">Code <span style="color:var(--faint);font-size:10px">(letters + numbers)</span></div>
+        <input id="gm-code" placeholder="e.g. SARAH2026" oninput="this.value=this.value.toUpperCase().replace(/\\s/g,'')" style="font-family:var(--mono);font-size:13px"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div class="lbl">Personalized greeting <span style="color:var(--faint);font-size:10px">(optional)</span></div>
+      <input id="gm-greeting" placeholder="Hi Sarah! Thanks for taking a look at my work…" style="font-size:13px">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="amber" onclick="addGuest()" style="flex:1;padding:9px 0;font-size:13px">+ Add Guest</button>
+      <button onclick="closeGuestMgr()" style="font-size:12px">Cancel</button>
+    </div>
+    <div id="gm-err" style="font-size:12px;color:var(--red);margin-top:8px;display:none"></div>
+    <hr style="border:none;border-top:1px solid var(--navy-border);margin:18px 0">
+    <div style="font-size:11px;color:var(--faint);line-height:1.8">
+      <strong style="color:var(--muted)">Generic guest:</strong> Anyone can use "Continue as Guest" — no code needed.<br>
+      <strong style="color:var(--muted)">Owner code:</strong> <span style="font-family:var(--mono)">jq2026</span> — change OWNER_HASH in the JS to update it.
+    </div>`;
+}
+
+function addGuest() {
+  const name     = (document.getElementById('gm-name')?.value || '').trim();
+  const code     = (document.getElementById('gm-code')?.value || '').trim().toUpperCase();
+  const greeting = (document.getElementById('gm-greeting')?.value || '').trim();
+  const err      = document.getElementById('gm-err');
+  if (!name || !code) { err.textContent = 'Name and code are required.'; err.style.display = 'block'; return; }
+  if (!/^[A-Z0-9_]+$/.test(code)) { err.textContent = 'Code must be letters, numbers, and underscores only.'; err.style.display = 'block'; return; }
+  const guests = getGuestUsers();
+  if (guests.find(g => g.code === code)) { err.textContent = 'Code already in use — try a different one.'; err.style.display = 'block'; return; }
+  guests.push({ name, code, greeting, createdAt: new Date().toISOString() });
+  saveGuestUsers(guests);
+  showToast(`Guest "${name}" added ✓  code: ${code}`);
+  renderGuestMgr();
+}
+
+function deleteGuest(i) {
+  const guests = getGuestUsers();
+  if (!guests[i]) return;
+  if (!confirm(`Remove guest "${guests[i].name}" (${guests[i].code})?`)) return;
+  guests.splice(i, 1);
+  saveGuestUsers(guests);
+  renderGuestMgr();
+  showToast('Guest removed');
+}
+
+function copyGuestLink(code) {
+  const url = location.href.split('?')[0].split('#')[0] + '?guest=' + encodeURIComponent(code);
+  navigator.clipboard?.writeText(url).then(() => showToast('Link copied → send to ' + code));
+}
+
+// ── ?guest= URL shortcut ──────────────────────────────────────────────────────
+
+function checkGuestParam() {
+  const g = new URLSearchParams(location.search).get('guest');
+  if (!g) return false;
+  const match = getGuestUsers().find(u => u.code === g.toUpperCase());
+  if (match) {
+    authSetSession({ type: 'named', name: match.name, code: match.code, greeting: match.greeting || '' });
+    document.getElementById('auth-screen').classList.add('hidden');
+    setupGuestUI();
+    return true;
+  }
+  return false;
+}
+
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
 
 const PROFILE = `Senior PM · Digital Health · Behavioral Health Analytics · Care Navigation · 0-1 Product Builds · MBA (Medical Industry, UMN Carlson) · BS Biomedical Sciences · Minneapolis MN · Remote-first · $120K–$160K target · 5+ yrs experience`;
@@ -511,6 +936,7 @@ function saveCredentials() {
 
 // Debounced cloud save — batches rapid changes into one write, 1.5s after last change
 function save() {
+  if (isGuest()) return; // v18: guests cannot mutate data
   saveCredentials();
   // Always persist tasks/referrals locally (fast, no cloud needed)
   localStorage.setItem('tasks', JSON.stringify(state.tasks));
@@ -851,6 +1277,15 @@ function renderHQHero() {
   <!-- ═══════ JOB SEARCH HQ HERO ═══════ -->
   <div style="margin-bottom:20px">
 
+    ${isGuest() ? `
+    <div style="background:rgba(91,158,201,0.07);border:1px solid rgba(91,158,201,0.22);border-radius:10px;padding:14px 18px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.75">
+      <span style="font-size:13px;font-weight:600;color:var(--sky-blue-light)">👋 ${currentUser?.type==='named'?`Hey ${currentUser.name} —`:'Welcome!'}</span>
+      ${currentUser?.type==='named' && currentUser?.greeting
+        ? ` ${esc(currentUser.greeting)}`
+        : " You're viewing a live, read-only snapshot of Ryan's 2026 job search. Applications, pipeline, and network are real data — salary figures and contact details are blurred for privacy."}
+      <span style="display:inline-block;margin-top:6px"><a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" style="color:var(--rose)">View portfolio →</a></span>
+    </div>` : ''}
+
     <!-- Top identity bar -->
     <div style="border-radius:12px 12px 0 0;overflow:hidden;border:1px solid rgba(91,160,210,0.20);border-bottom:none">
       <div style="background:linear-gradient(135deg, #0D2033 0%, #1C3A50 100%);padding:18px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
@@ -862,7 +1297,7 @@ function renderHQHero() {
           <div style="font-size:12px;color:#B8D4E8;margin-top:4px;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Ryan Corcoran · Senior PM · Digital Health · Care Navigation · Medtech</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap">
-          <a href="https://www.ryan-corcoran.com" target="_blank" style="font-size:10px;color:var(--rose);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:5px 12px;border-radius:4px;white-space:nowrap">Portfolio ↗</a>
+          <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" style="font-size:10px;color:var(--rose);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:5px 12px;border-radius:4px;white-space:nowrap">Portfolio ↗</a>
           <button onclick="showTab('tracker')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(91,158,201,0.12);border-color:var(--sky-blue-mid);color:var(--sky-blue);white-space:nowrap">Applications ↗</button>
           <button onclick="showTab('network')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(42,181,160,0.10);border-color:var(--teal-border);color:var(--teal);white-space:nowrap">Network ↗</button>
         </div>
@@ -889,16 +1324,18 @@ function renderHQHero() {
     <!-- Bottom row: Analyze JD + Daily Focus -->
     <div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(91,160,210,0.20);border-top:none;border-radius:0 0 12px 12px;overflow:hidden;background:var(--navy-mid)">
 
-      <!-- Analyze JD -->
+      <!-- Analyze JD — owner only; guests see a placeholder -->
       <div style="background:rgba(10,22,36,0.6);padding:16px 20px;border-right:1px solid rgba(255,255,255,0.06)">
         <div style="font-size:11px;font-weight:700;color:#E8C97A;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px">
           <span style="width:20px;height:1px;display:inline-block;background:var(--gold)"></span>✦ Analyze a Job Description
         </div>
-        <textarea id="board-jd-quick" rows="3" placeholder="Paste a job description here — Claude will score fit, surface red flags, and let you save it to your tracker…" style="flex:1;font-size:12px;background:rgba(201,150,26,0.07);border:1px solid rgba(201,138,14,0.35);border-radius:6px;color:var(--tx);padding:8px 11px;resize:none;line-height:1.45;width:100%;margin-bottom:8px"></textarea>
+        ${isGuest()
+          ? `<div style="font-size:12px;color:var(--faint);line-height:1.7;padding:4px 0">AI-powered JD scoring and fit analysis — available in owner view.<br><span style="font-size:10px;color:rgba(201,150,26,0.5)">powered by claude · fit score, red flags, comp check</span></div>`
+          : `<textarea id="board-jd-quick" rows="3" placeholder="Paste a job description here — Claude will score fit, surface red flags, and let you save it to your tracker…" style="flex:1;font-size:12px;background:rgba(201,150,26,0.07);border:1px solid rgba(201,138,14,0.35);border-radius:6px;color:var(--tx);padding:8px 11px;resize:none;line-height:1.45;width:100%;margin-bottom:8px"></textarea>
         <div style="display:flex;gap:8px">
           <button onclick="openAnalyzeModalWithText(document.getElementById('board-jd-quick').value)" style="flex:1;font-size:12px;background:var(--gold);color:#fff;border-color:var(--gold);padding:8px 0;font-weight:600">⚡ Analyze JD</button>
         </div>
-        <div style="font-size:10px;color:rgba(201,150,26,0.5);margin-top:6px;letter-spacing:.03em">powered by claude · fit score, red flags, comp check · ~15 sec</div>
+        <div style="font-size:10px;color:rgba(201,150,26,0.5);margin-top:6px;letter-spacing:.03em">powered by claude · fit score, red flags, comp check · ~15 sec</div>`}
       </div>
 
       <!-- Daily Focus Tasks -->
@@ -1337,8 +1774,14 @@ function renderTracker(el) {
     const isExpanded   = state.appExpanded && state.appExpanded[app.id];
     const borderCol    = {Saved:'var(--teal)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--green)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[app.stage]||'var(--brd2)';
     const cardBg       = STAGE_CARD_BG[app.stage]||'var(--card-default)';
-    const details      = [app.salary&&pill(app.salary),app.location&&pill(app.location),app.date&&pill('applied: '+app.date),app.fit&&pill('fit: '+app.fit+'/10')].filter(Boolean).join('');
-    const contactLine  = [app.contact,app.netContact].filter(s=>s&&s!=='—').map(esc).join(' · ');
+    const details      = [
+      app.salary && pill(isGuest() ? `<span class="redacted">${esc(app.salary)}</span>` : esc(app.salary)),
+      app.location && pill(esc(app.location)),
+      app.date && pill('applied: '+app.date),
+      app.fit && pill('fit: '+app.fit+'/10')
+    ].filter(Boolean).join('');
+    const contactLine  = [app.contact,app.netContact].filter(s=>s&&s!=='—')
+      .map(s => isGuest() ? `<span class="redacted">${esc(s)}</span>` : esc(s)).join(' · ');
     const nextLine     = [app.nextStep,app.nextDate].filter(s=>s&&s!=='—').map(esc).join(' → ');
     const keyReqs      = app.keyReqs&&app.keyReqs!=='—'?app.keyReqs:'';
     const gaps         = app.gaps||app.notes||'';
@@ -1355,12 +1798,16 @@ function renderTracker(el) {
           </div>
           <div style="color:var(--muted);margin-bottom:5px;font-size:12px">${esc(app.role||'')}</div>
           ${details?`<div style="margin-bottom:5px">${details}</div>`:''}
-          ${app.netContact&&app.netContact!=='—'?`<div style="font-size:11px;color:var(--teal);margin-bottom:3px;font-weight:500">🤝 ${esc(app.netContact)}${netRel?` <span style="font-weight:400;color:var(--faint)">· ${esc(netRel)}</span>`:''}</div>`:(contactLine?`<div style="font-size:11px;color:var(--faint);margin-bottom:3px">👤 ${contactLine}</div>`:'')}
+          ${app.netContact&&app.netContact!=='—'
+            ? `<div style="font-size:11px;color:var(--teal);margin-bottom:3px;font-weight:500">🤝 ${isGuest()?'<span class="redacted">'+esc(app.netContact)+'</span>':esc(app.netContact)}${netRel?` <span style="font-weight:400;color:var(--faint)">· ${esc(netRel)}</span>`:''}</div>`
+            : (contactLine?`<div style="font-size:11px;color:var(--faint);margin-bottom:3px">👤 ${contactLine}</div>`:'')}
           ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:3px;font-weight:500">→ ${nextLine}</div>`:''}
           ${updatedLabel?`<div style="font-size:10px;color:var(--faint);margin-top:2px">${updatedLabel}</div>`:''}
         </div>
         <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
-          ${sel(`stg-${app.id}`,STAGES,app.stage)}
+          ${isGuest()
+            ? `<button onclick="toggleExpand(${app.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴ Less':'▾ More'}</button>`
+            : `${sel(`stg-${app.id}`,STAGES,app.stage)}
           <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
             <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">↑ Move</button>
             <button onclick="toggleHighPriority(${app.id})" style="font-size:11px;${isHigh?'color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)':'color:var(--faint)'}" title="${isHigh?'Unpin':'Pin priority'}">⭐ ${isHigh?'Pinned':'Pin'}</button>
@@ -1371,14 +1818,14 @@ function renderTracker(el) {
             <button onclick="copyPrepPrompt(${app.id})" style="font-size:11px;color:var(--blue);border-color:var(--blue-bg)">📋 Prep</button>
             <button onclick="state.appEditing=${app.id};render('tracker')" style="font-size:11px">✏️ Edit</button>
             <button onclick="delApp(${app.id})" style="font-size:11px;color:var(--muted);border-color:var(--brd)">… Archive</button>
-          </div>
+          </div>`}
         </div>
       </div>`;
 
     const expanded = isExpanded ? `
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
         ${keyReqs?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">match:</span> ${esc(keyReqs)}</div>`:''}
-        ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint)"><span style="color:var(--muted)">notes:</span> ${esc(gaps)}</div>`:''}
+        ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint)"><span style="color:var(--muted)">notes:</span> ${isGuest()?'<span class="redacted">'+esc(gaps)+'</span>':esc(gaps)}</div>`:''}
       </div>` : '';
 
     return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid ${borderCol};border-left:3px solid ${borderCol};background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
@@ -1429,7 +1876,7 @@ function renderTracker(el) {
     ${priorityStrip}
     <div class="stage-filters" style="margin-bottom:6px">
       ${filterBtns}
-      <button class="amber" onclick="state.appShowAdd=!state.appShowAdd;render('tracker')" style="margin-left:auto">+ Add</button>
+      ${isGuest() ? '' : `<button class="amber" onclick="state.appShowAdd=!state.appShowAdd;render('tracker')" style="margin-left:auto">+ Add</button>`}
     </div>
     <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">
       <span style="font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase">By stage:</span>${stageBtns}
@@ -1879,7 +2326,7 @@ function renderNetwork(el) {
 
     const expandedContent = isExpanded ? `
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
-        ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-bottom:10px;line-height:1.5;padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:5px">📝 ${esc(c.notes)}</div>`:''}
+        ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-bottom:10px;line-height:1.5;padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:5px">📝 ${isGuest()?'<span class="redacted">'+esc(c.notes)+'</span>':esc(c.notes)}</div>`:''}
         <div style="font-size:10px;color:var(--sky-blue-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:8px">Activity Log</div>
         ${actLog || `<div style="font-size:11px;color:var(--faint);padding:6px 0">No activity logged — tap an icon above to log your first touch</div>`}
         <div id="act-quick-add-${c.id}" style="display:none;margin-top:8px;padding:8px;background:rgba(91,158,201,0.07);border-radius:6px;border:1px solid var(--sky-blue-mid)">
@@ -1900,7 +2347,7 @@ function renderNetwork(el) {
         <!-- LEFT: who -->
         <div style="flex:1;min-width:0;padding-right:10px;cursor:pointer" onclick="state.netExpanded=state.netExpanded||{};state.netExpanded[${c.id}]=!state.netExpanded[${c.id}];render('network')">
           <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:3px">
-            <span style="font-size:13px;font-weight:600;color:var(--tx)">${esc(c.name)}</span>
+            <span style="font-size:13px;font-weight:600;color:var(--tx)">${isGuest() ? guestContactName(c.name) : esc(c.name)}</span>
             ${heatBadge}
             ${badge(c.rel, REL_COL[c.rel]||'blue')}
           </div>
@@ -1910,7 +2357,7 @@ function renderNetwork(el) {
         <!-- MIDDLE: dates -->
         ${midCol}
         <!-- RIGHT: actions -->
-        ${rightCol}
+        ${isGuest() ? '' : rightCol}
       </div>
       ${expandedContent}
     </div>`;
@@ -1925,7 +2372,7 @@ function renderNetwork(el) {
         <option value="">All sources</option>
         ${sources.map(s=>`<option value="${esc(s)}" ${filt.source===s?'selected':''}>${esc(s)}</option>`).join('')}
       </select>` : ''}
-      <button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue);font-size:11px;margin-left:auto" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>
+      ${isGuest() ? '' : `<button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue);font-size:11px;margin-left:auto" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>`}
     </div>
 
     ${state.netShowAdd ? contactForm('net') : ''}
@@ -2677,23 +3124,50 @@ function disconnectCloud() {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 
-async function init() {
+// ── v18: APP INIT (called after auth) ────────────────────────────────────────
+
+async function initApp() {
   const hasCloud = state.jbKey && state.jbBin;
   const skipped  = localStorage.getItem('cloud_skipped');
 
-  if (!hasCloud && !skipped) {
-    // First run — show cloud setup screen overlaid on top of board pane
+  // Only owner gets cloud setup prompt on first run
+  if (!hasCloud && !skipped && isOwner()) {
     const el = document.getElementById('pane-board');
     renderCloudSetup(el);
     return;
   }
 
-  if (hasCloud) {
+  if (hasCloud && isOwner()) {
     setSyncStatus('loading…', false);
     await loadFromCloud();
   }
 
+  // Hide sync tab for guests
+  if (isGuest()) {
+    const syncTab = document.getElementById('tab-sync');
+    if (syncTab) syncTab.style.display = 'none';
+  }
+
   render('board');
+}
+
+// ── v18: AUTH ENTRY POINT ─────────────────────────────────────────────────────
+// Checks for existing session → URL param → shows login screen
+
+function init() {
+  const session = authGetSession();
+  if (session) {
+    currentUser = session;
+    document.getElementById('auth-screen').classList.add('hidden');
+    setupGuestUI();
+    initApp();
+    return;
+  }
+  if (checkGuestParam()) {
+    initApp();
+    return;
+  }
+  // Show auth screen — initApp() fired by authDismiss() after login
 }
 
 function saveApiKey() {
