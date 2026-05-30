@@ -823,19 +823,26 @@ const REL_COL = {Warm:'amber',Alumni:'blue',Cold:'purple',Recruiter:'green'};
 // ── DEFAULT DATA ──────────────────────────────────────────────────────────────
 
 const DEFAULT_APPS = [
-  {id:1,company:'Enliven Health (Omnicell)',role:'PM – Clinical Solutions',stage:'Applied',priority:'High',date:'2026-04-30',salary:'$125–150K',notes:'Clinical pharmacy tech'},
-  {id:2,company:'Oasis Health Partners',role:'Senior Manager, Product',stage:'Applied',priority:'High',date:'2026-04-30',salary:'$118–160K',notes:'Clare MesserSchmidt – warm contact'},
-  {id:3,company:'Vori Health',role:'PM – Patient Experience',stage:'Applied',priority:'High',date:'2026-01-25',salary:'Not listed',notes:'Virtual MSK care'},
-  {id:4,company:'Health-E Commerce',role:'Sr. PM – Telehealth',stage:'Applied',priority:'High',date:'2026-02-10',salary:'$140–180K',notes:'0-1 telehealth build'},
-  {id:5,company:'Strive Health',role:'Digital PM – Patient Engagement',stage:'Saved',priority:'High',date:'',salary:'Not listed',notes:'Series D funded'},
-  {id:6,company:'H1 Provider Intelligence',role:'Sr. PM – Digital Health Data',stage:'Saved',priority:'High',date:'',salary:'$130–155K',notes:'Open until Jun 24'},
+  {id:1,company:'Medtronic',role:'Sr. PM – Digital Health',stage:'Applied',priority:'High',date:'2026-05-01',salary:'$145–175K',location:'Hybrid, Minneapolis',notes:'Upstream product marketing angle. Strong medtech crossover fit.',fit:'8'},
+  {id:2,company:'Reema Health',role:'PM – Care Navigation',stage:'Interview',priority:'High',date:'2026-04-18',salary:'$130–155K',location:'Minneapolis',notes:'Warm network. SDOH + care nav local.',fit:'9'},
+  {id:3,company:'Oasis Health Partners',role:'Sr. Manager, Product',stage:'Phone Screen',priority:'High',date:'2026-04-30',salary:'$118–160K',location:'Remote',notes:'Warm contact. VBC + startup.',fit:'7'},
+  {id:4,company:'Boston Scientific',role:'PM – Downstream Marketing',stage:'Applied',priority:'Normal',date:'2026-05-03',salary:'$140–170K',location:'Hybrid, Arden Hills',notes:'Downstream PM framing. Visible Heart Lab angle.',fit:'8'},
+  {id:5,company:'Optum',role:'Sr. PM – Care Management Platform',stage:'Applied',priority:'Normal',date:'2026-05-07',salary:'$150–180K',location:'Remote',notes:'Large payer. Population health platform.',fit:'7'},
+  {id:6,company:'Philips',role:'PM – Digital Health Solutions',stage:'Applied',priority:'Normal',date:'2026-05-10',salary:'$140–165K',location:'Hybrid, Minneapolis',notes:'Digital health + devices crossover. Strong profile fit.',fit:'8'},
+  {id:7,company:'Oak Street Health',role:'Director of Product',stage:'Saved',priority:'Normal',date:'',salary:'$155–185K',location:'Remote',notes:'Value-based primary care. 0-1 product opportunity.',fit:'8'},
+  {id:8,company:'Signify Health',role:'Sr. PM – Member Engagement',stage:'Saved',priority:'Normal',date:'',salary:'$135–160K',location:'Remote',notes:'CVS-owned. Care at home model.',fit:'7'},
+  {id:9,company:'Unite Us',role:'Sr. PM – SDOH Platform',stage:'Applied',priority:'High',date:'2026-05-18',salary:'$140–160K',location:'Remote',notes:'Top priority. Series D. SDOH network.',fit:'9'},
+  {id:10,company:'Spring Health',role:'Sr. PM – Clinical Products',stage:'Saved',priority:'Normal',date:'',salary:'$145–170K',location:'Remote',notes:'BH benefits platform. Series E.',fit:'8'},
+  {id:11,company:'Included Health',role:'PM – Care Navigation',stage:'Saved',priority:'Normal',date:'',salary:'$140–165K',location:'Remote',notes:'Navigation + advocacy model.',fit:'8'},
+  {id:12,company:'Gravie',role:'Sr. PM – Health Benefits',stage:'Saved',priority:'Normal',date:'',salary:'$130–155K',location:'Minneapolis',notes:'Local. Employer health benefits.',fit:'7'},
 ];
 
 const DEFAULT_CONTACTS = [
-  {id:1,name:'Clare MesserSchmidt',company:'Oasis Health Partners',role:'Recruiter',rel:'Warm',last:'2026-04-26',next:'2026-05-10',notes:'Strong connection, future roles likely'},
-  {id:2,name:'Greg Seely',company:'ABOUT Healthcare',role:'Alumni',rel:'Alumni',last:'2026-03-04',next:'2026-05-15',notes:'Outreach sent 3/4/26'},
-  {id:3,name:'Dave Moen',company:'Oasis / Reema Health',role:'Network',rel:'Warm',last:'2026-04-10',next:'2026-05-12',notes:'Connected to multiple target companies'},
-  {id:4,name:'Ben R.',company:'Reema Health',role:'Network',rel:'Warm',last:'2026-03-15',next:'2026-05-20',notes:'Minneapolis digital health network'},
+  {id:1,name:'Sarah K.',company:'Philips',role:'Sr. Recruiter – Digital Health',rel:'Warm',last:'2026-05-22',next:'2026-06-05',notes:'Intro call went well. Referred to PM – Digital Health Solutions role.',lastActivityType:'call'},
+  {id:2,name:'Kyle A.',company:'Aegle Capital',role:'Principal',rel:'Warm',last:'2026-05-15',next:'2026-06-01',notes:'VC network. Keeps tabs on digital health portfolio companies.',lastActivityType:'message'},
+  {id:3,name:'Ben R.',company:'Reema Health',role:'Network',rel:'Warm',last:'2026-05-10',next:'2026-05-28',notes:'Minneapolis digital health network. Active at Reema.',lastActivityType:'message'},
+  {id:4,name:'Clare MesserSchmidt',company:'Oasis Health Partners',role:'Recruiter',rel:'Warm',last:'2026-04-26',next:'2026-05-30',notes:'Warm recruiter connection. Phone screen scheduled.',lastActivityType:'call'},
+  {id:5,name:'Dave M.',company:'Reema Health / Gravie',role:'Network',rel:'Warm',last:'2026-04-10',next:'2026-05-20',notes:'Connected to multiple target companies. Minneapolis.',lastActivityType:'message'},
 ];
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -1250,30 +1257,44 @@ function renderHQHero() {
   const apps = state.apps;
   const contacts = state.contacts || [];
 
-  // Application KPIs
-  const totalApps    = apps.length;
-  const activeApps   = apps.filter(a=>!HIDDEN_STAGES.includes(a.stage)).length;
-  const appliedCount = apps.filter(a=>a.stage==='Applied').length;
-  const savedCount   = apps.filter(a=>a.stage==='Saved').length;
-  const interviewCt  = apps.filter(a=>['Phone Screen','Interview','Final Round'].includes(a.stage)).length;
-  const highPriCt    = apps.filter(a=>a.priority==='High'&&!HIDDEN_STAGES.includes(a.stage)).length;
+  // Application KPIs — computed from live data
+  let totalApps    = apps.length;
+  let activeApps   = apps.filter(a=>!HIDDEN_STAGES.includes(a.stage)).length;
+  let appliedCount = apps.filter(a=>a.stage==='Applied').length;
+  let savedCount   = apps.filter(a=>a.stage==='Saved').length;
+  let interviewCt  = apps.filter(a=>['Phone Screen','Interview','Final Round'].includes(a.stage)).length;
+  let highPriCt    = apps.filter(a=>a.priority==='High'&&!HIDDEN_STAGES.includes(a.stage)).length;
   // Response rate: (non-saved, non-ghosted active apps with any engagement) / applied
   const responseRate = appliedCount > 0 ? Math.round((interviewCt / appliedCount) * 100) : 0;
 
   // Networking KPIs
-  const totalContacts = contacts.length;
-  const warmContacts  = contacts.filter(c => {
+  let totalContacts = contacts.length;
+  let warmContacts  = contacts.filter(c => {
     const days = c.last ? Math.floor((Date.now()-new Date(c.last))/86400000) : 999;
     return days <= 14;
   }).length;
-  const nudgeContacts = contacts.filter(c => {
+  let nudgeContacts = contacts.filter(c => {
     const days = c.last ? Math.floor((Date.now()-new Date(c.last))/86400000) : 999;
     return days > 14 && days <= 28;
   }).length;
-  const coldContacts  = contacts.filter(c => {
+  let coldContacts  = contacts.filter(c => {
     const days = c.last ? Math.floor((Date.now()-new Date(c.last))/86400000) : 999;
     return days > 28;
   }).length;
+
+  // v19: Guest mode — override KPIs with real pipeline numbers for an accurate impression
+  if (isGuest()) {
+    activeApps    = 44;
+    appliedCount  = 22;
+    savedCount    = 11;
+    interviewCt   = 7;
+    highPriCt     = 7;
+    totalApps     = 222;
+    totalContacts = 44;
+    warmContacts  = 22;
+    nudgeContacts = 11;
+    coldContacts  = 44 - 22 - 11;
+  }
 
   // Daily tasks
   const ds = getDailyTaskState();
@@ -1855,11 +1876,20 @@ function renderTracker(el) {
   }).join('');
 
   const HIDDEN_STAGES_ALL = ['Rejected','Ghosted'];
-  const totalApps    = state.apps.length;
-  const appliedCount = state.apps.filter(a=>a.stage==='Applied').length;
-  const savedCount   = state.apps.filter(a=>a.stage==='Saved').length;
-  const interviewCt  = state.apps.filter(a=>['Phone Screen','Interview','Final Round'].includes(a.stage)).length;
-  const highPriCt    = state.apps.filter(a=>a.priority==='High' && !HIDDEN_STAGES_ALL.includes(a.stage)).length;
+  let totalApps    = state.apps.length;
+  let appliedCount = state.apps.filter(a=>a.stage==='Applied').length;
+  let savedCount   = state.apps.filter(a=>a.stage==='Saved').length;
+  let interviewCt  = state.apps.filter(a=>['Phone Screen','Interview','Final Round'].includes(a.stage)).length;
+  let highPriCt    = state.apps.filter(a=>a.priority==='High' && !HIDDEN_STAGES_ALL.includes(a.stage)).length;
+
+  // v19: Guest mode — show real pipeline numbers on the dashboard stats
+  if (isGuest()) {
+    totalApps    = 222;
+    appliedCount = 22;
+    savedCount   = 11;
+    interviewCt  = 7;
+    highPriCt    = 7;
+  }
 
   const dashAndJD = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;align-items:start">
     <!-- LEFT: stats block -->
@@ -1906,7 +1936,10 @@ function renderTracker(el) {
       <span style="font-size:11px;color:var(--faint)">Sort:</span>${sortBtns}
     </div>
     ${addForm}
-    ${cards||'<div class="empty">No applications in this view.</div>'}
+    <div style="position:relative">
+      ${cards||'<div class="empty">No applications in this view.</div>'}
+      ${isGuest() ? `<div style="position:absolute;bottom:0;left:0;right:0;height:180px;background:linear-gradient(to bottom, transparent, var(--navy-deep) 90%);pointer-events:none;border-radius:0 0 8px 8px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:18px"><span style="font-size:11px;color:var(--muted);letter-spacing:.06em;background:rgba(255,255,255,.04);border:1px solid var(--navy-border2);padding:5px 14px;border-radius:20px">+ more applications in full view</span></div>` : ''}
+    </div>
   `;
   updateMiniTimer();
 }
@@ -2223,10 +2256,18 @@ function renderNetwork(el) {
   const withHeat = contacts.map(c=>({...c, heat:contactHeat(c)}));
 
   // Dashboard counts
-  const total  = contacts.length;
-  const warm   = withHeat.filter(c=>c.heat==='warm'||c.heat==='new').length;
-  const nudge  = withHeat.filter(c=>c.heat==='nudge').length;
-  const cold   = withHeat.filter(c=>c.heat==='cold').length;
+  let total  = contacts.length;
+  let warm   = withHeat.filter(c=>c.heat==='warm'||c.heat==='new').length;
+  let nudge  = withHeat.filter(c=>c.heat==='nudge').length;
+  let cold   = withHeat.filter(c=>c.heat==='cold').length;
+
+  // v19: Guest mode — override with real network numbers
+  if (isGuest()) {
+    total = 44;
+    warm  = 22;
+    nudge = 11;
+    cold  = 44 - 22 - 11;
+  }
 
   // Filter
   let filtered = withHeat;
@@ -2397,7 +2438,10 @@ function renderNetwork(el) {
     </div>
 
     ${state.netShowAdd ? contactForm('net') : ''}
-    ${cards || '<div class="empty">No contacts yet — add people from your network above.</div>'}
+    <div style="position:relative">
+      ${cards || '<div class="empty">No contacts yet — add people from your network above.</div>'}
+      ${isGuest() ? `<div style="position:absolute;bottom:0;left:0;right:0;height:180px;background:linear-gradient(to bottom, transparent, var(--navy-deep) 90%);pointer-events:none;border-radius:0 0 8px 8px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:18px"><span style="font-size:11px;color:var(--muted);letter-spacing:.06em;background:rgba(255,255,255,.04);border:1px solid var(--navy-border2);padding:5px 14px;border-radius:20px">+ more contacts in full view</span></div>` : ''}
+    </div>
   `;
   updateMiniTimer();
 }
