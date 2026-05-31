@@ -124,6 +124,12 @@
     --rose-pale:   rgba(196,96,122,0.10);
     --rose-border: rgba(244,192,209,0.35);
 
+    /* ── Jade — nav accent (tabs, brand, portfolio link) ── */
+    --jade:        #6FCF97;   /* primary visible jade — nav text/labels */
+    --jade-deep:   #2F9E6E;   /* deep jade — active borders / underline */
+    --jade-pale:   rgba(47,158,110,0.10);
+    --jade-border: rgba(111,207,151,0.35);
+
     /* ── Teal — Medtech card ── */
     --teal:        #2AB5A0;
     --teal-light:  #7ADDD0;
@@ -236,42 +242,42 @@
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   #nav .brand-name { font-size: 17px; font-weight: 600; color: #E8F1F8; letter-spacing: -.2px; }
-  #nav .brand-year { font-size: 10px; color: rgba(244,192,209,0.45); letter-spacing: .06em; margin-left: 2px; }
+  #nav .brand-year { font-size: 10px; color: rgba(111,207,151,0.45); letter-spacing: .06em; margin-left: 2px; }
 
   #nav .portfolio-link {
     font-size: 10px; letter-spacing: .07em; text-transform: uppercase;
-    color: var(--rose); text-decoration: none;
-    border: 1px solid var(--rose-border);
+    color: var(--jade); text-decoration: none;
+    border: 1px solid var(--jade-border);
     padding: 4px 10px; border-radius: 5px;
     white-space: nowrap; transition: all .15s; flex-shrink: 0; align-self: center;
   }
-  #nav .portfolio-link:hover { background: var(--rose-pale); }
+  #nav .portfolio-link:hover { background: var(--jade-pale); }
 
   #nav .tabs { display: flex; gap: 1px; flex-wrap: nowrap; overflow: hidden; align-items: stretch; }
   #nav .tabs button {
     font-size: 11px; padding: 0 13px;
     background: transparent;
     border: none; border-bottom: 2px solid transparent;
-    color: rgba(244,192,209,0.42);
+    color: rgba(111,207,151,0.55);
     white-space: nowrap; height: 52px;
     transition: color .15s, border-color .15s, background .15s;
     letter-spacing: .01em;
   }
   #nav .tabs button:hover:not(:disabled) {
-    color: var(--rose);
-    background: rgba(244,192,209,0.04);
-    border-bottom-color: rgba(244,192,209,0.25);
+    color: var(--jade);
+    background: rgba(111,207,151,0.05);
+    border-bottom-color: rgba(111,207,151,0.30);
   }
   #nav .tabs button.active {
-    color: var(--rose);
-    border: 1px solid rgba(244,192,209,0.40);
-    border-bottom: 2px solid var(--rose);
-    background: rgba(244,192,209,0.06);
+    color: var(--jade);
+    border: 1px solid rgba(111,207,151,0.40);
+    border-bottom: 2px solid var(--jade-deep);
+    background: rgba(111,207,151,0.07);
     font-weight: 600;
     border-radius: 4px 4px 0 0;
   }
   #nav .tabs button.active:hover:not(:disabled) {
-    background: rgba(244,192,209,0.09);
+    background: rgba(111,207,151,0.11);
   }
   #sync-status { font-size: 10px; color: rgba(184,212,232,0.55); letter-spacing: .03em; padding: 0 6px; white-space: nowrap; }
 
@@ -440,6 +446,43 @@
 
   /* v18: Version badge */
   #version-badge { position:fixed;bottom:10px;right:14px;font-size:9px;font-family:var(--mono);color:rgba(255,255,255,0.18);letter-spacing:.05em;z-index:50;pointer-events:none; }
+
+  /* v20: responsive grid bases (overridden on mobile) */
+  .kpi-strip { grid-template-columns: repeat(10, 1fr); }
+  .board-hero-split { grid-template-columns: 1fr 1fr; }
+
+  /* ── v20: Mobile ──────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    /* Nav: stay one tidy row, let tabs scroll horizontally */
+    #nav { padding: 0 10px; gap: 8px; }
+    #nav .brand-year { display: none; }
+    #nav .brand-name { font-size: 15px; }
+    #sync-status { display: none; }
+    #nav .tabs {
+      overflow-x: auto; overflow-y: hidden; min-width: 0;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    #nav .tabs::-webkit-scrollbar { display: none; }
+    #nav .tabs button { padding: 0 11px; }
+
+    /* Guest banner: stack so its buttons never overflow under the nav */
+    #guest-banner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 8px 14px;
+      line-height: 1.45;
+    }
+
+    /* Stats strip: 5 across over two rows instead of 10 squeezed cells */
+    .kpi-strip { grid-template-columns: repeat(5, 1fr); }
+
+    /* Board hero bottom: stack Analyze JD above Daily Focus */
+    .board-hero-split { grid-template-columns: 1fr; }
+
+    /* Content well: less padding so it isn't all margins on a phone */
+    #main { margin: 12px; padding: 16px; border-radius: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -536,11 +579,11 @@
   <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;overflow:hidden;align-self:center">
     <span id="sync-status"></span>
     <div class="tabs">
-      <button class="active" onclick="showTab('board')" id="tab-board">Job board</button>
+      <button class="active" onclick="showTab('board')" id="tab-board">Board</button>
       <button onclick="showTab('tracker')" id="tab-tracker">Applications</button>
-      <button onclick="showTab('pomodoro')" id="tab-pomodoro">Focus timer</button>
-      <button onclick="showTab('network')" id="tab-network">Networking</button>
-      <button onclick="showTab('sync')" id="tab-sync">Excel sync</button>
+      <button onclick="showTab('pomodoro')" id="tab-pomodoro">Focus</button>
+      <button onclick="showTab('network')" id="tab-network">Network</button>
+      <button onclick="showTab('sync')" id="tab-sync">Sync</button>
     </div>
     <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" class="portfolio-link">Portfolio ↗</a>
   </div>
@@ -986,7 +1029,20 @@ function save() {
 function setSyncStatus(msg, isError) {
   state.cloudStatus = msg; state.cloudError = isError;
   const el = document.getElementById('sync-status');
-  if (el) { el.textContent = msg; el.style.color = isError ? 'var(--red)' : 'var(--green)'; }
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--red)' : 'var(--green)';
+  el.style.transition = 'opacity .5s';
+  el.style.opacity = '1';
+  if (window._syncFade) clearTimeout(window._syncFade);
+  // Errors persist; transient success/progress messages fade so the nav stays clean
+  const isProgress = /…$/.test(msg);
+  if (!isError && !isProgress) {
+    window._syncFade = setTimeout(() => {
+      el.style.opacity = '0';
+      setTimeout(() => { if (el.style.opacity === '0') el.textContent = ''; }, 500);
+    }, 3500);
+  }
 }
 
 // Load data from JSONBin on startup
@@ -1264,6 +1320,7 @@ function renderHQHero() {
   let savedCount   = apps.filter(a=>a.stage==='Saved').length;
   let interviewCt  = apps.filter(a=>['Phone Screen','Interview','Final Round'].includes(a.stage)).length;
   let highPriCt    = apps.filter(a=>a.priority==='High'&&!HIDDEN_STAGES.includes(a.stage)).length;
+  let ghostedCount = apps.filter(a=>a.stage==='Ghosted').length;
   // Response rate: (non-saved, non-ghosted active apps with any engagement) / applied
   const responseRate = appliedCount > 0 ? Math.round((interviewCt / appliedCount) * 100) : 0;
 
@@ -1290,6 +1347,7 @@ function renderHQHero() {
     interviewCt   = 7;
     highPriCt     = 7;
     totalApps     = 222;
+    ghostedCount  = 38;
     totalContacts = 44;
     warmContacts  = 22;
     nudgeContacts = 11;
@@ -1345,25 +1403,27 @@ function renderHQHero() {
       </div>
 
       <!-- KPI strip -->
-      <div style="background:rgba(8,18,30,0.85);border-top:1px solid rgba(91,160,210,0.12);display:grid;grid-template-columns:repeat(8,1fr);border-bottom:1px solid rgba(91,160,210,0.10)">
+      <div class="kpi-strip" style="background:rgba(8,18,30,0.85);border-top:1px solid rgba(91,160,210,0.12);display:grid;border-bottom:1px solid rgba(91,160,210,0.10)">
         ${[
+          {label:'Total',      val:totalApps,      col:'var(--sky-blue-light)', onclick:"state.appFilter='all';showTab('tracker')"},
           {label:'Active',      val:activeApps,     col:'var(--sky-blue)',   onclick:"showTab('tracker')"},
           {label:'Applied',     val:appliedCount,   col:'var(--blue)',       onclick:"showTab('tracker')"},
           {label:'Saved',       val:savedCount,     col:'var(--purple)',     onclick:"state.appFilter='Saved';showTab('tracker')"},
           {label:'Interviews',  val:interviewCt,    col:'var(--amber)',      onclick:"state.appFilter='Interview';showTab('tracker')"},
           {label:'High Pri',    val:highPriCt,      col:'var(--rose)',       onclick:"showTab('tracker')"},
+          {label:'Ghosted',     val:ghostedCount,   col:'var(--purple)',     onclick:"state.appFilter='archived';showTab('tracker')"},
           {label:'Network',     val:totalContacts,  col:'var(--teal)',       onclick:"showTab('network')"},
           {label:'Warm',        val:warmContacts,   col:'var(--green)',      onclick:"state.netFilter={view:'warm',source:'',sort:'name'};showTab('network')"},
           {label:'Nudge',       val:nudgeContacts,  col:'var(--amber)',      onclick:"state.netFilter={view:'nudge',source:'',sort:'name'};showTab('network')"},
-        ].map(d=>`<div onclick="${d.onclick}" style="padding:10px 8px;text-align:center;cursor:pointer;border-right:1px solid rgba(255,255,255,0.05);transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
+        ].map(d=>`<div onclick="${d.onclick}" style="padding:10px 6px;text-align:center;cursor:pointer;border-right:1px solid rgba(255,255,255,0.05);transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
           <div style="font-size:18px;font-weight:700;color:${d.col};line-height:1;font-family:'DM Mono',monospace">${d.val}</div>
-          <div style="font-size:9px;color:var(--faint);margin-top:3px;letter-spacing:.05em;text-transform:uppercase">${d.label}</div>
+          <div style="font-size:9px;color:var(--faint);margin-top:3px;letter-spacing:.04em;text-transform:uppercase">${d.label}</div>
         </div>`).join('')}
       </div>
     </div>
 
     <!-- Bottom row: Analyze JD + Daily Focus -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(91,160,210,0.20);border-top:none;border-radius:0 0 12px 12px;overflow:hidden;background:var(--navy-mid)">
+    <div class="board-hero-split" style="display:grid;border:1px solid rgba(91,160,210,0.20);border-top:none;border-radius:0 0 12px 12px;overflow:hidden;background:var(--navy-mid)">
 
       <!-- Analyze JD — owner only; guests see a placeholder -->
       <div style="background:rgba(10,22,36,0.6);padding:16px 20px;border-right:1px solid rgba(255,255,255,0.06)">
