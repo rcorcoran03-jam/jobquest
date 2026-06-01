@@ -8,12 +8,40 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v19  (2026-05-29)                                                 ║
+║  CURRENT:  v20  (2026-06-01)                                                 ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║  VERSION HISTORY                                                             ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  v20  2026-06-01  SYNC QUOTA FIX + NETWORKING CRM + EXCEL EXPORT            ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + SYNC: cloud write debounce 1.5s → 30s (SYNC_DEBOUNCE_MS) to conserve     ║
+║    JSONBin free-tier requests; flushCloudSave() on tab hide/close;          ║
+║    "Sync now" button on Sync tab; local write-through is instant            ║
+║  + SYNC: loadFromCloud() prefers newer of local vs cloud (no stale clobber) ║
+║  + NETWORK: removed 'bonus' activity type                                    ║
+║  + NETWORK: nudge window widened 28 → 60 days before cold                   ║
+║  + NETWORK: A–Z vs Smart (warmth) sort control                              ║
+║  + NETWORK: tiny icon buttons → "Log activity" editor window (no instant    ║
+║    log); supports retroactive date, meeting notes, category change          ║
+║  + NETWORK: Next action field (nudge reminder / scheduled meeting + date +  ║
+║    note); new column between Last and Actions; overdue/soon highlighting     ║
+║  + NETWORK: activity-log notes editable via modal                            ║
+║  + BOARD: Medical Alley (jobs.medicalalley.org) added to MT_BOARDS          ║
+║  + HERO: "Applications ↗" → "Apps ↗"; KPI strip app stats tinted blue,      ║
+║    networking stats (Network/Warm/Nudge) tinted green                       ║
+║  + EXPORT: CSV → colored .xls (apps blue header, contacts green); no lib    ║
+║  + VERSION: title now "JobQuest — Job Search OS"; v20 chip in navbar        ║
+║  + LOGO: star marks (favicon, nav, auth) now use portfolio MN North Star;   ║
+║    favicon inverted (navy star on light square) so the two tabs differ      ║
+║  + RESPONSIVE: networking cards stack on mobile; .g2 forms single-column    ║
+║  Based on: v19                                                               ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  VERSION HISTORY (prior)                                                     ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
 ║  v19  2026-05-29  UNIFIED AUTH + PROFILE SYNC + ACCESS REDESIGN             ║
@@ -90,12 +118,12 @@
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
-<meta name="jq-version" content="19">
+<meta name="jq-version" content="20">
 <meta name="jq-base" content="18">
 <meta name="jq-date" content="2026-05-29">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JobQuest · v19</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8F1F8'/%3E%3Cpolygon points='16,4 17.8,13.5 25,8 19.5,15.5 29,16 19.5,16.5 25,24 17.8,18.5 16,28 14.2,18.5 7,24 12.5,16.5 3,16 12.5,15.5 7,8 14.2,13.5' fill='%231C3347'/%3E%3C/svg%3E">
+<title>JobQuest — Job Search OS</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8F1F8'/%3E%3Cpolygon points='16,3 17.8,10.2 24.5,7.5 20.5,13.5 27.5,15.5 20.5,17.5 24.5,23.5 17.8,20.8 16,28 14.2,20.8 7.5,23.5 11.5,17.5 4.5,15.5 11.5,13.5 7.5,7.5 14.2,10.2' fill='%231C3347'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Avenir+Next:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -280,6 +308,7 @@
     background: rgba(111,207,151,0.11);
   }
   #sync-status { font-size: 10px; color: rgba(184,212,232,0.55); letter-spacing: .03em; padding: 0 6px; white-space: nowrap; }
+  #nav-version { font-size: 9px; font-family: var(--mono); color: rgba(184,212,232,0.40); letter-spacing: .06em; padding: 1px 6px; border: 0.5px solid rgba(184,212,232,0.18); border-radius: 5px; white-space: nowrap; }
 
   /* ── MAIN — the "window in a window" content well ── */
   #main {
@@ -482,20 +511,28 @@
 
     /* Content well: less padding so it isn't all margins on a phone */
     #main { margin: 12px; padding: 16px; border-radius: 12px; }
+
+    /* Networking cards: stack Who · Last · Next · Actions vertically on a phone */
+    .net-row { flex-wrap: wrap; }
+    .net-row > div { flex: 1 1 100% !important; width: 100% !important; border-left: none !important; border-right: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+    .net-row > div + div { border-top: 1px solid var(--brd) !important; margin-top: 8px; padding-top: 8px; }
+
+    /* Two-column form grids collapse to one column for easier tapping */
+    .g2 { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 
 <!-- ── v18: VERSION BADGE ──────────────────────────────────────────── -->
-<div id="version-badge">JobQuest v19</div>
+<div id="version-badge">JobQuest v20</div>
 
 <!-- ── v18: AUTH SCREEN ───────────────────────────────────────────── -->
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo-row">
       <div class="auth-logo">
-        <svg width="22" height="22" viewBox="0 0 32 32"><polygon points="16,3 17.9,13 25.5,7.5 19.8,15.5 30,16 19.8,16.5 25.5,24.5 17.9,19 16,29 14.1,19 6.5,24.5 12.2,16.5 2,16 12.2,15.5 6.5,7.5 14.1,13" fill="#E8F1F8"/></svg>
+        <svg width="22" height="22" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#E8F1F8"/></svg>
       </div>
       <span class="auth-brand">JobQuest</span><span class="auth-brand-yr">2026</span>
     </div>
@@ -571,12 +608,13 @@
   <div class="brand">
     <div class="logo">
       <svg width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="16,3 17.9,13 25.5,7.5 19.8,15.5 30,16 19.8,16.5 25.5,24.5 17.9,19 16,29 14.1,19 6.5,24.5 12.2,16.5 2,16 12.2,15.5 6.5,7.5 14.1,13" fill="#E8F1F8"/>
+        <polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#E8F1F8"/>
       </svg>
     </div>
-    <span class="brand-name" onclick="showTab('board')" style="cursor:pointer" title="Back to Job Search HQ">JobSearch HQ</span><span class="brand-year">2026</span>
+    <span class="brand-name" onclick="showTab('board')" style="cursor:pointer" title="Back to Job Search HQ">JobQuest</span><span class="brand-year">2026</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;overflow:hidden;align-self:center">
+    <span id="nav-version" title="JobQuest version">v20</span>
     <span id="sync-status"></span>
     <div class="tabs">
       <button class="active" onclick="showTab('board')" id="tab-board">Board</button>
@@ -947,6 +985,26 @@ let state = {
 
 let pomInterval = null;
 let saveTimer = null;  // debounce cloud saves
+let cloudDirty = false; // true when local has unsynced changes
+
+// v20: cloud writes are now debounced at 30s (was 1.5s) to conserve the free-tier
+// request quota. Local storage still saves instantly on every change, so nothing
+// is ever lost — the cloud is just a periodic mirror. A pending write is flushed
+// immediately when the tab is hidden/closed so changes aren't stranded.
+const SYNC_DEBOUNCE_MS = 30000;
+
+// Flush any pending cloud write right now (used on tab hide / manual "Sync now")
+async function flushCloudSave() {
+  if (!cloudDirty || !state.jbKey || !state.jbBin || isGuest()) return;
+  clearTimeout(saveTimer); saveTimer = null;
+  try {
+    await jbWrite();
+    cloudDirty = false;
+    setSyncStatus('✓ synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), false);
+  } catch(e) {
+    setSyncStatus('⚠ sync failed — ' + e.message + ' (saved locally)', true);
+  }
+}
 
 // ── JSONBIN CLOUD SYNC ────────────────────────────────────────────────────────
 
@@ -1006,25 +1064,36 @@ function saveCredentials() {
 function save() {
   if (isGuest()) return; // v18: guests cannot mutate data
   saveCredentials();
-  // Always persist tasks/referrals locally (fast, no cloud needed)
+  // Always persist EVERYTHING locally first — local is the source of truth,
+  // cloud is a mirror. This guarantees a sync failure (403, offline, tab
+  // suspend) can never lose data: the latest state is always on this device.
   localStorage.setItem('tasks', JSON.stringify(state.tasks));
   localStorage.setItem('referrals', JSON.stringify(state.referrals));
+  localStorage.setItem('apps_backup', JSON.stringify(state.apps));
+  localStorage.setItem('contacts_backup', JSON.stringify(state.contacts));
+  localStorage.setItem('backup_updatedAt', new Date().toISOString());
   if (!state.jbKey || !state.jbBin) {
-    localStorage.setItem('apps_backup', JSON.stringify(state.apps));
-    localStorage.setItem('contacts_backup', JSON.stringify(state.contacts));
     return;
   }
   clearTimeout(saveTimer);
+  cloudDirty = true;
   saveTimer = setTimeout(async () => {
     setSyncStatus('saving…', false);
     try {
       await jbWrite();
+      cloudDirty = false;
       setSyncStatus('✓ synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), false);
     } catch(e) {
       setSyncStatus('⚠ sync failed — ' + e.message, true);
     }
-  }, 1500);
+  }, SYNC_DEBOUNCE_MS);
 }
+
+// v20: flush pending cloud write when the tab is backgrounded or closed so a
+// debounced change is never stranded. visibilitychange fires reliably on mobile
+// and desktop; pagehide covers hard closes.
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushCloudSave(); });
+window.addEventListener('pagehide', () => { flushCloudSave(); });
 
 function setSyncStatus(msg, isError) {
   state.cloudStatus = msg; state.cloudError = isError;
@@ -1057,14 +1126,30 @@ async function loadFromCloud() {
   }
   try {
     const data = await jbRead();
-    if (data.apps)    state.apps    = data.apps;
-    if (data.contacts) state.contacts = data.contacts;
-    setSyncStatus('✓ loaded from cloud', false);
+    // Guard against stale-cloud clobber: if local was saved more recently than
+    // the cloud copy (e.g. writes were failing so cloud fell behind), keep local.
+    const localTs = localStorage.getItem('backup_updatedAt');
+    const cloudTs = data.updatedAt;
+    const localIsNewer = localTs && (!cloudTs || new Date(localTs) > new Date(cloudTs));
+    if (localIsNewer) {
+      const appsBackup = localStorage.getItem('apps_backup');
+      const contactsBackup = localStorage.getItem('contacts_backup');
+      if (appsBackup) state.apps = JSON.parse(appsBackup);
+      if (contactsBackup) state.contacts = JSON.parse(contactsBackup);
+      setSyncStatus('✓ loaded local (newer than cloud) — will re-sync', false);
+      save(); // push the newer local state back up to the cloud
+    } else {
+      if (data.apps)    state.apps    = data.apps;
+      if (data.contacts) state.contacts = data.contacts;
+      setSyncStatus('✓ loaded from cloud', false);
+    }
   } catch(e) {
     setSyncStatus('⚠ cloud load failed — using local data', true);
     // Fall back to localStorage backup
     const appsBackup = localStorage.getItem('apps_backup');
+    const contactsBackup = localStorage.getItem('contacts_backup');
     if (appsBackup) state.apps = JSON.parse(appsBackup);
+    if (contactsBackup) state.contacts = JSON.parse(contactsBackup);
   }
 }
 
@@ -1332,11 +1417,11 @@ function renderHQHero() {
   }).length;
   let nudgeContacts = contacts.filter(c => {
     const days = c.last ? Math.floor((Date.now()-new Date(c.last))/86400000) : 999;
-    return days > 14 && days <= 28;
+    return days > 14 && days <= 60;
   }).length;
   let coldContacts  = contacts.filter(c => {
     const days = c.last ? Math.floor((Date.now()-new Date(c.last))/86400000) : 999;
-    return days > 28;
+    return days > 60;
   }).length;
 
   // v19: Guest mode — override KPIs with real pipeline numbers for an accurate impression
@@ -1397,7 +1482,7 @@ function renderHQHero() {
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap">
           <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" style="font-size:10px;color:var(--rose);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:5px 12px;border-radius:4px;white-space:nowrap">Portfolio ↗</a>
-          <button onclick="showTab('tracker')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(91,158,201,0.12);border-color:var(--sky-blue-mid);color:var(--sky-blue);white-space:nowrap">Applications ↗</button>
+          <button onclick="showTab('tracker')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(91,158,201,0.12);border-color:var(--sky-blue-mid);color:var(--sky-blue);white-space:nowrap">Apps ↗</button>
           <button onclick="showTab('network')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(42,181,160,0.10);border-color:var(--teal-border);color:var(--teal);white-space:nowrap">Network ↗</button>
         </div>
       </div>
@@ -1405,20 +1490,26 @@ function renderHQHero() {
       <!-- KPI strip -->
       <div class="kpi-strip" style="background:rgba(8,18,30,0.85);border-top:1px solid rgba(91,160,210,0.12);display:grid;border-bottom:1px solid rgba(91,160,210,0.10)">
         ${[
-          {label:'Total',      val:totalApps,      col:'var(--sky-blue-light)', onclick:"state.appFilter='all';showTab('tracker')"},
-          {label:'Active',      val:activeApps,     col:'var(--sky-blue)',   onclick:"showTab('tracker')"},
-          {label:'Applied',     val:appliedCount,   col:'var(--blue)',       onclick:"showTab('tracker')"},
-          {label:'Saved',       val:savedCount,     col:'var(--purple)',     onclick:"state.appFilter='Saved';showTab('tracker')"},
-          {label:'Interviews',  val:interviewCt,    col:'var(--amber)',      onclick:"state.appFilter='Interview';showTab('tracker')"},
-          {label:'High Pri',    val:highPriCt,      col:'var(--rose)',       onclick:"showTab('tracker')"},
-          {label:'Ghosted',     val:ghostedCount,   col:'var(--purple)',     onclick:"state.appFilter='archived';showTab('tracker')"},
-          {label:'Network',     val:totalContacts,  col:'var(--teal)',       onclick:"showTab('network')"},
-          {label:'Warm',        val:warmContacts,   col:'var(--green)',      onclick:"state.netFilter={view:'warm',source:'',sort:'name'};showTab('network')"},
-          {label:'Nudge',       val:nudgeContacts,  col:'var(--amber)',      onclick:"state.netFilter={view:'nudge',source:'',sort:'name'};showTab('network')"},
-        ].map(d=>`<div onclick="${d.onclick}" style="padding:10px 6px;text-align:center;cursor:pointer;border-right:1px solid rgba(255,255,255,0.05);transition:background .15s" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
-          <div style="font-size:18px;font-weight:700;color:${d.col};line-height:1;font-family:'DM Mono',monospace">${d.val}</div>
+          {label:'Total',      val:totalApps,      grp:'app', onclick:"state.appFilter='all';showTab('tracker')"},
+          {label:'Active',      val:activeApps,     grp:'app', onclick:"showTab('tracker')"},
+          {label:'Applied',     val:appliedCount,   grp:'app', onclick:"showTab('tracker')"},
+          {label:'Saved',       val:savedCount,     grp:'app', onclick:"state.appFilter='Saved';showTab('tracker')"},
+          {label:'Interviews',  val:interviewCt,    grp:'app', onclick:"state.appFilter='Interview';showTab('tracker')"},
+          {label:'High Pri',    val:highPriCt,      grp:'app', onclick:"showTab('tracker')"},
+          {label:'Ghosted',     val:ghostedCount,   grp:'app', onclick:"state.appFilter='archived';showTab('tracker')"},
+          {label:'Network',     val:totalContacts,  grp:'net', onclick:"showTab('network')"},
+          {label:'Warm',        val:warmContacts,   grp:'net', onclick:"state.netFilter={view:'warm',source:'',sort:'smart'};showTab('network')"},
+          {label:'Nudge',       val:nudgeContacts,  grp:'net', onclick:"state.netFilter={view:'nudge',source:'',sort:'smart'};showTab('network')"},
+        ].map(d=>{
+          // v20: app stats shaded blue (link color), networking stats green tint
+          const isApp = d.grp==='app';
+          const numCol = isApp ? 'var(--sky-blue-light)' : 'var(--jade)';
+          const rest   = isApp ? 'rgba(91,158,201,0.08)'  : 'rgba(111,207,151,0.08)';
+          const hover  = isApp ? 'rgba(91,158,201,0.18)'  : 'rgba(111,207,151,0.18)';
+          return `<div onclick="${d.onclick}" style="padding:10px 6px;text-align:center;cursor:pointer;border-right:1px solid rgba(255,255,255,0.05);background:${rest};transition:background .15s" onmouseover="this.style.background='${hover}'" onmouseout="this.style.background='${rest}'">
+          <div style="font-size:18px;font-weight:700;color:${numCol};line-height:1;font-family:'DM Mono',monospace">${d.val}</div>
           <div style="font-size:9px;color:var(--faint);margin-top:3px;letter-spacing:.04em;text-transform:uppercase">${d.label}</div>
-        </div>`).join('')}
+        </div>`;}).join('')}
       </div>
     </div>
 
@@ -1481,6 +1572,7 @@ function renderBoard(el) {
 
   // ── Medtech boards & companies ─────────────────────────────────────────────
   const MT_BOARDS = [
+    {name:'Medical Alley', url:'https://jobs.medicalalley.org/'},
     {name:'LinkedIn', url:'https://www.linkedin.com/jobs/search/?keywords=product+manager+medical+device+upstream+downstream&location=Minneapolis%2C+MN&f_E=4&f_TPR=r2592000'},
     {name:'Indeed', url:'https://www.indeed.com/jobs?q=product+manager+medical+device+Minneapolis&sort=date'},
   ];
@@ -2262,16 +2354,24 @@ function setPomTask(t) { state.pomTask=t; state.pomCustomTask=''; render('pomodo
 
 // ── NETWORKING CRM ────────────────────────────────────────────────────────────
 
-const NET_FILTER_DEFAULT = {view:'all', source:'', sort:'name'};
+const NET_FILTER_DEFAULT = {view:'all', source:'', sort:'smart'};
 if(!state.netFilter) state.netFilter = {...NET_FILTER_DEFAULT};
+if(!state.netFilter.sort) state.netFilter.sort = 'smart';
 
 const ACTIVITY_TYPES = [
   {key:'message',  label:'Sent message',  icon:'💬', col:'var(--sky-blue)'},
   {key:'call',     label:'Call / video',  icon:'📞', col:'var(--teal)'},
   {key:'inperson', label:'Met in person', icon:'🤝', col:'var(--green)'},
   {key:'intro',    label:'Intro made',    icon:'✨', col:'var(--gold)'},
-  {key:'bonus',    label:'Bonus time',    icon:'⭐', col:'var(--rose)'},
 ];
+
+// v20: Next-action types — a planned nudge reminder or a scheduled meeting
+const NEXT_TYPES = [
+  {key:'',        label:'— none —',          icon:'',   col:'var(--faint)'},
+  {key:'nudge',   label:'Nudge reminder',    icon:'🔔', col:'var(--amber)'},
+  {key:'meeting', label:'Scheduled meeting', icon:'📅', col:'var(--teal)'},
+];
+function nextTypeMeta(key){ return NEXT_TYPES.find(t=>t.key===key) || NEXT_TYPES[0]; }
 
 function daysAgo(dateStr) {
   if(!dateStr) return null;
@@ -2283,7 +2383,7 @@ function contactHeat(c) {
   const days = daysAgo(c.last);
   if(days === null) return 'new';
   if(days <= 14) return 'warm';
-  if(days <= 28) return 'nudge';
+  if(days <= 60) return 'nudge';   // v20: nudge window widened 28 → 60 days
   return 'cold';
 }
 
@@ -2296,13 +2396,16 @@ function heatMeta(heat) {
   }[heat];
 }
 
-function addActivityLog(contactId, type, note, autoExpand) {
+function addActivityLog(contactId, type, note, autoExpand, dateStr) {
   const idx = state.contacts.findIndex(x=>x.id===contactId); if(idx===-1) return;
-  const today = new Date().toISOString().slice(0,10);
+  const date = dateStr || new Date().toISOString().slice(0,10);
   if(!state.contacts[idx].activityLog) state.contacts[idx].activityLog = [];
-  state.contacts[idx].activityLog.unshift({type, note:note||'', date:today});
-  state.contacts[idx].last = today;
-  state.contacts[idx].lastActivityType = type;
+  state.contacts[idx].activityLog.unshift({type, note:note||'', date});
+  // Keep log newest-first by date
+  state.contacts[idx].activityLog.sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  // 'last contact' = most recent touch; never move it backward on a retroactive entry
+  const curLast = state.contacts[idx].last || '';
+  if(date >= curLast) { state.contacts[idx].last = date; state.contacts[idx].lastActivityType = type; }
   if(autoExpand) { if(!state.netExpanded) state.netExpanded={}; state.netExpanded[contactId]=true; }
   save(); render('network');
   showToast('Activity logged ✓');
@@ -2336,9 +2439,9 @@ function renderNetwork(el) {
   if(filt.view==='cold')  filtered = filtered.filter(c=>c.heat==='cold');
   if(filt.source) filtered = filtered.filter(c=>(c.source||'').toLowerCase().includes(filt.source.toLowerCase()));
 
-  // Sort — cold always to bottom within view
+  // Sort — 'smart' groups by heat (new→warm→nudge→cold) then name; 'name' is pure A–Z
   filtered.sort((a,b)=>{
-    if(filt.view==='all') {
+    if((filt.sort||'smart')==='smart' && filt.view==='all') {
       const order={new:0,warm:1,nudge:2,cold:3};
       if(order[a.heat]!==order[b.heat]) return order[a.heat]-order[b.heat];
     }
@@ -2375,6 +2478,12 @@ function renderNetwork(el) {
         ${inp(`${prefix}-last`,   c.last||'',    'Last contact (YYYY-MM-DD)')}
       </div>
       ${inp(`${prefix}-notes`, c.notes||'', 'Notes — context, how you know them')}
+      <div style="font-size:10px;color:var(--amber);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin:10px 0 6px">Next action</div>
+      <div class="g2" style="margin-bottom:8px">
+        ${sel(`${prefix}-nexttype`, NEXT_TYPES.map(t=>({v:t.key,l:`${t.icon?t.icon+' ':''}${t.label}`})), c.nextType||'')}
+        ${inp(`${prefix}-next`, c.next||'', 'Next date (YYYY-MM-DD)')}
+      </div>
+      ${inp(`${prefix}-nextnote`, c.nextNote||'', 'Next-action note (optional)')}
       <div class="row" style="margin-top:8px">
         <button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue)" onclick="${isEdit?`saveEditContact(${c.id})`:'addContact()'}">${isEdit?'Save changes':'Save contact'}</button>
         <button onclick="${isEdit?`state.netEditing=null;render('network')`:`state.netShowAdd=false;render('network')`}">Cancel</button>
@@ -2404,23 +2513,18 @@ function renderNetwork(el) {
 
     const isExpanded = state.netExpanded && state.netExpanded[c.id];
 
-    // Activity quick-add row (5 compact icon buttons — always visible on card)
-    const actQuickBtns = ACTIVITY_TYPES.map(a=>
-      `<button onclick="event.stopPropagation();oneTapActivity(${c.id},'${a.key}')" title="${a.label}" style="font-size:13px;padding:3px 6px;background:${a.col}11;border:1px solid ${a.col}33;border-radius:5px;color:${a.col};min-width:28px;flex:1">${a.icon}</button>`
-    ).join('');
-
-    // Right column — Nudge, Update, activity quick-adds, Edit
-    const rightCol = `<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;width:120px" onclick="event.stopPropagation()">
+    // Right column — Log activity (opens editor), Nudge/Update prompts, Edit
+    const rightCol = `<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;width:128px" onclick="event.stopPropagation()">
+      <button onclick="openActivityEditor(${c.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:5px 0;text-align:center;font-weight:600">➕ Log activity</button>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">
         <button onclick="copyNetPrompt('nudge','${c.id}')" style="font-size:10px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:3px 0;text-align:center">💬 Nudge</button>
         <button onclick="copyNetPrompt('update','${c.id}')" style="font-size:10px;padding:3px 0;text-align:center">📋 Update</button>
       </div>
-      <div style="display:flex;gap:2px">${actQuickBtns}</div>
       <button onclick="state.netEditing=${c.id};state.netShowAdd=false;render('network')" style="font-size:10px;color:var(--muted);padding:3px 0;width:100%;text-align:center">✏️ Edit</button>
     </div>`;
 
-    // Middle column — dates + last activity chip
-    const midCol = `<div style="flex:0 0 130px;padding:0 10px;display:flex;flex-direction:column;gap:4px;justify-content:center;border-left:1px solid var(--brd);border-right:1px solid var(--brd)">
+    // Middle column — Last contact + last activity chip
+    const midCol = `<div style="flex:0 0 116px;padding:0 10px;display:flex;flex-direction:column;gap:4px;justify-content:center;border-left:1px solid var(--brd);border-right:1px solid var(--brd)">
       <div style="font-size:11px;color:var(--muted)">
         <span style="color:var(--faint);font-size:10px;letter-spacing:.04em;text-transform:uppercase">Last</span><br>
         <span style="color:var(--tx)">${fmtDate(c.last)}</span>
@@ -2430,16 +2534,32 @@ function renderNetwork(el) {
       ${c.source?`<div style="font-size:10px;color:var(--faint)">via ${esc(c.source)}</div>`:''}
     </div>`;
 
+    // Next column — planned next action (nudge reminder or scheduled meeting), between Last and Actions
+    const nt = nextTypeMeta(c.nextType);
+    const nextDays = c.next ? daysAgo(c.next) : null; // >0 means past due
+    const nextOverdue = nextDays !== null && nextDays > 0;
+    const nextSoon = nextDays !== null && nextDays <= 0 && nextDays >= -3;
+    const hasNext = !!(c.next || (c.nextType && c.nextType!==''));
+    const nextCol = `<div style="flex:0 0 118px;padding:0 10px;display:flex;flex-direction:column;gap:2px;justify-content:center;border-right:1px solid var(--brd)" onclick="event.stopPropagation()">
+      <span style="color:var(--faint);font-size:10px;letter-spacing:.04em;text-transform:uppercase">Next</span>
+      ${hasNext ? `
+        <div style="font-size:11px;color:${nextOverdue?'var(--rose)':nt.col};font-weight:500">${nt.icon||'•'} ${c.next?fmtDate(c.next):'—'}</div>
+        ${nextOverdue?`<span style="font-size:9px;color:var(--rose)">⚠ ${nextDays}d overdue</span>`:nextSoon?`<span style="font-size:9px;color:var(--amber)">${nextDays===0?'today':'in '+(-nextDays)+'d'}</span>`:''}
+        ${c.nextNote?`<span style="font-size:10px;color:var(--faint);line-height:1.3">${esc(c.nextNote)}</span>`:''}
+        ${isGuest()?'':`<button onclick="clearNextAction(${c.id})" style="font-size:9px;color:var(--faint);background:none;border:none;padding:0;text-align:left;cursor:pointer;text-decoration:underline">clear</button>`}
+      ` : (isGuest()?`<span style="font-size:10px;color:var(--faint)">—</span>`:`<button onclick="openActivityEditor(${c.id})" style="font-size:10px;color:var(--amber);background:var(--gold-pale);border:1px solid var(--gold-border);border-radius:5px;padding:3px 0;text-align:center">+ set</button>`)}
+    </div>`;
+
     // Activity log (expanded only)
-    const actLog = (c.activityLog||[]).slice(0,8).map(entry=>{
+    const actLog = (c.activityLog||[]).slice(0,8).map((entry, i)=>{
       const at = ACTIVITY_TYPES.find(a=>a.key===entry.type)||{icon:'·',col:'var(--faint)',label:entry.type};
       return `<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--brd)">
         <span style="font-size:13px;flex-shrink:0">${at.icon}</span>
         <div style="flex:1;min-width:0">
           <div style="font-size:11px;color:${at.col};font-weight:500">${at.label}
             ${entry.note
-              ? `<span style="color:var(--muted);font-weight:400"> — ${esc(entry.note)}</span>`
-              : `<button onclick="openNoteEdit(${c.id},0)" style="font-size:10px;color:var(--faint);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;margin-left:6px">+ add note</button>`}
+              ? `<span style="color:var(--muted);font-weight:400"> — ${esc(entry.note)}</span>${isGuest()?'':` <button onclick="openNoteEdit(${c.id},${i})" style="font-size:10px;color:var(--faint);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline">edit</button>`}`
+              : (isGuest()?'':`<button onclick="openNoteEdit(${c.id},${i})" style="font-size:10px;color:var(--faint);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;margin-left:6px">+ add note</button>`)}
           </div>
         </div>
         <div style="font-size:10px;color:var(--faint);flex-shrink:0">${fmtDate(entry.date)}</div>
@@ -2449,23 +2569,18 @@ function renderNetwork(el) {
     const expandedContent = isExpanded ? `
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
         ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-bottom:10px;line-height:1.5;padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:5px">📝 ${isGuest()?'<span class="redacted">'+esc(c.notes)+'</span>':esc(c.notes)}</div>`:''}
-        <div style="font-size:10px;color:var(--sky-blue-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:8px">Activity Log</div>
-        ${actLog || `<div style="font-size:11px;color:var(--faint);padding:6px 0">No activity logged — tap an icon above to log your first touch</div>`}
-        <div id="act-quick-add-${c.id}" style="display:none;margin-top:8px;padding:8px;background:rgba(91,158,201,0.07);border-radius:6px;border:1px solid var(--sky-blue-mid)">
-          <div style="font-size:11px;color:var(--sky-blue-light);margin-bottom:5px">Add a note to last activity:</div>
-          ${inp(`act-note-${c.id}`,'','What happened? (optional)')}
-          <div class="row" style="margin-top:6px">
-            <button id="act-confirm-${c.id}" style="font-size:11px;background:var(--sky-blue);color:#fff;border-color:var(--sky-blue)" onclick="confirmActivityAdd(${c.id})">Save note</button>
-            <button style="font-size:11px" onclick="document.getElementById('act-quick-add-${c.id}').style.display='none'">Skip</button>
-          </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:10px;color:var(--sky-blue-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600">Activity Log</div>
+          ${isGuest()?'':`<button onclick="openActivityEditor(${c.id})" style="font-size:10px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:2px 10px">➕ Log activity</button>`}
         </div>
+        ${actLog || `<div style="font-size:11px;color:var(--faint);padding:6px 0">No activity logged yet — use “Log activity” to record your first touch.</div>`}
         <div style="margin-top:10px;display:flex;gap:6px">
           <button onclick="copyNetPrompt('referral','${c.id}')" style="font-size:11px;color:var(--rose);border-color:var(--rose-border);background:var(--rose-pale)">✨ Referral ask</button>
         </div>
       </div>` : '';
 
     return `<div class="card" style="margin-bottom:7px;border-left:3px solid ${hm.col};border-radius:0 10px 10px 0;padding:10px 12px;opacity:${isCold?'0.62':'1'}">
-      <div style="display:flex;gap:0;align-items:stretch">
+      <div class="net-row" style="display:flex;gap:0;align-items:stretch">
         <!-- LEFT: who -->
         <div style="flex:1;min-width:0;padding-right:10px;cursor:pointer" onclick="state.netExpanded=state.netExpanded||{};state.netExpanded[${c.id}]=!state.netExpanded[${c.id}];render('network')">
           <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:3px">
@@ -2476,8 +2591,10 @@ function renderNetwork(el) {
           <div style="color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${[c.role,c.company].filter(Boolean).map(esc).join(' · ')}</div>
           <div style="margin-top:3px;font-size:10px;color:var(--faint)">${isExpanded?'▲ collapse':'▼ expand'}</div>
         </div>
-        <!-- MIDDLE: dates -->
+        <!-- MIDDLE: last contact -->
         ${midCol}
+        <!-- NEXT: planned next action -->
+        ${nextCol}
         <!-- RIGHT: actions -->
         ${isGuest() ? '' : rightCol}
       </div>
@@ -2490,6 +2607,11 @@ function renderNetwork(el) {
     <div style="display:flex;gap:8px;margin-bottom:16px">${tiles}</div>
 
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:10px;color:var(--faint);letter-spacing:.04em;text-transform:uppercase">Sort</span>
+      <select onchange="state.netFilter.sort=this.value;render('network')" style="font-size:11px;padding:4px 8px;flex:0 0 auto">
+        <option value="smart" ${(filt.sort||'smart')==='smart'?'selected':''}>Smart (warmth)</option>
+        <option value="name"  ${filt.sort==='name'?'selected':''}>A–Z by name</option>
+      </select>
       ${sources.length ? `<select onchange="state.netFilter.source=this.value;render('network')" style="font-size:11px;padding:4px 8px;flex:0 0 auto">
         <option value="">All sources</option>
         ${sources.map(s=>`<option value="${esc(s)}" ${filt.source===s?'selected':''}>${esc(s)}</option>`).join('')}
@@ -2516,6 +2638,9 @@ function addContact() {
     source:  document.getElementById('net-source').value,
     last:    document.getElementById('net-last').value,
     notes:   document.getElementById('net-notes').value,
+    next:     document.getElementById('net-next').value,
+    nextType: document.getElementById('net-nexttype').value,
+    nextNote: document.getElementById('net-nextnote').value,
     activityLog: [],
     lastActivityType: null,
   });
@@ -2538,6 +2663,9 @@ function saveEditContact(id) {
     source:  get('source'),
     last:    get('last'),
     notes:   get('notes'),
+    next:     get('next'),
+    nextType: get('nexttype'),
+    nextNote: get('nextnote'),
   };
   state.netEditing = null;
   save(); render('network');
@@ -2552,42 +2680,103 @@ function deleteContact(id) {
   showToast('Contact deleted');
 }
 
+// v20: edit the note on a specific logged activity entry (small modal)
 function openNoteEdit(contactId, entryIdx) {
-  // Re-expand and show the note add area in expanded view
-  if(!state.netExpanded) state.netExpanded={};
-  state.netExpanded[contactId]=true;
-  render('network');
-  // Show the quick-add panel pre-filled for note editing
-  const box = document.getElementById(`act-quick-add-${contactId}`);
-  if(box) {
-    box.style.display='block';
-    const btn = document.getElementById(`act-confirm-${contactId}`);
-    if(btn) btn.textContent='Save note';
-    window._pendingActType = {contactId, type:null, entryIdx};
+  const c = state.contacts.find(x=>x.id===contactId); if(!c) return;
+  const entry = (c.activityLog||[])[entryIdx]; if(!entry) return;
+  const m = document.createElement('div');
+  m.id = 'note-edit-modal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px';
+  m.innerHTML = `
+    <div style="background:var(--surf);border:1px solid var(--brd2);border-radius:12px;width:100%;max-width:420px;padding:22px;position:relative">
+      <div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:12px">Edit note</div>
+      ${ta('note-edit-field', entry.note||'', 'What happened?', 3)}
+      <div class="row" style="margin-top:12px">
+        <button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue)" onclick="saveNoteEdit(${contactId},${entryIdx})">Save note</button>
+        <button onclick="document.getElementById('note-edit-modal').remove()">Cancel</button>
+      </div>
+    </div>`;
+  m.addEventListener('click', e=>{ if(e.target===m) m.remove(); });
+  document.body.appendChild(m);
+}
+
+function saveNoteEdit(contactId, entryIdx) {
+  const idx = state.contacts.findIndex(x=>x.id===contactId); if(idx===-1) return;
+  const entry = (state.contacts[idx].activityLog||[])[entryIdx]; if(!entry) return;
+  entry.note = (document.getElementById('note-edit-field')?.value || '').trim();
+  const m = document.getElementById('note-edit-modal'); if(m) m.remove();
+  save(); render('network');
+  showToast('Note saved ✓');
+}
+
+// v20: Activity editor — opens a window FIRST (does not log immediately).
+// Lets you pick/change the category, backdate the entry, add meeting notes,
+// and set the contact's Next action (a nudge reminder or a scheduled meeting).
+function openActivityEditor(contactId, presetType='') {
+  const c = state.contacts.find(x=>x.id===contactId); if(!c) return;
+  const today = new Date().toISOString().slice(0,10);
+  const optTypes = ACTIVITY_TYPES.map(a=>`<option value="${a.key}" ${a.key===presetType?'selected':''}>${a.icon} ${a.label}</option>`).join('');
+  const optNext  = NEXT_TYPES.map(t=>`<option value="${t.key}" ${t.key===(c.nextType||'')?'selected':''}>${t.icon?t.icon+' ':''}${t.label}</option>`).join('');
+  const m = document.createElement('div');
+  m.id = 'act-editor-modal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px';
+  m.innerHTML = `
+    <div style="background:var(--surf);border:1px solid var(--brd2);border-radius:12px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;padding:24px;position:relative">
+      <button onclick="closeActivityEditor()" style="position:absolute;top:12px;right:12px;font-size:16px;background:none;border:none;color:var(--muted);cursor:pointer">✕</button>
+      <div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:2px">Log activity — ${esc(c.name)}</div>
+      <div style="font-size:11px;color:var(--faint);margin-bottom:14px">Nothing is logged until you hit Save. Backdate the date to record a past touch.</div>
+
+      <div style="font-size:10px;color:var(--sky-blue-light);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:6px">What happened</div>
+      <div class="g2" style="margin-bottom:8px">
+        ${sel('ae-type', ACTIVITY_TYPES.map(a=>({v:a.key,l:`${a.icon} ${a.label}`})), presetType)}
+        <input id="ae-date" type="date" value="${today}" max="${today}">
+      </div>
+      ${ta('ae-note','','Meeting notes — what was said, follow-ups, anything to remember', 3)}
+
+      <div style="font-size:10px;color:var(--amber);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin:14px 0 6px">Next action <span style="color:var(--faint);text-transform:none;letter-spacing:0">(optional)</span></div>
+      <div class="g2" style="margin-bottom:8px">
+        ${sel('ae-next-type', NEXT_TYPES.map(t=>({v:t.key,l:`${t.icon?t.icon+' ':''}${t.label}`})), c.nextType||'')}
+        <input id="ae-next-date" type="date" value="${esc(c.next||'')}">
+      </div>
+      ${inp('ae-next-note', c.nextNote||'', 'Next-action note (e.g. "coffee 10am", "re: referral")')}
+
+      <div class="row" style="margin-top:16px">
+        <button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue)" onclick="saveActivityEditor(${contactId})">Save</button>
+        <button onclick="closeActivityEditor()">Cancel</button>
+      </div>
+    </div>`;
+  m.addEventListener('click', e=>{ if(e.target===m) closeActivityEditor(); });
+  document.body.appendChild(m);
+}
+
+function closeActivityEditor() {
+  const m = document.getElementById('act-editor-modal'); if(m) m.remove();
+}
+
+function saveActivityEditor(contactId) {
+  const idx = state.contacts.findIndex(x=>x.id===contactId); if(idx===-1) return;
+  const type = document.getElementById('ae-type').value;
+  const date = document.getElementById('ae-date').value || new Date().toISOString().slice(0,10);
+  const note = document.getElementById('ae-note').value.trim();
+  // Persist Next action first so it sticks even when no activity is logged
+  state.contacts[idx].next     = document.getElementById('ae-next-date').value || '';
+  state.contacts[idx].nextType = document.getElementById('ae-next-type').value || '';
+  state.contacts[idx].nextNote = document.getElementById('ae-next-note').value.trim();
+  closeActivityEditor();
+  if(type) {
+    addActivityLog(contactId, type, note, false, date); // saves + re-renders
+  } else {
+    save(); render('network');
+    showToast('Next action saved ✓');
   }
 }
 
-function oneTapActivity(contactId, type) {
-  // Log immediately, auto-expand card for optional note
-  addActivityLog(contactId, type, '', true);
-}
-
-function openActivityQuickAdd(contactId, type) {
-  window._pendingActType = {contactId, type};
-  const box = document.getElementById(`act-quick-add-${contactId}`);
-  if(box) { box.style.display='block'; box.dataset.type=type; }
-  const at = ACTIVITY_TYPES.find(a=>a.key===type);
-  const btn = document.getElementById(`act-confirm-${contactId}`);
-  if(btn && at) btn.textContent=`Log: ${at.icon} ${at.label}`;
-}
-
-function confirmActivityAdd(contactId) {
-  const type = window._pendingActType?.type;
-  if(!type) return;
-  const noteEl = document.getElementById(`act-note-${contactId}`);
-  const note = noteEl ? noteEl.value.trim() : '';
-  addActivityLog(contactId, type, note, false);
-  window._pendingActType = null;
+// v20: clear a completed/cancelled Next action straight from the card
+function clearNextAction(contactId) {
+  const idx = state.contacts.findIndex(x=>x.id===contactId); if(idx===-1) return;
+  state.contacts[idx].next = ''; state.contacts[idx].nextType=''; state.contacts[idx].nextNote='';
+  save(); render('network');
+  showToast('Next action cleared');
 }
 
 function copyNetPrompt(type, id) {
@@ -2896,6 +3085,32 @@ function downloadCSV(content, filename) {
   URL.revokeObjectURL(url);
 }
 
+// v20: styled Excel export — Excel opens an HTML table and honors inline cell
+// styling, so we colour the header row to match the app's language (apps = blue,
+// networking = green) with no external library. Cells are forced to text format
+// so salary ranges / dates / leading zeros aren't mangled on open.
+function tableToXLSHtml(cols, rows, headerBg, zebraBg) {
+  const e = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const thead = `<tr>${cols.map(c=>`<th style="background:${headerBg};color:#FFFFFF;border:1px solid #8A8A8A;padding:6px 10px;font-family:Calibri,Arial,sans-serif;font-size:11pt;text-align:left;font-weight:bold">${e(c)}</th>`).join('')}</tr>`;
+  const tbody = rows.map((r,ri)=>`<tr>${r.map(cell=>`<td style="background:${ri%2?zebraBg:'#FFFFFF'};border:1px solid #DDDDDD;padding:5px 10px;font-family:Calibri,Arial,sans-serif;font-size:10pt;mso-number-format:'\\@'">${e(cell)}</td>`).join('')}</tr>`).join('');
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body><table border="1">${thead}${tbody}</table></body></html>`;
+}
+function appsToXLSHtml() {
+  const rows = state.apps.map(a => APP_KEYS.map(k => a[k]||''));
+  return tableToXLSHtml(APP_COLS, rows, '#1C3A50', '#EAF2F8'); // blue — matches Applications
+}
+function contactsToXLSHtml() {
+  const rows = state.contacts.map(c => NET_KEYS.map(k => c[k]||''));
+  return tableToXLSHtml(NET_COLS, rows, '#1F5A3A', '#E9F6EE'); // green — matches Networking
+}
+function downloadXLS(html, filename) {
+  const blob = new Blob(['\ufeff', html], {type:'application/vnd.ms-excel;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
 function parseCSV(text) {
   const lines = text.trim().split('\n');
   const headers = parseCSVLine(lines[0]);
@@ -3044,12 +3259,12 @@ function renderSync(el) {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div class="row">${cloudBadge}</div>
         ${cloudConnected
-          ? `<button class="danger" onclick="disconnectCloud()" style="font-size:11px">Disconnect</button>`
+          ? `<div class="row" style="gap:6px"><button onclick="flushCloudSave()" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">⟳ Sync now</button><button class="danger" onclick="disconnectCloud()" style="font-size:11px">Disconnect</button></div>`
           : `<button class="amber" onclick="location.reload()" style="font-size:11px">Set up cloud →</button>`}
       </div>
       <p style="font-size:12px;color:var(--muted);line-height:1.6">
         ${cloudConnected
-          ? `Data syncs automatically to JSONBin after every change. Open <strong style="color:var(--tx)">this same HTML file</strong> on any device, enter your Master Key + Bin ID on first load, and all your data will be there.`
+          ? `Every change saves instantly on this device and syncs to JSONBin in batches (about every 30s, and whenever you close the tab) to conserve your free-tier requests. Hit <strong style="color:var(--tx)">Sync now</strong> to push immediately. Open <strong style="color:var(--tx)">this same HTML file</strong> on any device, enter your Master Key + Bin ID on first load, and all your data will be there.`
           : `Cloud sync is not set up. Data is saved to this browser only. <a href="javascript:location.reload()">Click here</a> to connect JSONBin.`}
       </p>
       ${cloudConnected ? `<div style="margin-top:10px;padding:8px 12px;border-radius:6px;background:var(--surf2);border:1px solid var(--brd);font-size:11px;color:var(--faint)">
@@ -3064,10 +3279,10 @@ function renderSync(el) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
       <div class="card" style="border-top:3px solid var(--green)">
         <div style="font-size:13px;font-weight:500;margin-bottom:6px;color:var(--tx)">↓ Export to Excel</div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Downloads your app data as <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">.csv</code> files. Open in Excel and paste into the matching sheet.</p>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Downloads color-coded <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">.xls</code> files — applications in <span style="color:var(--sky-blue)">blue</span>, networking in <span style="color:var(--jade)">green</span>. Opens straight into Excel.</p>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <button class="amber" onclick="exportApps()">↓ Export applications (${state.apps.length} rows)</button>
-          <button onclick="exportContacts()">↓ Export contacts (${state.contacts.length} rows)</button>
+          <button onclick="exportApps()" style="color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">↓ Export applications (${state.apps.length} rows)</button>
+          <button onclick="exportContacts()" style="color:var(--jade);border-color:var(--jade-border);background:var(--jade-pale)">↓ Export contacts (${state.contacts.length} rows)</button>
         </div>
         <div id="export-note" style="font-size:11px;color:var(--green);margin-top:10px;min-height:16px"></div>
       </div>
@@ -3121,13 +3336,13 @@ function renderSync(el) {
 }
 
 function exportApps() {
-  downloadCSV(appsToCSV(), `applications_export_${new Date().toISOString().slice(0,10)}.csv`);
-  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.apps.length} rows at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+  downloadXLS(appsToXLSHtml(), `applications_${new Date().toISOString().slice(0,10)}.xls`);
+  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.apps.length} applications (Excel) at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
 }
 
 function exportContacts() {
-  downloadCSV(contactsToCSV(), `contacts_export_${new Date().toISOString().slice(0,10)}.csv`);
-  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.contacts.length} contacts`;
+  downloadXLS(contactsToXLSHtml(), `contacts_${new Date().toISOString().slice(0,10)}.xls`);
+  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.contacts.length} contacts (Excel)`;
 }
 
 function doImportApps() {
