@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v20  (2026-06-01)                                                 ║
+║  CURRENT:  v20.1  (2026-06-01)                                               ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -281,7 +281,7 @@
   }
   #nav .portfolio-link:hover { background: var(--jade-pale); }
 
-  #nav .tabs { display: flex; gap: 1px; flex-wrap: nowrap; overflow: hidden; align-items: stretch; }
+  #nav .tabs { display: flex; gap: 1px; flex-wrap: nowrap; overflow: visible; align-items: stretch; min-width: 0; }
   #nav .tabs button {
     font-size: 11px; padding: 0 13px;
     background: transparent;
@@ -483,16 +483,18 @@
   /* ── v20: Mobile ──────────────────────────────────────────────── */
   @media (max-width: 640px) {
     /* Nav: stay one tidy row, let tabs scroll horizontally */
-    #nav { padding: 0 10px; gap: 8px; }
+    #nav { padding: 0 10px; gap: 6px; }
     #nav .brand-year { display: none; }
-    #nav .brand-name { font-size: 15px; }
+    #nav .brand-name { font-size: 14px; }
     #sync-status { display: none; }
+    #nav-version { display: none; }
+    #nav .portfolio-link { display: none; }
     #nav .tabs {
-      overflow-x: auto; overflow-y: hidden; min-width: 0;
+      overflow-x: auto; overflow-y: hidden; min-width: 0; flex: 1;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
     #nav .tabs::-webkit-scrollbar { display: none; }
-    #nav .tabs button { padding: 0 11px; }
+    #nav .tabs button { padding: 0 12px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
 
     /* Guest banner: stack so its buttons never overflow under the nav */
     #guest-banner {
@@ -613,8 +615,8 @@
     </div>
     <span class="brand-name" onclick="showTab('board')" style="cursor:pointer" title="Back to Job Search HQ">JobQuest</span><span class="brand-year">2026</span>
   </div>
-  <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;overflow:hidden;align-self:center">
-    <span id="nav-version" title="JobQuest version">v20</span>
+  <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;min-width:0;align-self:center">
+    <span id="nav-version" title="JobQuest version">v20.1</span>
     <span id="sync-status"></span>
     <div class="tabs">
       <button class="active" onclick="showTab('board')" id="tab-board">Board</button>
