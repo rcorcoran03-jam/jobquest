@@ -8,10 +8,16 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║  ACCESS.HTML VERSION MANIFEST                                                ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║  CURRENT:  v2  (2026-05-29)                                                  ║
+║  CURRENT:  v6  (2026-06-01)                                                  ║
 ║  Deployed: https://jobs.ryan-corcoran.com/access.html                        ║
 ║  Pairs with: index.html v19                                                  ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
+║  v3  2026-06-01                                                               ║
+║  + Gate panel fixed at 420px min-width (prevents desktop squish)            ║
+║  + Preview columns use minmax(180px,1fr) — never collapse below readable    ║
+║  + Guest + Unlock buttons: translucent opaque gold (matches portfolio        ║
+║    btn-jobquest "Launch" color scheme, was solid orange fill)               ║
+║                                                                              ║
 ║  v2  2026-05-29                                                               ║
 ║  + Unified 3-tier auth: owner / named guest / generic guest                 ║
 ║  + Sets jq_session in sessionStorage, redirects to index.html               ║
@@ -29,8 +35,8 @@
 ║  + Scroll-reveal animations                                                  ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
-<meta name="access-version" content="2">
-<meta name="access-date" content="2026-05-29">
+<meta name="access-version" content="3">
+<meta name="access-date" content="2026-06-01">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F1B2D'/%3E%3Cpolygon points='16,3 17.8,10.2 24.5,7.5 20.5,13.5 27.5,15.5 20.5,17.5 24.5,23.5 17.8,20.8 16,28 13.8,20.8 7.5,23.5 11.5,17.5 4.5,15.5 11.5,13.5 7.5,7.5 13.8,10.2' fill='%236BA3C8'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -95,9 +101,10 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);overflow-x:hid
 }
 @media(min-width:900px){
   .gate-panel {
-    width:400px;
+    width:420px;
+    min-width:420px;
     min-height:100vh;
-    padding:60px 40px;
+    padding:40px 40px;
     border-right:0.5px solid var(--border);
   }
 }
@@ -107,42 +114,57 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);overflow-x:hid
   background:var(--bg2);
   border:0.5px solid var(--border2);
   border-radius:16px;
-  padding:36px 32px 28px;
+  padding:22px 28px 18px;
   position:relative;
   animation:fadeUp .4s ease;
 }
-.gate::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--jade));border-radius:16px 16px 0 0;}
+.gate::before{
+  content:'';
+  position:absolute;
+  inset:-1px;
+  border-radius:17px;
+  background:linear-gradient(135deg,rgba(196,132,143,.75) 0%,rgba(255,255,255,.10) 45%,rgba(107,163,200,.65) 100%);
+  z-index:-1;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .35s ease;
+}
+.gate:hover::before{
+  opacity:1;
+}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 .shake{animation:shake .35s ease;}
 
-.gate-star{display:flex;justify-content:center;margin-bottom:18px;}
-.gate-eyebrow{text-align:center;font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.gate-star{display:flex;justify-content:center;margin-bottom:10px;}
+.gate-eyebrow{text-align:center;font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:10px;}
 .gate-eyebrow::before,.gate-eyebrow::after{content:'';display:inline-block;width:18px;height:1px;background:var(--rose);}
-.gate-title{font-family:var(--serif);font-size:26px;text-align:center;color:var(--tx);margin-bottom:4px;}
+.gate-title{font-family:var(--serif);font-size:24px;text-align:center;color:var(--tx);margin-bottom:3px;}
 .gate-title em{font-style:italic;color:var(--jade2);}
-.gate-sub{font-size:12px;color:var(--tx2);text-align:center;line-height:1.7;margin-bottom:24px;}
+.gate-sub{font-size:12px;color:var(--tx2);text-align:center;line-height:1.6;margin-bottom:16px;}
 
-.gate-input-wrap{position:relative;margin-bottom:8px;}
-.gate-input{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;color:var(--tx);font-family:var(--sans);font-size:15px;padding:12px 44px 12px 14px;outline:none;transition:border-color .2s;letter-spacing:.06em;}
+.gate-input-wrap{position:relative;margin-bottom:6px;}
+.gate-input{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;color:var(--tx);font-family:var(--sans);font-size:14px;padding:10px 44px 10px 14px;outline:none;transition:border-color .2s;letter-spacing:.06em;}
 .gate-input:focus{border-color:rgba(107,163,200,.4);}
 .gate-input.error{border-color:rgba(196,132,143,.6);}
 .gate-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx3);cursor:pointer;font-size:15px;padding:4px;}
-.gate-btn{width:100%;background:var(--gold);color:#fff;border:none;border-radius:8px;padding:12px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;letter-spacing:.04em;transition:background .2s;margin-top:4px;}
-.gate-btn:hover{background:#B8861A;}
-.gate-btn.guest{background:var(--gold);color:#1a1205;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:0;transition:background .2s,box-shadow .2s;}
-.gate-btn.guest:hover{background:var(--gold2);box-shadow:0 0 24px rgba(201,150,26,.3);}
+.gate-btn{width:100%;background:rgba(201,150,26,.18);color:var(--gold2);border:0.5px solid rgba(201,150,26,.45);border-radius:8px;padding:10px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;letter-spacing:.04em;transition:background .2s,box-shadow .2s,border-color .2s;margin-top:4px;position:relative;overflow:hidden;}
+.gate-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,150,26,.18) 0%,transparent 70%);pointer-events:none;}
+.gate-btn:hover{background:rgba(201,150,26,.28);border-color:rgba(201,150,26,.7);color:var(--gold2);box-shadow:0 0 18px rgba(201,150,26,.18);}
+.gate-btn.guest{background:rgba(201,150,26,.18);color:var(--gold2);border:0.5px solid rgba(201,150,26,.45);font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:0;transition:background .2s,box-shadow .2s,border-color .2s;position:relative;overflow:hidden;}
+.gate-btn.guest::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(201,150,26,.22) 0%,transparent 70%);pointer-events:none;}
+.gate-btn.guest:hover{background:rgba(201,150,26,.28);border-color:rgba(201,150,26,.7);color:var(--gold2);box-shadow:0 0 24px rgba(201,150,26,.22);}
 .gate-btn.guest .mn-star{transition:transform .5s ease;}
 .gate-btn.guest:hover .mn-star{transform:rotate(72deg);}
 .gate-btn.secondary{background:rgba(255,255,255,.05);color:var(--tx2);border:0.5px solid var(--border2);font-weight:400;font-size:13px;margin-top:8px;letter-spacing:.03em;}
 .gate-btn.secondary:hover{background:rgba(255,255,255,.09);color:var(--tx);}
-.gate-error{font-size:12px;color:var(--rose2);text-align:center;margin-top:6px;min-height:16px;}
-.gate-divider{border:none;border-top:0.5px solid var(--border);margin:18px 0;}
-.gate-hint{font-size:11px;color:var(--tx3);text-align:center;margin-top:14px;line-height:1.6;}
+.gate-error{font-size:12px;color:var(--rose2);text-align:center;margin-top:4px;min-height:14px;}
+.gate-divider{border:none;border-top:0.5px solid var(--border);margin:12px 0;}
+.gate-hint{font-size:11px;color:var(--tx3);text-align:center;margin-top:10px;line-height:1.6;}
 .gate-hint a{color:var(--rose2);text-decoration:none;cursor:pointer;}
 .gate-hint a:hover{text-decoration:underline;}
 
-.gate-footer{margin-top:24px;text-align:center;font-size:11px;color:var(--tx3);line-height:1.8;}
+.gate-footer{margin-top:16px;text-align:center;font-size:11px;color:var(--tx3);line-height:1.8;}
 .gate-footer a{color:var(--jade);text-decoration:none;}
 .gate-footer a:hover{text-decoration:underline;}
 
@@ -192,7 +214,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);overflow-x:hid
   .preview-cols{
     overflow-x:visible;
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(3,minmax(180px,1fr));
     gap:14px;
   }
 }
@@ -341,7 +363,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);overflow-x:hid
   <div class="gate-panel">
     <div class="gate" id="gate">
       <div class="gate-star">
-        <svg width="28" height="28" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
+        <svg width="22" height="22" viewBox="0 0 32 32"><polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#6BA3C8"/></svg>
       </div>
       <div class="gate-eyebrow">Ryan Corcoran · 2026</div>
       <div class="gate-title">Job<em>Quest</em></div>
