@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v20.1  (2026-06-01)                                               ║
+║  CURRENT:  v4.2  (2026-06-01)                                               ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,7 +16,7 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  v20  2026-06-01  SYNC QUOTA FIX + NETWORKING CRM + EXCEL EXPORT            ║
+║  v4.2  2026-06-01  SYNC QUOTA FIX + NETWORKING CRM + EXCEL EXPORT            ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + SYNC: cloud write debounce 1.5s → 30s (SYNC_DEBOUNCE_MS) to conserve     ║
 ║    JSONBin free-tier requests; flushCloudSave() on tab hide/close;          ║
@@ -118,7 +118,7 @@
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
-<meta name="jq-version" content="20">
+<meta name="jq-version" content="4.2">
 <meta name="jq-base" content="18">
 <meta name="jq-date" content="2026-05-29">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -527,7 +527,7 @@
 <body>
 
 <!-- ── v18: VERSION BADGE ──────────────────────────────────────────── -->
-<div id="version-badge">JobQuest v20</div>
+<div id="version-badge">JobQuest v4.2</div>
 
 <!-- ── v18: AUTH SCREEN ───────────────────────────────────────────── -->
 <div id="auth-screen">
@@ -616,7 +616,7 @@
     <span class="brand-name" onclick="showTab('board')" style="cursor:pointer" title="Back to Job Search HQ">JobQuest</span><span class="brand-year">2026</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;min-width:0;align-self:center">
-    <span id="nav-version" title="JobQuest version">v20.1</span>
+    <span id="nav-version" title="JobQuest version">v4.2</span>
     <span id="sync-status"></span>
     <div class="tabs">
       <button class="active" onclick="showTab('board')" id="tab-board">Board</button>
