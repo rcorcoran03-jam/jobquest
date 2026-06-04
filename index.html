@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v4.5  (2026-06-04)                                               ║
+║  CURRENT:  v4.6  (2026-06-04)                                               ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,6 +16,15 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
+║  v4.6  2026-06-04  GITHUB GIST SYNC + HQ NAV                               ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + SYNC: JSONBin replaced with GitHub Gist (free, no quota, transparent)   ║
+║  + SYNC: setup screen simplified to single PAT + Gist ID form              ║
+║  + SYNC: ghRead/ghWrite via api.github.com/gists PATCH; same debounce,     ║
+║    timestamp guard, flush-on-hide safety as v4.2                           ║
+║  + NAV: "Board" tab renamed to "HQ"                                        ║
+║  Based on: v4.5                                                             ║
+║                                                                             ║
 ║  v4.5  2026-06-04  SYNC FAIL BADGE + GUESTS → SYNC + NETWORK HEAT MAP      ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + SYNC: sync-fail status in navbar replaced with clickable amber badge     ║
@@ -663,7 +672,7 @@
     <span id="nav-version" title="JobQuest version">v4.5</span>
     <span id="sync-status"></span>
     <div class="tabs">
-      <button class="active" onclick="showTab('board')" id="tab-board">Board</button>
+      <button class="active" onclick="showTab('board')" id="tab-board">HQ</button>
       <button onclick="showTab('tracker')" id="tab-tracker">Applications</button>
       <button onclick="showTab('pomodoro')" id="tab-pomodoro">Focus</button>
       <button onclick="showTab('network')" id="tab-network">Network</button>
@@ -967,13 +976,13 @@ const DEFAULT_CONTACTS = [
 let state = {
   tab: 'board',
   // Cloud credentials (persisted to localStorage — device-only, not synced)
-  jbKey:  localStorage.getItem('jb_key')  || '',
-  jbBin:  localStorage.getItem('jb_bin')  || '',
+  ghToken:  localStorage.getItem('gh_token')  || '',
+  ghGistId: localStorage.getItem('gh_gist_id') || '',
   adzunaId:  localStorage.getItem('adzuna_id')  || '',
   adzunaKey: localStorage.getItem('adzuna_key') || '',
   // Cloud sync status
   cloudLoading: false, cloudStatus: '', cloudError: '',
-  // App data (loaded from JSONBin on startup, falls back to defaults)
+  // App data (loaded from GitHub Gist on startup, falls back to defaults)
   apps: DEFAULT_APPS,
   contacts: DEFAULT_CONTACTS,
   // Ephemeral UI state
@@ -1031,10 +1040,10 @@ const SYNC_DEBOUNCE_MS = 30000;
 
 // Flush any pending cloud write right now (used on tab hide / manual "Sync now")
 async function flushCloudSave() {
-  if (!cloudDirty || !state.jbKey || !state.jbBin || isGuest()) return;
+  if (!cloudDirty || !state.ghToken || !state.ghGistId || isGuest()) return;
   clearTimeout(saveTimer); saveTimer = null;
   try {
-    await jbWrite();
+    await ghWrite();
     cloudDirty = false;
     setSyncStatus('✓ synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), false);
   } catch(e) {
@@ -1042,46 +1051,41 @@ async function flushCloudSave() {
   }
 }
 
-// ── JSONBIN CLOUD SYNC ────────────────────────────────────────────────────────
+// ── GITHUB GIST CLOUD SYNC ───────────────────────────────────────────────────
 
-const JB_URL = 'https://api.jsonbin.io/v3/b';
+const GIST_FILE = 'jobquest.json';
+const GIST_API  = 'https://api.github.com/gists';
 
-function jbHeaders(extra={}) {
-  return { 'Content-Type': 'application/json', 'X-Master-Key': state.jbKey, ...extra };
+function ghHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `token ${state.ghToken}`,
+    'Accept': 'application/vnd.github+json'
+  };
 }
 
-// Create a new bin — called once during first-time setup
-async function jbCreate() {
-  const payload = { apps: state.apps, contacts: state.contacts, version: 1 };
-  const resp = await fetch(JB_URL, {
-    method: 'POST',
-    headers: { ...jbHeaders(), 'X-Bin-Name': 'ryans-hunt-2026', 'X-Bin-Private': 'true' },
-    body: JSON.stringify(payload)
-  });
-  if (!resp.ok) { const e = await resp.text(); throw new Error(`Create failed ${resp.status}: ${e.slice(0,200)}`); }
-  const data = await resp.json();
-  return data.metadata.id;
-}
-
-// Read latest data from bin
-async function jbRead() {
-  const resp = await fetch(`${JB_URL}/${state.jbBin}/latest`, {
-    headers: jbHeaders({ 'X-Bin-Meta': 'false' })
-  });
+// Read latest data from Gist
+async function ghRead() {
+  const resp = await fetch(`${GIST_API}/${state.ghGistId}`, { headers: ghHeaders() });
   if (!resp.ok) throw new Error(`Read failed ${resp.status}`);
-  return resp.json(); // returns the record directly when X-Bin-Meta: false
+  const gist = await resp.json();
+  const raw = gist.files?.[GIST_FILE]?.content;
+  if (!raw) throw new Error(`File "${GIST_FILE}" not found in Gist`);
+  return JSON.parse(raw);
 }
 
-// Write current apps+contacts+tasks+referrals to bin (debounced)
-async function jbWrite() {
-  if (!state.jbKey || !state.jbBin) return;
+// Write current apps+contacts+tasks+referrals to Gist (debounced)
+async function ghWrite() {
+  if (!state.ghToken || !state.ghGistId) return;
   const payload = {
     apps: state.apps, contacts: state.contacts,
     tasks: state.tasks, referrals: state.referrals,
     version: 2, updatedAt: new Date().toISOString()
   };
-  const resp = await fetch(`${JB_URL}/${state.jbBin}`, {
-    method: 'PUT', headers: jbHeaders(), body: JSON.stringify(payload)
+  const resp = await fetch(`${GIST_API}/${state.ghGistId}`, {
+    method: 'PATCH',
+    headers: ghHeaders(),
+    body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(payload) } } })
   });
   if (!resp.ok) throw new Error(`Write failed ${resp.status}`);
 }
@@ -1090,8 +1094,8 @@ async function jbWrite() {
 
 // Always save credentials to localStorage (device-level, intentionally local)
 function saveCredentials() {
-  if (state.jbKey)     localStorage.setItem('jb_key',      state.jbKey);
-  if (state.jbBin)     localStorage.setItem('jb_bin',      state.jbBin);
+  if (state.ghToken)  localStorage.setItem('gh_token',   state.ghToken);
+  if (state.ghGistId) localStorage.setItem('gh_gist_id', state.ghGistId);
   if (state.adzunaId)  localStorage.setItem('adzuna_id',   state.adzunaId);
   if (state.adzunaKey) localStorage.setItem('adzuna_key',  state.adzunaKey);
 }
@@ -1108,7 +1112,7 @@ function save() {
   localStorage.setItem('apps_backup', JSON.stringify(state.apps));
   localStorage.setItem('contacts_backup', JSON.stringify(state.contacts));
   localStorage.setItem('backup_updatedAt', new Date().toISOString());
-  if (!state.jbKey || !state.jbBin) {
+  if (!state.ghToken || !state.ghGistId) {
     return;
   }
   clearTimeout(saveTimer);
@@ -1116,7 +1120,7 @@ function save() {
   saveTimer = setTimeout(async () => {
     setSyncStatus('saving…', false);
     try {
-      await jbWrite();
+      await ghWrite();
       cloudDirty = false;
       setSyncStatus('✓ synced ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), false);
     } catch(e) {
@@ -1155,9 +1159,9 @@ function setSyncStatus(msg, isError) {
   }
 }
 
-// Load data from JSONBin on startup
+// Load data from GitHub Gist on startup
 async function loadFromCloud() {
-  if (!state.jbKey || !state.jbBin) {
+  if (!state.ghToken || !state.ghGistId) {
     // No cloud configured — try localStorage backup
     const appsBackup = localStorage.getItem('apps_backup');
     const contactsBackup = localStorage.getItem('contacts_backup');
@@ -1166,7 +1170,7 @@ async function loadFromCloud() {
     return;
   }
   try {
-    const data = await jbRead();
+    const data = await ghRead();
     // Guard against stale-cloud clobber: if local was saved more recently than
     // the cloud copy (e.g. writes were failing so cloud fell behind), keep local.
     const localTs = localStorage.getItem('backup_updatedAt');
@@ -3295,9 +3299,9 @@ function importContactsCSV(text) {
 }
 
 function renderSync(el) {
-  const cloudConnected = state.jbKey && state.jbBin;
+  const cloudConnected = state.ghToken && state.ghGistId;
   const cloudBadge = cloudConnected
-    ? `${badge('cloud connected', 'green')} <span style="font-size:11px;color:var(--faint)">bin: ${state.jbBin.slice(0,8)}…</span>`
+    ? `${badge('cloud connected', 'green')} <span style="font-size:11px;color:var(--faint)">gist: ${state.ghGistId.slice(0,8)}…</span>`
     : badge('local only', 'red');
 
   const storedKey = localStorage.getItem('anthropic_api_key') || '';
@@ -3329,11 +3333,11 @@ function renderSync(el) {
       </div>
       <p style="font-size:12px;color:var(--muted);line-height:1.6">
         ${cloudConnected
-          ? `Every change saves instantly on this device and syncs to JSONBin in batches (about every 30s, and whenever you close the tab) to conserve your free-tier requests. Hit <strong style="color:var(--tx)">Sync now</strong> to push immediately. Open <strong style="color:var(--tx)">this same HTML file</strong> on any device, enter your Master Key + Bin ID on first load, and all your data will be there.`
-          : `Cloud sync is not set up. Data is saved to this browser only. <a href="javascript:location.reload()">Click here</a> to connect JSONBin.`}
+          ? `Every change saves instantly on this device and syncs to GitHub Gist in batches (about every 30s, and whenever you close the tab). Hit <strong style="color:var(--tx)">Sync now</strong> to push immediately. Open this app on any device, enter your PAT + Gist ID on first load, and all your data will be there.`
+          : `Cloud sync is not set up. Data is saved to this browser only. <a href="javascript:location.reload()">Click here</a> to connect GitHub Gist.`}
       </p>
       ${cloudConnected ? `<div style="margin-top:10px;padding:8px 12px;border-radius:6px;background:var(--surf2);border:1px solid var(--brd);font-size:11px;color:var(--faint)">
-        <strong style="color:var(--muted)">To open on another device:</strong> download this HTML file, open it in a browser, and when prompted enter your JSONBin Master Key and Bin ID <code style="font-size:10px">${esc(state.jbBin)}</code>
+        <strong style="color:var(--muted)">To open on another device:</strong> open this app in a browser, enter your GitHub PAT and Gist ID <code style="font-size:10px">${esc(state.ghGistId)}</code> when prompted.
       </div>` : ''}
     </div>
 
@@ -3455,31 +3459,27 @@ function renderCloudSetup(el) {
       <div class="sec-head"><h1>Connect cloud sync</h1><div class="bar"></div></div>
       <div class="card" style="margin-bottom:14px">
         <p style="color:var(--muted);line-height:1.7;margin-bottom:16px">
-          To access your data on <strong style="color:var(--tx)">any device</strong> — phone, laptop, work computer — you need a free JSONBin account. It's a tiny cloud database that stores your apps and contacts. Takes 3 minutes, no credit card.
+          JobQuest syncs to a private <strong style="color:var(--tx)">GitHub Gist</strong> — a free, simple cloud store. You need a GitHub account and two things: a Personal Access Token (PAT) and a Gist ID. Takes about 3 minutes.
         </p>
         <ol style="color:var(--muted);line-height:2.4;padding-left:1.2rem">
-          <li>Go to <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → <strong style="color:var(--tx)">Sign Up Free</strong></li>
-          <li>After logging in, click <strong style="color:var(--tx)">API Keys</strong> in the left sidebar</li>
-          <li>Copy your <strong style="color:var(--tx)">Master Key</strong> (starts with <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">$2b$</code>)</li>
-          <li>Paste it below and click <strong style="color:var(--tx)">Create my data bin</strong></li>
+          <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--blue)">github.com/settings/tokens/new</a> — create a token with <strong style="color:var(--tx)">Gist</strong> scope only. Copy it.</li>
+          <li>Go to <a href="https://gist.github.com" target="_blank" style="color:var(--blue)">gist.github.com</a> — create a new <strong style="color:var(--tx)">secret</strong> Gist. Filename: <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">jobquest.json</code>, content: <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">{}</code>. Copy the Gist ID from the URL.</li>
+          <li>Paste both below and click <strong style="color:var(--tx)">Connect →</strong></li>
         </ol>
       </div>
       <div class="card">
         <div style="margin-bottom:12px">
-          ${lbl('JSONBin Master Key')}
-          ${inp('setup-jb-key', '', '$2b$10$...')}
-          <p style="font-size:11px;color:var(--faint);margin-top:5px">Stored in your browser only. Never transmitted anywhere except jsonbin.io.</p>
+          ${lbl('GitHub Personal Access Token')}
+          ${inp('setup-gh-token', '', 'ghp_...')}
+          <p style="font-size:11px;color:var(--faint);margin-top:5px">Stored in your browser only. Never transmitted anywhere except api.github.com.</p>
+        </div>
+        <div style="margin-bottom:16px">
+          ${lbl('Gist ID')}
+          ${inp('setup-gh-gist', '', 'e.g. a1b2c3d4e5f6...')}
+          <p style="font-size:11px;color:var(--faint);margin-top:5px">The long hex string in your Gist URL: gist.github.com/username/<strong>this-part</strong></p>
         </div>
         <div id="setup-error" style="font-size:12px;color:var(--red);min-height:16px;margin-bottom:8px"></div>
-        <button id="setup-btn" class="amber full" onclick="doCloudSetup()">Create my data bin →</button>
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">
-          <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Already have a Bin ID from a previous setup?</p>
-          <div style="display:flex;gap:8px">
-            ${inp('setup-existing-key', '', 'Master Key')}
-            ${inp('setup-existing-bin', '', 'Bin ID (e.g. 6634...)')}
-            <button onclick="doExistingSetup()" style="white-space:nowrap;flex-shrink:0">Connect →</button>
-          </div>
-        </div>
+        <button id="setup-btn" class="amber full" onclick="doCloudSetup()">Connect →</button>
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--brd)">
           <button class="ghost" onclick="skipCloudSetup()" style="font-size:11px;width:100%">Skip for now — use this device only</button>
         </div>
@@ -3488,40 +3488,29 @@ function renderCloudSetup(el) {
 }
 
 async function doCloudSetup() {
-  const key = document.getElementById('setup-jb-key').value.trim();
-  if (!key) { document.getElementById('setup-error').textContent = 'Please enter your Master Key.'; return; }
+  const token = document.getElementById('setup-gh-token').value.trim();
+  const gistId = document.getElementById('setup-gh-gist').value.trim();
+  const errEl = document.getElementById('setup-error');
+  if (!token) { errEl.textContent = 'Please enter your GitHub PAT.'; return; }
+  if (!gistId) { errEl.textContent = 'Please enter your Gist ID.'; return; }
   const btn = document.getElementById('setup-btn');
-  btn.disabled = true; btn.textContent = 'Creating bin…';
-  state.jbKey = key;
+  btn.disabled = true; btn.textContent = 'Connecting…';
+  state.ghToken = token; state.ghGistId = gistId;
   try {
-    const binId = await jbCreate();
-    state.jbBin = binId;
-    saveCredentials();
-    document.getElementById('setup-error').textContent = '';
-    showTab('board');
-    setSyncStatus('✓ cloud connected · bin ' + binId.slice(0,8) + '…', false);
-  } catch(e) {
-    state.jbKey = '';
-    document.getElementById('setup-error').textContent = 'Error: ' + e.message;
-    btn.disabled = false; btn.textContent = 'Create my data bin →';
-  }
-}
-
-async function doExistingSetup() {
-  const key = document.getElementById('setup-existing-key').value.trim();
-  const bin = document.getElementById('setup-existing-bin').value.trim();
-  if (!key || !bin) { document.getElementById('setup-error').textContent = 'Enter both Master Key and Bin ID.'; return; }
-  state.jbKey = key; state.jbBin = bin;
-  try {
-    const data = await jbRead();
-    if (data.apps) state.apps = data.apps;
+    // Verify by reading the Gist — also loads any existing data
+    const data = await ghRead();
+    if (data.apps)    state.apps    = data.apps;
     if (data.contacts) state.contacts = data.contacts;
     saveCredentials();
+    errEl.textContent = '';
     showTab('board');
-    setSyncStatus('✓ reconnected · ' + state.apps.length + ' apps loaded', false);
+    setSyncStatus('✓ cloud connected · gist ' + gistId.slice(0,8) + '…', false);
+    // Push local data up immediately
+    save();
   } catch(e) {
-    state.jbKey = ''; state.jbBin = '';
-    document.getElementById('setup-error').textContent = 'Could not connect: ' + e.message;
+    state.ghToken = ''; state.ghGistId = '';
+    errEl.textContent = 'Could not connect: ' + e.message;
+    btn.disabled = false; btn.textContent = 'Connect →';
   }
 }
 
@@ -3532,8 +3521,8 @@ function skipCloudSetup() {
 
 function disconnectCloud() {
   if (!confirm('Disconnect cloud sync? Your data stays on this device but won\'t sync to other devices.')) return;
-  state.jbKey = ''; state.jbBin = '';
-  localStorage.removeItem('jb_key'); localStorage.removeItem('jb_bin');
+  state.ghToken = ''; state.ghGistId = '';
+  localStorage.removeItem('gh_token'); localStorage.removeItem('gh_gist_id');
   localStorage.removeItem('cloud_skipped');
   location.reload();
 }
@@ -3543,7 +3532,7 @@ function disconnectCloud() {
 // ── v18: APP INIT (called after auth) ────────────────────────────────────────
 
 async function initApp() {
-  const hasCloud = state.jbKey && state.jbBin;
+  const hasCloud = state.ghToken && state.ghGistId;
   const skipped  = localStorage.getItem('cloud_skipped');
 
   // Only owner gets cloud setup prompt on first run
