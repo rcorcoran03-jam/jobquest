@@ -156,6 +156,7 @@
 <meta name="jq-date" content="2026-05-29">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JobQuest — Job Search OS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23E8F1F8'/%3E%3Cpolygon points='16,3 17.8,10.2 24.5,7.5 20.5,13.5 27.5,15.5 20.5,17.5 24.5,23.5 17.8,20.8 16,28 14.2,20.8 7.5,23.5 11.5,17.5 4.5,15.5 11.5,13.5 7.5,7.5 14.2,10.2' fill='%231C3347'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Avenir+Next:wght@400;500;600&display=swap" rel="stylesheet">
@@ -3161,23 +3162,224 @@ function downloadCSV(content, filename) {
   URL.revokeObjectURL(url);
 }
 
-// v20: styled Excel export — Excel opens an HTML table and honors inline cell
-// styling, so we colour the header row to match the app's language (apps = blue,
-// networking = green) with no external library. Cells are forced to text format
-// so salary ranges / dates / leading zeros aren't mangled on open.
+// ── XLSX EXPORT (SheetJS) ────────────────────────────────────────────────────
+// Produces a real .xlsx file with:
+//   Sheet 1 — data table, frozen header, auto-filter, color header, zebra rows
+//   Sheet 2 — summary stats (pipeline breakdown, top companies, activity)
+
+function hexToArgb(hex) {
+  return 'FF' + hex.replace('#','').toUpperCase();
+}
+
+function applyHeaderStyle(ws, numCols, headerArgb) {
+  for (let c = 0; c < numCols; c++) {
+    const addr = XLSX.utils.encode_cell({r:0, c});
+    if (!ws[addr]) continue;
+    ws[addr].s = {
+      fill:  { patternType:'solid', fgColor:{ rgb: headerArgb } },
+      font:  { bold:true, color:{ rgb:'FFFFFFFF' }, name:'Calibri', sz:11 },
+      alignment: { vertical:'center', wrapText:false },
+      border: {
+        bottom:{ style:'medium', color:{ rgb:'FFAAAAAA' } },
+        right: { style:'thin',   color:{ rgb:'FF888888' } }
+      }
+    };
+  }
+}
+
+function applyZebraStyle(ws, numRows, numCols, zebraArgb) {
+  for (let r = 1; r <= numRows; r++) {
+    const isZebra = r % 2 === 0;
+    for (let c = 0; c < numCols; c++) {
+      const addr = XLSX.utils.encode_cell({r, c});
+      if (!ws[addr]) { ws[addr] = {t:'s', v:''}; }
+      ws[addr].s = {
+        fill: isZebra
+          ? { patternType:'solid', fgColor:{ rgb: zebraArgb } }
+          : { patternType:'none' },
+        font: { name:'Calibri', sz:10 },
+        alignment: { vertical:'center', wrapText:false },
+        border: {
+          right:  { style:'hair', color:{ rgb:'FFDDDDDD' } },
+          bottom: { style:'hair', color:{ rgb:'FFDDDDDD' } }
+        }
+      };
+    }
+  }
+}
+
+function setColWidths(ws, cols) {
+  ws['!cols'] = cols.map(c => ({ wch: Math.min(Math.max(c.length + 4, 10), 36) }));
+}
+
+// Truncate long text values so notes/gaps fields don't blow out row heights
+const CELL_MAX_CHARS = 120;
+function truncateRow(row) {
+  return row.map(v => {
+    const s = String(v == null ? '' : v);
+    return s.length > CELL_MAX_CHARS ? s.slice(0, CELL_MAX_CHARS) + '…' : s;
+  });
+}
+
+function buildDataSheet(cols, rows, headerHex, zebraHex) {
+  const aoa = [cols, ...rows.map(truncateRow)];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  // Freeze top row
+  ws['!freeze'] = { xSplit:0, ySplit:1, topLeftCell:'A2', activePane:'bottomLeft', state:'frozen' };
+  // Auto-filter across all columns
+  ws['!autofilter'] = { ref: XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:rows.length, c:cols.length-1}}) };
+  setColWidths(ws, cols);
+  // Fix row heights — header taller, data rows capped at ~3 lines (~45pt)
+  ws['!rows'] = [
+    { hpt: 20, hpx: 20 }, // header row
+    ...rows.map(() => ({ hpt: 45, hpx: 45 })) // data rows — ~3 lines max
+  ];
+  applyHeaderStyle(ws, cols.length, hexToArgb(headerHex));
+  applyZebraStyle(ws, rows.length, cols.length, hexToArgb(zebraHex));
+  return ws;
+}
+
+function buildAppsSummarySheet() {
+  // Stage breakdown
+  const stageCounts = {};
+  state.apps.forEach(a => {
+    const s = a.stage || 'Unknown';
+    stageCounts[s] = (stageCounts[s] || 0) + 1;
+  });
+  // Priority breakdown
+  const priCounts = {};
+  state.apps.forEach(a => {
+    const p = a.priority || 'Unknown';
+    priCounts[p] = (priCounts[p] || 0) + 1;
+  });
+  // Top companies by fit score
+  const topFit = [...state.apps]
+    .filter(a => a.fit)
+    .sort((a,b) => (Number(b.fit)||0) - (Number(a.fit)||0))
+    .slice(0,10)
+    .map(a => [a.company, a.role, a.fit, a.stage]);
+
+  const rows = [
+    ['JobQuest — Applications Summary', '', '', ''],
+    ['Generated', new Date().toLocaleDateString(), '', ''],
+    ['Total Applications', state.apps.length, '', ''],
+    ['', '', '', ''],
+    ['── Pipeline by Stage ──', '', '', ''],
+    ['Stage', 'Count', '', ''],
+    ...Object.entries(stageCounts).sort((a,b)=>b[1]-a[1]).map(([s,n])=>[s,n,'','']),
+    ['', '', '', ''],
+    ['── Priority Breakdown ──', '', '', ''],
+    ['Priority', 'Count', '', ''],
+    ...Object.entries(priCounts).sort((a,b)=>b[1]-a[1]).map(([p,n])=>[p,n,'','']),
+    ['', '', '', ''],
+    ['── Top 10 by Fit Score ──', '', '', ''],
+    ['Company', 'Role', 'Fit Score', 'Stage'],
+    ...topFit,
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:30},{wch:16},{wch:16},{wch:20}];
+
+  // Style the section headers
+  const sectionRows = [0,4,8,12];
+  sectionRows.forEach(r => {
+    const addr = XLSX.utils.encode_cell({r, c:0});
+    if (ws[addr]) ws[addr].s = {
+      font:{ bold:true, color:{ rgb:'FF1C3A50' }, sz:12 },
+      fill:{ patternType:'solid', fgColor:{ rgb:'FFEAF2F8' } }
+    };
+  });
+  // Style sub-headers
+  [[5,0],[5,1],[9,0],[9,1],[13,0],[13,1],[13,2],[13,3]].forEach(([r,c]) => {
+    const addr = XLSX.utils.encode_cell({r, c});
+    if (ws[addr]) ws[addr].s = {
+      font:{ bold:true, color:{ rgb:'FFFFFFFF' }, sz:10 },
+      fill:{ patternType:'solid', fgColor:{ rgb:'FF1C3A50' } }
+    };
+  });
+  return ws;
+}
+
+function buildContactsSummarySheet() {
+  const relCounts = {};
+  state.contacts.forEach(c => {
+    const r = c.rel || 'Unknown';
+    relCounts[r] = (relCounts[r] || 0) + 1;
+  });
+  const statusCounts = {};
+  state.contacts.forEach(c => {
+    const s = c.status || 'Unknown';
+    statusCounts[s] = (statusCounts[s] || 0) + 1;
+  });
+  // Overdue nudges
+  const today = new Date().toISOString().slice(0,10);
+  const overdue = state.contacts.filter(c => c.next && c.next < today);
+
+  const rows = [
+    ['JobQuest — Contacts Summary', '', ''],
+    ['Generated', new Date().toLocaleDateString(), ''],
+    ['Total Contacts', state.contacts.length, ''],
+    ['', '', ''],
+    ['── Relationship Breakdown ──', '', ''],
+    ['Relationship', 'Count', ''],
+    ...Object.entries(relCounts).sort((a,b)=>b[1]-a[1]).map(([r,n])=>[r,n,'']),
+    ['', '', ''],
+    ['── Status Breakdown ──', '', ''],
+    ['Status', 'Count', ''],
+    ...Object.entries(statusCounts).sort((a,b)=>b[1]-a[1]).map(([s,n])=>[s,n,'']),
+    ['', '', ''],
+    ['── Overdue Nudges ──', '', ''],
+    ['Name', 'Company', 'Next Touch Due'],
+    ...overdue.map(c => [c.name, c.company, c.next]),
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:28},{wch:16},{wch:18}];
+
+  const sectionRows = [0,4,8,12];
+  sectionRows.forEach(r => {
+    const addr = XLSX.utils.encode_cell({r, c:0});
+    if (ws[addr]) ws[addr].s = {
+      font:{ bold:true, color:{ rgb:'FF1F5A3A' }, sz:12 },
+      fill:{ patternType:'solid', fgColor:{ rgb:'FFE9F6EE' } }
+    };
+  });
+  [[5,0],[5,1],[9,0],[9,1],[13,0],[13,1],[13,2]].forEach(([r,c]) => {
+    const addr = XLSX.utils.encode_cell({r, c});
+    if (ws[addr]) ws[addr].s = {
+      font:{ bold:true, color:{ rgb:'FFFFFFFF' }, sz:10 },
+      fill:{ patternType:'solid', fgColor:{ rgb:'FF1F5A3A' } }
+    };
+  });
+  return ws;
+}
+
+function exportAppsXLSX() {
+  const wb = XLSX.utils.book_new();
+  const dataRows = state.apps.map(a => APP_KEYS.map(k => a[k]||''));
+  const wsData = buildDataSheet(APP_COLS, dataRows, '#1C3A50', '#EAF2F8');
+  const wsSummary = buildAppsSummarySheet();
+  XLSX.utils.book_append_sheet(wb, wsData,    'Applications');
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+  XLSX.writeFile(wb, `applications_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function exportContactsXLSX() {
+  const wb = XLSX.utils.book_new();
+  const dataRows = state.contacts.map(c => NET_KEYS.map(k => c[k]||''));
+  const wsData = buildDataSheet(NET_COLS, dataRows, '#1F5A3A', '#E9F6EE');
+  const wsSummary = buildContactsSummarySheet();
+  XLSX.utils.book_append_sheet(wb, wsData,    'Contacts');
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+  XLSX.writeFile(wb, `contacts_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// Legacy HTML-table XLS (kept for fallback only — not exposed in UI)
 function tableToXLSHtml(cols, rows, headerBg, zebraBg) {
   const e = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const thead = `<tr>${cols.map(c=>`<th style="background:${headerBg};color:#FFFFFF;border:1px solid #8A8A8A;padding:6px 10px;font-family:Calibri,Arial,sans-serif;font-size:11pt;text-align:left;font-weight:bold">${e(c)}</th>`).join('')}</tr>`;
   const tbody = rows.map((r,ri)=>`<tr>${r.map(cell=>`<td style="background:${ri%2?zebraBg:'#FFFFFF'};border:1px solid #DDDDDD;padding:5px 10px;font-family:Calibri,Arial,sans-serif;font-size:10pt;mso-number-format:'\\@'">${e(cell)}</td>`).join('')}</tr>`).join('');
   return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body><table border="1">${thead}${tbody}</table></body></html>`;
-}
-function appsToXLSHtml() {
-  const rows = state.apps.map(a => APP_KEYS.map(k => a[k]||''));
-  return tableToXLSHtml(APP_COLS, rows, '#1C3A50', '#EAF2F8'); // blue — matches Applications
-}
-function contactsToXLSHtml() {
-  const rows = state.contacts.map(c => NET_KEYS.map(k => c[k]||''));
-  return tableToXLSHtml(NET_COLS, rows, '#1F5A3A', '#E9F6EE'); // green — matches Networking
 }
 function downloadXLS(html, filename) {
   const blob = new Blob(['\ufeff', html], {type:'application/vnd.ms-excel;charset=utf-8;'});
@@ -3477,7 +3679,6 @@ function renderSync(el) {
 function exportApps(fmt) {
   const note = document.getElementById('export-note');
   const date = new Date().toISOString().slice(0,10);
-  const m = document.getElementById('exp-apps-menu'); if (m) m.style.display = 'none';
   if (fmt === 'csv') {
     const csv = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
       [APP_KEYS.join(','), ...state.apps.map(a => APP_KEYS.map(k => csvEscape(a[k]||'')).join(','))].join('\n')
@@ -3486,15 +3687,14 @@ function exportApps(fmt) {
     a.click();
     if (note) note.textContent = `✓ Downloaded ${state.apps.length} applications (CSV)`;
   } else {
-    downloadXLS(appsToXLSHtml(), `applications_${date}.xls`);
-    if (note) note.textContent = `✓ Downloaded ${state.apps.length} applications (Excel) at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+    exportAppsXLSX();
+    if (note) note.textContent = `✓ Downloaded ${state.apps.length} applications (XLSX) at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
   }
 }
 
 function exportContacts(fmt) {
   const note = document.getElementById('export-note');
   const date = new Date().toISOString().slice(0,10);
-  const m = document.getElementById('exp-contacts-menu'); if (m) m.style.display = 'none';
   if (fmt === 'csv') {
     const csv = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
       [NET_KEYS.join(','), ...state.contacts.map(c => NET_KEYS.map(k => csvEscape(c[k]||'')).join(','))].join('\n')
@@ -3503,8 +3703,8 @@ function exportContacts(fmt) {
     a.click();
     if (note) note.textContent = `✓ Downloaded ${state.contacts.length} contacts (CSV)`;
   } else {
-    downloadXLS(contactsToXLSHtml(), `contacts_${date}.xls`);
-    if (note) note.textContent = `✓ Downloaded ${state.contacts.length} contacts (Excel)`;
+    exportContactsXLSX();
+    if (note) note.textContent = `✓ Downloaded ${state.contacts.length} contacts (XLSX)`;
   }
 }
 
