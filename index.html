@@ -151,7 +151,7 @@
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
-<meta name="jq-version" content="4.3">
+<meta name="jq-version" content="4.6">
 <meta name="jq-base" content="18">
 <meta name="jq-date" content="2026-05-29">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -585,7 +585,7 @@
 <body>
 
 <!-- ── v18: VERSION BADGE ──────────────────────────────────────────── -->
-<div id="version-badge">JobQuest v4.3</div>
+<div id="version-badge">JobQuest v<span id="footer-version"></span></div>
 
 <!-- ── v18: AUTH SCREEN ───────────────────────────────────────────── -->
 <div id="auth-screen">
@@ -673,7 +673,7 @@
     <span class="brand-name" onclick="showTab('board')" style="cursor:pointer" title="Back to Job Search HQ">JobQuest</span><span class="brand-year">2026</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;min-width:0;align-self:center">
-    <span id="nav-version" title="JobQuest version">v4.5</span>
+    <span id="nav-version" title="JobQuest version">v<span id="nav-version-val"></span></span>
     <span id="sync-status"></span>
     <div class="tabs">
       <button class="active" onclick="showTab('board')" id="tab-board">HQ</button>
@@ -974,6 +974,9 @@ const DEFAULT_CONTACTS = [
   {id:4,name:'Clare MesserSchmidt',company:'Oasis Health Partners',role:'Recruiter',rel:'Warm',last:'2026-04-26',next:'2026-05-30',notes:'Warm recruiter connection. Phone screen scheduled.',lastActivityType:'call'},
   {id:5,name:'Dave M.',company:'Reema Health / Gravie',role:'Network',rel:'Warm',last:'2026-04-10',next:'2026-05-20',notes:'Connected to multiple target companies. Minneapolis.',lastActivityType:'message'},
 ];
+
+// ── VERSION ───────────────────────────────────────────────────────────────────
+const APP_VERSION = '4.6';
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 
@@ -3346,63 +3349,115 @@ function renderSync(el) {
     </div>
 
     <p style="color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:20px">
-      Two-way bridge between this app and your <strong style="color:var(--tx)">job_tracker.xlsx</strong>. Export to bring Excel up to date; import to load Excel data back in.
+      Export as XLSX (color-coded, opens straight in Excel) or CSV. Import a CSV to load data back in — applications and contacts each have their own column.
     </p>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-      <div class="card" style="border-top:3px solid var(--green)">
-        <div style="font-size:13px;font-weight:500;margin-bottom:6px;color:var(--tx)">↓ Export to Excel</div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Downloads color-coded <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">.xls</code> files — applications in <span style="color:var(--sky-blue)">blue</span>, networking in <span style="color:var(--jade)">green</span>. Opens straight into Excel.</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <button onclick="exportApps()" style="color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">↓ Export applications (${state.apps.length} rows)</button>
-          <button onclick="exportContacts()" style="color:var(--jade);border-color:var(--jade-border);background:var(--jade-pale)">↓ Export contacts (${state.contacts.length} rows)</button>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px">
+
+      <!-- TOP-LEFT: Export Applications -->
+      <div class="card" style="border:1px solid var(--sky-blue-mid);background:linear-gradient(135deg,var(--sky-blue-pale) 0%,transparent 60%);display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--sky-blue-pale);border:1px solid var(--sky-blue-mid);display:flex;align-items:center;justify-content:center;font-size:15px">📋</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--tx)">Applications</div>
+            <div style="font-size:10px;color:var(--faint)">${state.apps.length} rows</div>
+          </div>
+          <div style="margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--sky-blue)">Export ↓</div>
         </div>
-        <div id="export-note" style="font-size:11px;color:var(--green);margin-top:10px;min-height:16px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="exportApps('xlsx')" style="background:var(--sky-blue-pale);color:var(--sky-blue);border:1px solid var(--sky-blue-mid);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer">
+            <span style="font-size:16px">📊</span><span>XLSX</span>
+          </button>
+          <button onclick="exportApps('csv')" style="background:transparent;color:var(--sky-blue);border:1px solid var(--sky-blue-mid);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer">
+            <span style="font-size:16px">📄</span><span>CSV</span>
+          </button>
+        </div>
       </div>
 
-      <div class="card" style="border-top:3px solid var(--amber)">
-        <div style="font-size:13px;font-weight:500;margin-bottom:6px;color:var(--tx)">↑ Import from Excel</div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Save the Excel sheet as <code style="background:var(--cream-dark);padding:1px 5px;border-radius:3px;font-size:11px">.csv</code> (File → Save As → CSV), then drop it here.</p>
-        <div style="display:flex;flex-direction:column;gap:8px">
+      <!-- TOP-RIGHT: Export Contacts -->
+      <div class="card" style="border:1px solid var(--jade-border);background:linear-gradient(135deg,var(--jade-pale) 0%,transparent 60%);display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--jade-pale);border:1px solid var(--jade-border);display:flex;align-items:center;justify-content:center;font-size:15px">🤝</div>
           <div>
-            ${lbl('Import applications')}
-            <input type="file" id="import-apps-file" accept=".csv" style="color:var(--muted);padding:5px 0;border:none;background:transparent">
-            <button onclick="doImportApps()" style="margin-top:6px;width:100%">↑ Import applications CSV</button>
+            <div style="font-size:14px;font-weight:700;color:var(--tx)">Contacts</div>
+            <div style="font-size:10px;color:var(--faint)">${state.contacts.length} rows</div>
           </div>
-          <div>
-            ${lbl('Import contacts')}
-            <input type="file" id="import-net-file" accept=".csv" style="color:var(--muted);padding:5px 0;border:none;background:transparent">
-            <button onclick="doImportContacts()" style="margin-top:6px;width:100%">↑ Import networking CSV</button>
-          </div>
+          <div style="margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--jade)">Export ↓</div>
         </div>
-        <div id="import-note" style="font-size:12px;margin-top:10px;min-height:16px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="exportContacts('xlsx')" style="background:var(--jade-pale);color:var(--jade);border:1px solid var(--jade-border);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer">
+            <span style="font-size:16px">📊</span><span>XLSX</span>
+          </button>
+          <button onclick="exportContacts('csv')" style="background:transparent;color:var(--jade);border:1px solid var(--jade-border);border-radius:8px;padding:9px 8px;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer">
+            <span style="font-size:16px">📄</span><span>CSV</span>
+          </button>
+        </div>
       </div>
+
+      <!-- BOTTOM-LEFT: Import Applications -->
+      <div class="card" style="border:1px solid var(--sky-blue-mid);display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--sky-blue-pale);border:1px solid var(--sky-blue-mid);display:flex;align-items:center;justify-content:center;font-size:15px">📋</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--tx)">Applications</div>
+            <div style="font-size:10px;color:var(--faint)">CSV only</div>
+          </div>
+          <div style="margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)">Import ↑</div>
+        </div>
+        <input type="file" id="import-apps-file" accept=".csv" style="font-size:11px;color:var(--muted);width:100%;background:transparent;border:none;padding:0">
+        <button onclick="doImportApps()" style="width:100%;font-size:12px;font-weight:600;background:var(--sky-blue-pale);color:var(--sky-blue);border:1px solid var(--sky-blue-mid);border-radius:8px;padding:9px 12px">↑ Import CSV</button>
+      </div>
+
+      <!-- BOTTOM-RIGHT: Import Contacts -->
+      <div class="card" style="border:1px solid var(--jade-border);display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--jade-pale);border:1px solid var(--jade-border);display:flex;align-items:center;justify-content:center;font-size:15px">🤝</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--tx)">Contacts</div>
+            <div style="font-size:10px;color:var(--faint)">CSV only</div>
+          </div>
+          <div style="margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)">Import ↑</div>
+        </div>
+        <input type="file" id="import-net-file" accept=".csv" style="font-size:11px;color:var(--muted);width:100%;background:transparent;border:none;padding:0">
+        <button onclick="doImportContacts()" style="width:100%;font-size:12px;font-weight:600;background:var(--jade-pale);color:var(--jade);border:1px solid var(--jade-border);border-radius:8px;padding:9px 12px">↑ Import CSV</button>
+      </div>
+
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:24px">
+      <div id="export-note" style="flex:1;font-size:11px;color:var(--sky-blue);min-height:16px"></div>
+      <div id="import-note" style="flex:1;font-size:11px;color:var(--jade);min-height:16px;text-align:right"></div>
     </div>
 
     <div class="card" style="border-color:var(--brd2)">
-      <div style="font-size:13px;font-weight:500;margin-bottom:10px;color:var(--tx)">How to sync with job_tracker.xlsx</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div>
-          <div style="font-size:11px;color:var(--green);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">App → Excel</div>
-          <ol style="font-size:12px;color:var(--muted);line-height:2;padding-left:1.1rem">
-            <li>Click <strong style="color:var(--tx)">Export applications</strong></li>
-            <li>Open the downloaded CSV in Excel</li>
-            <li>Select all → copy</li>
-            <li>Paste into <strong style="color:var(--tx)">Job Tracker</strong> sheet row 5</li>
-          </ol>
+      <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:16px">Common questions</div>
+      <div style="display:flex;flex-direction:column;gap:0">
+
+        <div style="padding:14px 0;border-bottom:1px solid var(--brd)">
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">How do I back up my data?</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">Export both Applications and Contacts as XLSX or CSV and save the files somewhere safe — your Downloads folder, Google Drive, wherever. Do this periodically, especially before making bulk changes. GitHub Gist handles real-time cloud sync, but a local export is your offline safety net.</div>
         </div>
-        <div>
-          <div style="font-size:11px;color:var(--amber);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px">Excel → App</div>
-          <ol style="font-size:12px;color:var(--muted);line-height:2;padding-left:1.1rem">
-            <li>Open <code style="background:var(--cream-dark);padding:1px 4px;border-radius:3px;font-size:11px">job_tracker.xlsx</code></li>
-            <li>File → Save As → <strong style="color:var(--tx)">CSV UTF-8</strong></li>
-            <li>Click <strong style="color:var(--tx)">Import applications CSV</strong></li>
-            <li>Pick the file — done</li>
-          </ol>
+
+        <div style="padding:14px 0;border-bottom:1px solid var(--brd)">
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">What does Import actually do — will it overwrite my data?</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">Import merges, it does not replace. Rows are matched by company name (case-insensitive). Existing entries are updated with values from the CSV; new rows are appended. Nothing is ever deleted automatically. If you want a clean slate, clear your data first, then import.</div>
         </div>
-      </div>
-      <div style="margin-top:14px;padding:10px 12px;border-radius:6px;background:var(--surf2);border:1px solid var(--brd);font-size:11px;color:var(--faint);line-height:1.7">
-        <strong style="color:var(--muted)">Merge logic:</strong> Matches on Company name (case-insensitive). Existing entries are updated; new ones appended. Nothing is ever deleted automatically.
+
+        <div style="padding:14px 0;border-bottom:1px solid var(--brd)">
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">XLSX vs CSV — which should I use?</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">XLSX is best for viewing — it opens directly in Excel with color-coded headers (blue for applications, green for contacts) and is easier to read. CSV is best for portability — it works in Google Sheets, Numbers, any text editor, and is the format required for importing back into JobQuest.</div>
+        </div>
+
+        <div style="padding:14px 0;border-bottom:1px solid var(--brd)">
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">How do I move my data to a new device?</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">If cloud sync is connected, just open the app on the new device, enter your GitHub PAT and Gist ID when prompted, and your full dataset will load automatically. No export needed. If you are not using cloud sync, export a CSV from the old device and import it on the new one.</div>
+        </div>
+
+        <div style="padding:14px 0">
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:5px">Can I edit my data in Excel and import it back?</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">Yes. Export as XLSX, edit in Excel, then save a copy as CSV (File → Save As → CSV UTF-8). Drop the CSV into the Import panel. Keep column headers intact — the importer maps by column name. Adding or reordering columns will cause those fields to be ignored on import.</div>
+        </div>
+
       </div>
     </div>
 
@@ -3419,14 +3474,38 @@ function renderSync(el) {
   `;
 }
 
-function exportApps() {
-  downloadXLS(appsToXLSHtml(), `applications_${new Date().toISOString().slice(0,10)}.xls`);
-  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.apps.length} applications (Excel) at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+function exportApps(fmt) {
+  const note = document.getElementById('export-note');
+  const date = new Date().toISOString().slice(0,10);
+  const m = document.getElementById('exp-apps-menu'); if (m) m.style.display = 'none';
+  if (fmt === 'csv') {
+    const csv = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
+      [APP_KEYS.join(','), ...state.apps.map(a => APP_KEYS.map(k => csvEscape(a[k]||'')).join(','))].join('\n')
+    );
+    const a = Object.assign(document.createElement('a'), {href: csv, download: `applications_${date}.csv`});
+    a.click();
+    if (note) note.textContent = `✓ Downloaded ${state.apps.length} applications (CSV)`;
+  } else {
+    downloadXLS(appsToXLSHtml(), `applications_${date}.xls`);
+    if (note) note.textContent = `✓ Downloaded ${state.apps.length} applications (Excel) at ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+  }
 }
 
-function exportContacts() {
-  downloadXLS(contactsToXLSHtml(), `contacts_${new Date().toISOString().slice(0,10)}.xls`);
-  const n=document.getElementById('export-note'); if(n) n.textContent=`✓ Downloaded ${state.contacts.length} contacts (Excel)`;
+function exportContacts(fmt) {
+  const note = document.getElementById('export-note');
+  const date = new Date().toISOString().slice(0,10);
+  const m = document.getElementById('exp-contacts-menu'); if (m) m.style.display = 'none';
+  if (fmt === 'csv') {
+    const csv = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
+      [NET_KEYS.join(','), ...state.contacts.map(c => NET_KEYS.map(k => csvEscape(c[k]||'')).join(','))].join('\n')
+    );
+    const a = Object.assign(document.createElement('a'), {href: csv, download: `contacts_${date}.csv`});
+    a.click();
+    if (note) note.textContent = `✓ Downloaded ${state.contacts.length} contacts (CSV)`;
+  } else {
+    downloadXLS(contactsToXLSHtml(), `contacts_${date}.xls`);
+    if (note) note.textContent = `✓ Downloaded ${state.contacts.length} contacts (Excel)`;
+  }
 }
 
 function doImportApps() {
@@ -3663,6 +3742,12 @@ async function initApp() {
 //           3) Show auth screen as fallback (direct navigation / expired session)
 
 function init() {
+  // Stamp version into navbar chip and footer badge from single source of truth
+  const navVer = document.getElementById('nav-version-val');
+  const footerVer = document.getElementById('footer-version');
+  if (navVer) navVer.textContent = APP_VERSION;
+  if (footerVer) footerVer.textContent = APP_VERSION;
+
   const session = authGetSession();
   if (session) {
     // Session already established — either by access.html redirect or previous login
