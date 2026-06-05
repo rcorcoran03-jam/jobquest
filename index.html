@@ -3224,15 +3224,15 @@ function truncateRow(row) {
 function buildDataSheet(cols, rows, headerHex, zebraHex) {
   const aoa = [cols, ...rows.map(truncateRow)];
   const ws = XLSX.utils.aoa_to_sheet(aoa);
-  // Freeze top row
-  ws['!freeze'] = { xSplit:0, ySplit:1, topLeftCell:'A2', activePane:'bottomLeft', state:'frozen' };
+  // Freeze top row (correct SheetJS key)
+  ws['!sheetViews'] = [{ state:'frozen', ySplit:1, topLeftCell:'A2', activePane:'bottomLeft' }];
   // Auto-filter across all columns
   ws['!autofilter'] = { ref: XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:rows.length, c:cols.length-1}}) };
   setColWidths(ws, cols);
   // Fix row heights — header taller, data rows capped at ~3 lines (~45pt)
   ws['!rows'] = [
-    { hpt: 20, hpx: 20 }, // header row
-    ...rows.map(() => ({ hpt: 45, hpx: 45 })) // data rows — ~3 lines max
+    { hpt: 18, hpx: 18 },
+    ...rows.map(() => ({ hpt: 18, hpx: 18 })) // data rows — ~3 lines max
   ];
   applyHeaderStyle(ws, cols.length, hexToArgb(headerHex));
   applyZebraStyle(ws, rows.length, cols.length, hexToArgb(zebraHex));
@@ -3361,7 +3361,7 @@ function exportAppsXLSX() {
   const wsSummary = buildAppsSummarySheet();
   XLSX.utils.book_append_sheet(wb, wsData,    'Applications');
   XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
-  XLSX.writeFile(wb, `applications_${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(wb, `applications_${new Date().toISOString().slice(0,10)}.xlsx`, { cellStyles: true });
 }
 
 function exportContactsXLSX() {
@@ -3371,7 +3371,7 @@ function exportContactsXLSX() {
   const wsSummary = buildContactsSummarySheet();
   XLSX.utils.book_append_sheet(wb, wsData,    'Contacts');
   XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
-  XLSX.writeFile(wb, `contacts_${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(wb, `contacts_${new Date().toISOString().slice(0,10)}.xlsx`, { cellStyles: true });
 }
 
 // Legacy HTML-table XLS (kept for fallback only — not exposed in UI)
