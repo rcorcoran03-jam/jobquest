@@ -16,12 +16,16 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  v4.6  2026-06-04  GITHUB GIST SYNC + HQ NAV                               ║
+║  v4.6  2026-06-04  GITHUB GIST SYNC + HQ NAV + JSONBIN MIGRATION            ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + SYNC: JSONBin replaced with GitHub Gist (free, no quota, transparent)   ║
+║  + SYNC: setup screen has "Migrate from JSONBin" card when old jb_key/     ║
+║    jb_bin are present — reads JSONBin, pushes to Gist in one step          ║
 ║  + SYNC: setup screen simplified to single PAT + Gist ID form              ║
 ║  + SYNC: ghRead/ghWrite via api.github.com/gists PATCH; same debounce,     ║
 ║    timestamp guard, flush-on-hide safety as v4.2                           ║
+║  + SYNC: doCloudSetup loads localStorage backup before first ghWrite so    ║
+║    real data (not defaults) is pushed on initial connect                   ║
 ║  + NAV: "Board" tab renamed to "HQ"                                        ║
 ║  Based on: v4.5                                                             ║
 ║                                                                             ║
@@ -3454,9 +3458,24 @@ function doImportContacts() {
 // ── CLOUD SETUP SCREEN ────────────────────────────────────────────────────────
 
 function renderCloudSetup(el) {
+  const oldJbKey = localStorage.getItem('jb_key')  || '';
+  const oldJbBin = localStorage.getItem('jb_bin')  || '';
+  const hasMigration = oldJbKey && oldJbBin;
+
   el.innerHTML = `
     <div style="max-width:520px;margin:0 auto;padding-top:1rem">
       <div class="sec-head"><h1>Connect cloud sync</h1><div class="bar"></div></div>
+
+      ${hasMigration ? `
+      <div class="card" style="margin-bottom:14px;border-color:var(--amber-dim);border-left:3px solid var(--amber)">
+        <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:6px">⚡ Migrate from JSONBin</div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px">
+          Your old JSONBin credentials are still in this browser. Enter your GitHub PAT and Gist ID below, then click <strong style="color:var(--tx)">Migrate from JSONBin →</strong> to pull your full dataset across in one step.
+        </p>
+        <div id="migrate-status" style="font-size:12px;min-height:16px;margin-bottom:8px"></div>
+        <button id="migrate-btn" style="font-size:12px;color:var(--amber);border-color:var(--amber-dim);background:var(--gold-pale);width:100%" onclick="doMigrateFromJsonBin()">Migrate from JSONBin →</button>
+      </div>` : ''}
+
       <div class="card" style="margin-bottom:14px">
         <p style="color:var(--muted);line-height:1.7;margin-bottom:16px">
           JobQuest syncs to a private <strong style="color:var(--tx)">GitHub Gist</strong> — a free, simple cloud store. You need a GitHub account and two things: a Personal Access Token (PAT) and a Gist ID. Takes about 3 minutes.
@@ -3487,6 +3506,73 @@ function renderCloudSetup(el) {
     </div>`;
 }
 
+async function doMigrateFromJsonBin() {
+  const token  = document.getElementById('setup-gh-token').value.trim();
+  const gistId = document.getElementById('setup-gh-gist').value.trim();
+  const statusEl = document.getElementById('migrate-status');
+  const errEl    = document.getElementById('setup-error');
+  if (!token)  { errEl.textContent = 'Enter your GitHub PAT above first.'; return; }
+  if (!gistId) { errEl.textContent = 'Enter your Gist ID above first.'; return; }
+
+  const btn = document.getElementById('migrate-btn');
+  btn.disabled = true; btn.textContent = 'Reading JSONBin…';
+  statusEl.style.color = 'var(--muted)';
+  statusEl.textContent = 'Step 1 of 3 — reading your data from JSONBin…';
+
+  const oldKey = localStorage.getItem('jb_key');
+  const oldBin = localStorage.getItem('jb_bin');
+
+  try {
+    // Step 1: read from JSONBin using old credentials
+    const jbResp = await fetch('https://api.jsonbin.io/v3/b/' + oldBin + '/latest', {
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': oldKey, 'X-Bin-Meta': 'false' }
+    });
+    if (!jbResp.ok) throw new Error('JSONBin read failed ' + jbResp.status);
+    const jbData = await jbResp.json();
+
+    const appCount = (jbData.apps || []).length;
+    const contactCount = (jbData.contacts || []).length;
+    statusEl.textContent = 'Step 2 of 3 — got ' + appCount + ' apps, ' + contactCount + ' contacts. Connecting to Gist…';
+    btn.textContent = 'Connecting to Gist…';
+
+    // Step 2: verify Gist is reachable
+    state.ghToken = token; state.ghGistId = gistId;
+    await ghRead();
+
+    statusEl.textContent = 'Step 3 of 3 — pushing to Gist…';
+    btn.textContent = 'Pushing to Gist…';
+
+    // Step 3: load JSONBin data into state and push to Gist
+    if (jbData.apps)      state.apps      = jbData.apps;
+    if (jbData.contacts)  state.contacts  = jbData.contacts;
+    if (jbData.tasks)     state.tasks     = jbData.tasks;
+    if (jbData.referrals) state.referrals = jbData.referrals;
+
+    await ghWrite();
+    saveCredentials();
+
+    // Sync localStorage backup to match
+    localStorage.setItem('apps_backup',      JSON.stringify(state.apps));
+    localStorage.setItem('contacts_backup',  JSON.stringify(state.contacts));
+    localStorage.setItem('tasks',            JSON.stringify(state.tasks));
+    localStorage.setItem('referrals',        JSON.stringify(state.referrals));
+    localStorage.setItem('backup_updatedAt', new Date().toISOString());
+
+    statusEl.style.color = 'var(--green)';
+    statusEl.textContent = '✓ Migration complete — ' + appCount + ' apps and ' + contactCount + ' contacts synced to Gist.';
+    setTimeout(() => {
+      showTab('board');
+      setSyncStatus('✓ migrated from JSONBin · ' + appCount + ' apps', false);
+    }, 1500);
+
+  } catch(e) {
+    state.ghToken = ''; state.ghGistId = '';
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Migration failed: ' + e.message;
+    btn.disabled = false; btn.textContent = 'Migrate from JSONBin →';
+  }
+}
+
 async function doCloudSetup() {
   const token = document.getElementById('setup-gh-token').value.trim();
   const gistId = document.getElementById('setup-gh-gist').value.trim();
@@ -3497,16 +3583,31 @@ async function doCloudSetup() {
   btn.disabled = true; btn.textContent = 'Connecting…';
   state.ghToken = token; state.ghGistId = gistId;
   try {
-    // Verify by reading the Gist — also loads any existing data
+    // Verify the Gist is reachable and load any existing data.
+    // If the Gist is empty (first-time setup), keep the local state as-is
+    // so we can push it up immediately below.
     const data = await ghRead();
-    if (data.apps)    state.apps    = data.apps;
-    if (data.contacts) state.contacts = data.contacts;
+    if (data.apps && data.apps.length > 0)      state.apps      = data.apps;
+    if (data.contacts && data.contacts.length > 0) state.contacts = data.contacts;
+    // Before pushing, load the localStorage backup into state so we send
+    // real data, not the in-memory defaults (initApp returned early for setup screen)
+    if (!data.apps || data.apps.length === 0) {
+      const appsBackup    = localStorage.getItem('apps_backup');
+      const contactsBackup = localStorage.getItem('contacts_backup');
+      const tasksBackup    = localStorage.getItem('tasks');
+      const referralsBackup = localStorage.getItem('referrals');
+      if (appsBackup)     state.apps      = JSON.parse(appsBackup);
+      if (contactsBackup) state.contacts  = JSON.parse(contactsBackup);
+      if (tasksBackup)    state.tasks     = JSON.parse(tasksBackup);
+      if (referralsBackup) state.referrals = JSON.parse(referralsBackup);
+    }
     saveCredentials();
     errEl.textContent = '';
+    // Push current local state to Gist immediately (don't use save() — it's debounced 30s)
+    btn.textContent = 'Pushing data…';
+    await ghWrite();
     showTab('board');
-    setSyncStatus('✓ cloud connected · gist ' + gistId.slice(0,8) + '…', false);
-    // Push local data up immediately
-    save();
+    setSyncStatus('✓ cloud connected · ' + state.apps.length + ' apps synced', false);
   } catch(e) {
     state.ghToken = ''; state.ghGistId = '';
     errEl.textContent = 'Could not connect: ' + e.message;
