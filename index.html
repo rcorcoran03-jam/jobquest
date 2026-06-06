@@ -394,7 +394,7 @@
   .badge.teal  { background: var(--teal-bg);  color: var(--teal); border-color: var(--teal-dim); }
 
   /* PILL */
-  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 8px; background: rgba(91,158,201,0.10); border: 1px solid var(--navy-border); color: var(--muted); margin: 2px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 8px; background: rgba(91,158,201,0.10); border: 1px solid var(--navy-border); color: var(--muted); margin: 2px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
 
   /* TAGS */
   .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
@@ -548,20 +548,10 @@
     /* Content well: tighter on mobile */
     #main { margin: 8px; padding: 14px; border-radius: 10px; }
 
-    /* App cards: stack content above actions on mobile */
-    .app-card-inner { flex-direction: column !important; gap: 8px !important; }
-    .app-card-actions {
-      flex-shrink: 1 !important;
-      width: 100% !important;
-      flex-direction: row !important;
-      flex-wrap: wrap !important;
-      align-items: flex-start !important;
-      justify-content: flex-start !important;
-      gap: 4px !important;
-    }
-    .app-card-actions > * { flex-shrink: 0; }
-    /* Pills: full width, allow wrapping on mobile */
-    .pill { max-width: 100% !important; white-space: normal !important; }
+    /* Pills: full width on mobile so long salary/location values show */
+    .pill { max-width: calc(100vw - 80px) !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+    /* Actions row: full width on mobile */
+    .app-card-actions { width: 100% !important; }
     /* Job boards grid: stack to single column on mobile */
     .job-boards-grid { grid-template-columns: 1fr !important; }
 
@@ -2059,35 +2049,31 @@ function renderTracker(el) {
     const isHigh       = app.priority==='High';
 
     const condensed = `
-      <div class="app-card-inner" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+      <div class="app-card-inner" style="display:flex;flex-direction:column;gap:8px">
         <div style="flex:1;min-width:0">
           <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
             <span style="font-size:14px;font-weight:600;color:var(--tx)">${esc(app.company)}</span>
             ${badge(app.stage,STAGE_COL[app.stage]||'amber')}
           </div>
-          <div style="color:var(--muted);margin-bottom:5px;font-size:12px">${esc(app.role||'')}</div>
-          ${details?`<div style="margin-bottom:5px">${details}</div>`:''}
+          <div style="color:var(--muted);margin-bottom:5px;font-size:12px;white-space:normal;word-break:break-word">${esc(app.role||'')}</div>
+          ${details?`<div style="margin-bottom:5px;display:flex;flex-wrap:wrap;gap:2px">${details}</div>`:''}
           ${app.netContact&&app.netContact!=='—'
             ? `<div style="font-size:11px;color:var(--teal);margin-bottom:3px;font-weight:500">🤝 ${isGuest()?'<span class="redacted">'+esc(app.netContact)+'</span>':esc(app.netContact)}${netRel?` <span style="font-weight:400;color:var(--faint)">· ${esc(netRel)}</span>`:''}</div>`
             : (contactLine?`<div style="font-size:11px;color:var(--faint);margin-bottom:3px">👤 ${contactLine}</div>`:'')}
           ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:3px;font-weight:500">→ ${nextLine}</div>`:''}
           ${updatedLabel?`<div style="font-size:10px;color:var(--faint);margin-top:2px">${updatedLabel}</div>`:''}
         </div>
-        <div class="app-card-actions" style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div class="app-card-actions" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">
           ${isGuest()
             ? `<button onclick="toggleExpand(${app.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴ Less':'▾ More'}</button>`
             : `${sel(`stg-${app.id}`,STAGES,app.stage)}
-          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
             <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">↑ Move</button>
-            <button onclick="toggleHighPriority(${app.id})" style="font-size:11px;${isHigh?'color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)':'color:var(--faint)'}" title="${isHigh?'Unpin':'Pin priority'}">⭐ ${isHigh?'Pinned':'Pin'}</button>
-            <button onclick="toggleExpand(${app.id})" style="font-size:11px;font-weight:500;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴ Less':'▾ More'}</button>
-          </div>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
-            <button onclick="openProfilePanel(${app.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢 Profile</button>
-            <button onclick="copyPrepPrompt(${app.id})" style="font-size:11px;color:var(--blue);border-color:var(--blue-bg)">📋 Prep</button>
-            <button onclick="state.appEditing=${app.id};render('tracker')" style="font-size:11px">✏️ Edit</button>
-            <button onclick="delApp(${app.id})" style="font-size:11px;color:var(--muted);border-color:var(--brd)">… Archive</button>
-          </div>`}
+            <button onclick="toggleHighPriority(${app.id})" style="font-size:11px;${isHigh?'color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)':'color:var(--faint)'}" title="${isHigh?'Unpin':'Pin priority'}">⭐</button>
+            <button onclick="openProfilePanel(${app.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢</button>
+            <button onclick="copyPrepPrompt(${app.id})" style="font-size:11px;color:var(--blue);border-color:var(--blue-bg)">📋</button>
+            <button onclick="state.appEditing=${app.id};render('tracker')" style="font-size:11px">Edit</button>
+            <button onclick="toggleExpand(${app.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴':'▾'}</button>
+            <button onclick="delApp(${app.id})" style="font-size:11px;color:var(--muted);border-color:var(--brd)">…</button>`}
         </div>
       </div>`;
 
