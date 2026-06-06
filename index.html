@@ -394,7 +394,7 @@
   .badge.teal  { background: var(--teal-bg);  color: var(--teal); border-color: var(--teal-dim); }
 
   /* PILL */
-  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 8px; background: rgba(91,158,201,0.10); border: 1px solid var(--navy-border); color: var(--muted); margin: 2px; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 8px; background: rgba(91,158,201,0.10); border: 1px solid var(--navy-border); color: var(--muted); margin: 2px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
 
   /* TAGS */
   .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
@@ -545,8 +545,17 @@
     /* Board hero bottom: stack Analyze JD above Daily Focus */
     .board-hero-split { grid-template-columns: 1fr; }
 
-    /* Content well: less padding so it isn't all margins on a phone */
-    #main { margin: 12px; padding: 16px; border-radius: 12px; }
+    /* Content well: tighter on mobile */
+    #main { margin: 8px; padding: 14px; border-radius: 10px; }
+
+    /* App cards: stack content above actions on mobile */
+    .app-card-inner { flex-direction: column !important; }
+    .app-card-inner > div:last-child { align-items: flex-start !important; flex-direction: row !important; flex-wrap: wrap !important; gap: 4px !important; }
+    .app-card-inner > div:last-child > * { flex-shrink: 0; }
+    /* Pills: allow full width on mobile so text isn't cut too short */
+    .pill { max-width: 100% !important; white-space: normal !important; }
+    /* Job boards grid: stack to single column on mobile */
+    .job-boards-grid { grid-template-columns: 1fr !important; }
 
     /* Networking cards: stack Who · Last · Next · Actions vertically on a phone */
     .net-row { flex-wrap: wrap; }
@@ -1670,7 +1679,7 @@ function renderBoard(el) {
       <div style="font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="display:inline-block;width:16px;height:1px;background:var(--rose-deep)"></span>Job Boards &amp; Enterprise Search Workflows</div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;margin-top:0">
+    <div class="job-boards-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;margin-top:0">
 
       <div class="card" style="border-top:3px solid var(--rose-deep);background:var(--navy-light);">
         <div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px">🏥 Healthtech</div>
@@ -2042,7 +2051,7 @@ function renderTracker(el) {
     const isHigh       = app.priority==='High';
 
     const condensed = `
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+      <div class="app-card-inner" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
         <div style="flex:1;min-width:0">
           <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
             <span style="font-size:14px;font-weight:600;color:var(--tx)">${esc(app.company)}</span>
@@ -3176,7 +3185,7 @@ function applyHeaderStyle(ws, numCols, headerArgb) {
     const addr = XLSX.utils.encode_cell({r:0, c});
     if (!ws[addr]) continue;
     ws[addr].s = {
-      fill:  { patternType:'solid', fgColor:{ rgb: headerArgb } },
+      fill:  { patternType:'solid', fgColor:{ rgb: headerArgb }, bgColor:{ rgb: headerArgb } },
       font:  { bold:true, color:{ rgb:'FFFFFFFF' }, name:'Calibri', sz:11 },
       alignment: { vertical:'center', wrapText:false },
       border: {
@@ -3195,8 +3204,8 @@ function applyZebraStyle(ws, numRows, numCols, zebraArgb) {
       if (!ws[addr]) { ws[addr] = {t:'s', v:''}; }
       ws[addr].s = {
         fill: isZebra
-          ? { patternType:'solid', fgColor:{ rgb: zebraArgb } }
-          : { patternType:'none' },
+          ? { patternType:'solid', fgColor:{ rgb: zebraArgb }, bgColor:{ rgb: zebraArgb } }
+          : { patternType:'solid', fgColor:{ rgb: 'FFFFFFFF' }, bgColor:{ rgb: 'FFFFFFFF' } },
         font: { name:'Calibri', sz:10 },
         alignment: { vertical:'center', wrapText:false },
         border: {
