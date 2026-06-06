@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v4.6  (2026-06-04)                                               ║
+║  CURRENT:  v4.8  (2026-06-06)                                               ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,6 +16,54 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
+║  v4.8   2026-06-06  DAILY TASKS REWORK + FOCUS TAB HQ TREATMENT            ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + TASKS: dt1 → "Save 1 strong fit" · "Evaluate, score with Claude…"       ║
+║  + TASKS: dt2 → "Backlog review" · "Advance stages, log next steps…"       ║
+║  + TASKS: dt3 split into dt3a "Apply to 1 role" + dt3b "Apply to a 2nd     ║
+║    role" (stretch goal); stretch row has dashed separator, dimmed timer     ║
+║    button, muted label, and inline "stretch" badge                          ║
+║  + TASKS: completedCount display uses dynamic DAILY_TASKS_DEF.length       ║
+║  + TASKS: cover note → cover letter in dt3a subtitle                        ║
+║  + FOCUS: full HQ visual treatment — gradient identity bar with amber star  ║
+║    polygon, mode strip replacing button row (shows duration + label, active ║
+║    mode highlighted with color accent), two-column layout (ring+controls    ║
+║    left, task+log right), log styled with inset card, session dots refined  ║
+║  Based on: v4.7                                                             ║
+║                                                                             ║
+║  v4.7   2026-06-06  HQ PAGE APP-FEEL PASS                                   ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + HQ: KPI strip swaps "Total" → "Response %" (interviews/applied×100);    ║
+║    responseRate computed after guest override for accurate guest display    ║
+║  + HQ: Daily focus task rows flip button hierarchy — ⏱ timer is now the    ║
+║    primary left-anchored action; ○/✓ checkbox moves to trailing position   ║
+║  + HQ: Orphaned "Job Boards & Enterprise" eyebrow label removed; card      ║
+║    headers carry section identity directly                                  ║
+║  + HQ: LinkedIn Search Builder promoted to peer card with sky-blue top     ║
+║    accent, title, and subtitle — visually equal to job board cards          ║
+║  Based on: v4.6.9                                                           ║
+║                                                                             ║
+║  v4.6.9  2026-06-06  VISUAL POLISH PASS                                     ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + TRACKER: priority strip gets border-bottom separator from filter row     ║
+║  + TRACKER: 3-row / 16-button filter UI collapsed to unified smart row      ║
+║    (stages show only when count > 0; Healthtech/Medtech/Archived always     ║
+║    present; + Add floated right; BY STAGE label removed)                    ║
+║  + TRACKER: action row select capped at 140px desktop / 100% mobile        ║
+║  + TRACKER: card perimeter border → var(--navy-border); stage color kept    ║
+║    only on left accent strip (reduces amber/blue bleed on all four edges)   ║
+║  + TRACKER: fit score pill gold-tinted (✦ prefix) when set by Claude JD    ║
+║    analyzer; standard pill when entered manually; fitSource flag persisted  ║
+║  Based on: v4.6.8                                                           ║
+║                                                                             ║
+║  v4.6.8  2026-06-06  PRIORITY CARD LAYOUT MATCH + MOBILE FIX               ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + TRACKER: high-priority strip cards now use identical layout to regular   ║
+║    app cards — content block on top, full-width select+actions row below    ║
+║    (replaces old side-by-side two-column layout)                            ║
+║  + MOBILE: pill details row in priority strip uses flex-wrap:wrap           ║
+║  Based on: v4.6                                                             ║
+║                                                                             ║
 ║  v4.6  2026-06-04  GITHUB GIST SYNC + HQ NAV + JSONBIN MIGRATION            ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + SYNC: JSONBin replaced with GitHub Gist (free, no quota, transparent)   ║
@@ -448,6 +496,9 @@
   /* SETTINGS */
   #settings-screen { max-width: 500px; margin: 0 auto; }
 
+  /* APP CARD ACTION ROW */
+  .app-card-actions select { max-width: 140px; }
+
   /* STAGE FILTERS */
   .stage-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 
@@ -552,6 +603,7 @@
     .pill { max-width: calc(100vw - 80px) !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
     /* Actions row: full width on mobile */
     .app-card-actions { width: 100% !important; }
+    .app-card-actions select { max-width: 100% !important; }
     /* Job boards grid: stack to single column on mobile */
     .job-boards-grid { grid-template-columns: 1fr !important; }
 
@@ -559,6 +611,12 @@
     .net-row { flex-wrap: wrap; }
     .net-row > div { flex: 1 1 100% !important; width: 100% !important; border-left: none !important; border-right: none !important; padding-left: 0 !important; padding-right: 0 !important; }
     .net-row > div + div { border-top: 1px solid var(--brd) !important; margin-top: 8px; padding-top: 8px; }
+    .net-col-mid, .net-col-next { flex: 1 1 100% !important; width: 100% !important; }
+    .net-col-right { flex-shrink: unset !important; width: 100% !important; flex-direction: row !important; flex-wrap: wrap !important; }
+    /* Hide detail columns when card is collapsed on mobile */
+    .net-card:not(.net-card-expanded) .net-col-mid,
+    .net-card:not(.net-card-expanded) .net-col-next,
+    .net-card:not(.net-card-expanded) .net-col-right { display: none !important; }
 
     /* Two-column form grids collapse to one column for easier tapping */
     .g2 { grid-template-columns: 1fr; }
@@ -951,9 +1009,9 @@ const STAGE_CARD_BG = {
 };
 
 const POM_TASKS = [
-  'Search 3 new job boards','Tailor resume for a role','Write a cover letter',
-  'Send 2 networking messages','Research a target company','Update application tracker',
-  'Prep 5 interview answers','Follow up on an application','Review job alerts','Update LinkedIn',
+  'Search job boards','Write a cover letter',
+  'Send 2 networking messages','Research a target company',
+  'Workshop a STAR story','Follow up on an application','Review job alerts','Post / LinkedIn activity',
 ];
 
 const REL_COL = {Warm:'amber',Alumni:'blue',Cold:'purple',Recruiter:'green'};
@@ -1244,6 +1302,13 @@ const div = (cls, inner) => `<div class="${cls}">${inner}</div>`;
 const secHead = (title, subtitle='', eyebrow='') => `<div class="sec-head">${eyebrow?`<div class="sec-eyebrow">${eyebrow}</div>`:''}<h1>${title}</h1>${subtitle?`<div style="font-family:'DM Serif Display',Georgia,serif;font-size:14px;font-style:italic;color:var(--sky-blue-light);margin-top:2px">${subtitle}</div>`:''}<div class="bar"></div></div>`;
 const badge = (label, color) => `<span class="badge ${color}">${label}</span>`;
 const pill = label => `<span class="pill">${esc(label)}</span>`;
+const fitPill = (app) => {
+  if (!app.fit) return '';
+  if (app.fitSource === 'claude') {
+    return `<span class="pill" style="background:rgba(201,138,14,0.12);border-color:rgba(201,138,14,0.35);color:#E8C97A">✦ fit: ${esc(app.fit)}/10</span>`;
+  }
+  return pill('fit: ' + app.fit + '/10');
+};
 const lbl = text => `<div class="lbl">${text}</div>`;
 const inp = (id, val, ph, style='') => `<input id="${id}" value="${esc(val)}" placeholder="${esc(ph)}" style="${style}">`;
 const ta = (id, val, ph, rows=5) => `<textarea id="${id}" placeholder="${esc(ph)}" rows="${rows}">${esc(val)}</textarea>`;
@@ -1407,9 +1472,10 @@ function miniTimerWidget() {
 // ── DAILY FOCUS TASKS (resets daily, persists in localStorage) ────────────────
 
 const DAILY_TASKS_DEF = [
-  { id: 'dt1', label: 'Save 3 roles from job boards',     icon: '🔖', pomMins: 25, desc: 'Browse boards, evaluate fit, save to tracker' },
-  { id: 'dt2', label: 'Application backlog maintenance',  icon: '📋', pomMins: 25, desc: 'Update stages, follow-ups, prioritize queue' },
-  { id: 'dt3', label: 'Apply to 1–2 roles',               icon: '🚀', pomMins: 25, desc: 'Tailor resume, write cover note, submit' },
+  { id: 'dt1',  label: 'Save 1 strong fit',     icon: '🔖', pomMins: 25, desc: 'Evaluate, score with Claude, save to tracker' },
+  { id: 'dt2',  label: 'Backlog review',         icon: '📋', pomMins: 25, desc: 'Advance stages, log next steps, clear the queue' },
+  { id: 'dt3a', label: 'Apply to 1 role',        icon: '🚀', pomMins: 25, desc: 'Tailor resume, write cover letter, submit' },
+  { id: 'dt3b', label: 'Apply to a 2nd role',    icon: '🚀', pomMins: 25, desc: 'Stretch goal — second application of the day', stretch: true },
 ];
 
 function getDailyTaskState() {
@@ -1439,16 +1505,30 @@ function launchDailyTaskById(id) {
 }
 
 function launchDailyTaskTimer(task) {
-  // Set timer task and switch to pomodoro tab
+  clearInterval(pomInterval); pomInterval = null;
   state.pomTask = task.label;
   state.pomCustomTask = '';
   state.pomMode = 0;
   state.pomSecs = task.pomMins * 60;
   state.pomTotal = task.pomMins * 60;
-  state.pomRunning = false;
-  clearInterval(pomInterval); pomInterval = null;
+  state.pomRunning = true;
   showTab('pomodoro');
-  showToast('Timer loaded for: ' + task.label);
+  // Start the interval after tab renders
+  pomInterval = setInterval(() => {
+    state.pomSecs--;
+    if(state.pomSecs <= 0) {
+      clearInterval(pomInterval); pomInterval = null; state.pomRunning = false;
+      state.pomSessions++;
+      state.pomLog.push({task: state.pomTask, time: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}), mins: task.pomMins});
+      state.pomSecs = 0;
+      render('pomodoro'); updateMiniTimer();
+    } else {
+      const m = Math.floor(state.pomSecs/60), s = state.pomSecs%60;
+      document.querySelectorAll('.pom-countdown-display').forEach(el => el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
+      updateMiniTimer();
+    }
+  }, 1000);
+  showToast('▶ ' + task.label + ' — timer started');
 }
 
 // ── HQ HERO — the new homepage landing section ────────────────────────────────
@@ -1466,8 +1546,6 @@ function renderHQHero() {
   let interviewCt  = apps.filter(a=>['Phone Screen','Interview','Final Round'].includes(a.stage)).length;
   let highPriCt    = apps.filter(a=>a.priority==='High'&&!HIDDEN_STAGES.includes(a.stage)).length;
   let ghostedCount = apps.filter(a=>a.stage==='Ghosted').length;
-  // Response rate: (non-saved, non-ghosted active apps with any engagement) / applied
-  const responseRate = appliedCount > 0 ? Math.round((interviewCt / appliedCount) * 100) : 0;
 
   // Networking KPIs
   let totalContacts = contacts.length;
@@ -1499,6 +1577,9 @@ function renderHQHero() {
     coldContacts  = 44 - 22 - 11;
   }
 
+  // Response rate computed after guest override so it reflects correct values
+  const responseRate = appliedCount > 0 ? Math.round((interviewCt / appliedCount) * 100) : 0;
+
   // Daily tasks
   const ds = getDailyTaskState();
   const completedCount = DAILY_TASKS_DEF.filter(t=>ds.done[t.id]).length;
@@ -1506,14 +1587,15 @@ function renderHQHero() {
 
   const dailyTasksHTML = DAILY_TASKS_DEF.map(task => {
     const done = ds.done[task.id];
+    const isStretch = !!task.stretch;
     return `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);${done?'opacity:.55':''}">
-      <button onclick="setDailyTaskDone('${task.id}',${!done});render('board')" style="flex-shrink:0;width:22px;height:22px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;${done?'background:var(--green);border-color:var(--green);color:#fff':'background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15);color:var(--faint)'}">${done?'✓':'○'}</button>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);${done?'opacity:.55':''}${isStretch?';border-top:1px dashed rgba(255,255,255,0.08);margin-top:2px':''}">
+      <button onclick="launchDailyTaskById('${task.id}')" style="flex-shrink:0;font-size:11px;white-space:nowrap;padding:5px 11px;background:${done?'rgba(255,255,255,0.04)':isStretch?'rgba(201,138,14,0.08)':'rgba(201,138,14,0.14)'};border-color:${done?'rgba(255,255,255,0.10)':isStretch?'rgba(201,138,14,0.25)':'rgba(201,138,14,0.40)'};color:${done?'var(--faint)':isStretch?'rgba(232,201,122,0.55)':'#E8C97A'};font-weight:600" title="Start focus timer for this task">⏱ ${task.pomMins}m</button>
       <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:${done?'400':'500'};color:${done?'var(--faint)':'var(--tx)'};${done?'text-decoration:line-through':''}">${task.icon} ${task.label}</div>
+        <div style="font-size:12px;font-weight:${done?'400':'500'};color:${done?'var(--faint)':isStretch?'var(--muted)':'var(--tx)'};${done?'text-decoration:line-through':''}">${task.icon} ${task.label}${isStretch?` <span style="font-size:10px;color:var(--faint);font-weight:400;letter-spacing:.04em">stretch</span>`:''}</div>
         <div style="font-size:10px;color:var(--faint);margin-top:1px">${task.desc}</div>
       </div>
-      <button onclick="launchDailyTaskById('${task.id}')" style="font-size:10px;white-space:nowrap;padding:4px 10px;background:rgba(201,138,14,0.10);border-color:rgba(201,138,14,0.30);color:#E8C97A" title="Start focus timer for this task">⏱ ${task.pomMins}m</button>
+      <button onclick="setDailyTaskDone('${task.id}',${!done});render('board')" style="flex-shrink:0;width:22px;height:22px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;${done?'background:var(--green);border-color:var(--green);color:#fff':'background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15);color:var(--faint)'}" title="${done?'Mark incomplete':'Mark complete'}">${done?'✓':'○'}</button>
     </div>`;
   }).join('');
 
@@ -1552,7 +1634,7 @@ function renderHQHero() {
       <!-- KPI strip -->
       <div class="kpi-strip" style="background:rgba(8,18,30,0.85);border-top:1px solid rgba(91,160,210,0.12);display:grid;border-bottom:1px solid rgba(91,160,210,0.10)">
         ${[
-          {label:'Total',      val:totalApps,      grp:'app', onclick:"state.appFilter='all';showTab('tracker')"},
+          {label:'Response %',  val:responseRate+'%',grp:'app', onclick:"showTab('tracker')"},
           {label:'Active',      val:activeApps,     grp:'app', onclick:"showTab('tracker')"},
           {label:'Active Apps',     val:appliedCount,   grp:'app', onclick:"showTab('tracker')"},
           {label:'Saved',       val:savedCount,     grp:'app', onclick:"state.appFilter='Saved';showTab('tracker')"},
@@ -1598,7 +1680,7 @@ function renderHQHero() {
           <div style="font-size:11px;font-weight:700;color:${allDone?'var(--green)':'var(--sky-blue-light)'};letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:6px">
             <span style="width:20px;height:1px;display:inline-block;background:${allDone?'var(--green)':'var(--sky-blue)'}"></span>${allDone?'✓ All done today!':'⚡ Daily Focus Tasks'}
           </div>
-          <div style="font-size:10px;color:${completedCount===3?'var(--green)':completedCount>0?'var(--amber)':'var(--faint)'};font-family:var(--mono);font-weight:600">${completedCount}/3</div>
+          <div style="font-size:10px;color:${completedCount===DAILY_TASKS_DEF.length?'var(--green)':completedCount>0?'var(--amber)':'var(--faint)'};font-family:var(--mono);font-weight:600">${completedCount}/${DAILY_TASKS_DEF.length}</div>
         </div>
         <div style="font-size:10px;color:var(--faint);margin-bottom:10px">Resets daily — hit the timer to launch a focus session</div>
         ${dailyTasksHTML}
@@ -1613,7 +1695,8 @@ function renderBoard(el) {
 
   // ── Healthtech boards & companies ──────────────────────────────────────────
   const HT_BOARDS = [
-    {name:'LinkedIn', url:'https://www.linkedin.com/jobs/search/?keywords=senior+product+manager+digital+health+care+navigation&f_E=4&f_TPR=r2592000'},
+    {name:'HealthTech Nerds', url:'https://jobs.healthtechnerds.com/'},
+    {name:'MN Tech Careers', url:'https://careers.mntech.org/'},
     {name:'Wellfound', url:'https://wellfound.com/jobs', clipboard:'senior product manager digital health care navigation behavioral health'},
     {name:'Indeed', url:'https://www.indeed.com/jobs?q=senior+product+manager+digital+health&sort=date'},
   ];
@@ -1635,7 +1718,7 @@ function renderBoard(el) {
   // ── Medtech boards & companies ─────────────────────────────────────────────
   const MT_BOARDS = [
     {name:'Medical Alley', url:'https://jobs.medicalalley.org/'},
-    {name:'LinkedIn', url:'https://www.linkedin.com/jobs/search/?keywords=product+manager+medical+device+upstream+downstream&location=Minneapolis%2C+MN&f_E=4&f_TPR=r2592000'},
+    {name:'LinkedIn Search', url:'https://www.linkedin.com/jobs/search/?keywords=product+manager+medical+device+upstream+downstream&location=Minneapolis%2C+MN&f_E=4&f_TPR=r2592000'},
     {name:'Indeed', url:'https://www.indeed.com/jobs?q=product+manager+medical+device+Minneapolis&sort=date'},
   ];
   const MT_ENT = [
@@ -1673,71 +1756,72 @@ function renderBoard(el) {
 
   el.innerHTML = renderHQHero() + `
 
-    <div style="margin-top:14px;margin-bottom:6px">
-      <div style="font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:10px"><span style="display:inline-block;width:16px;height:1px;background:var(--rose-deep)"></span>Job Boards &amp; Enterprise Search Workflows</div>
-    </div>
+    <div style="margin-top:14px">
 
-    <div class="job-boards-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;margin-top:0">
+      <div class="job-boards-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
 
-      <div class="card" style="border-top:3px solid var(--rose-deep);background:var(--navy-light);">
-        <div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px">🏥 Healthtech</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Digital health, behavioral health, VBC, analytics, payer</div>
-        <div style="font-size:11px;color:var(--rose);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
-          <span>Job boards</span>
-          <button onclick="openAllBoards('ht')" style="font-size:11px;background:var(--rose-deep);color:#fff;border-color:var(--rose-deep);padding:3px 10px">Open all ↗</button>
+        <div class="card" style="border-top:3px solid var(--rose-deep);background:var(--navy-light);">
+          <div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px">🏥 Healthtech</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Digital health, behavioral health, VBC, analytics, payer</div>
+          <div style="font-size:11px;color:var(--rose);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+            <span>Job boards</span>
+            <button onclick="openAllBoards('ht')" style="font-size:11px;background:var(--rose-deep);color:#fff;border-color:var(--rose-deep);padding:3px 10px">Open all ↗</button>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+            ${htBoardBtns}
+          </div>
+          <div style="font-size:11px;color:var(--rose);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between">
+            <span>Enterprise</span>${openAllBtn(HT_ENT,'Open all','var(--rose-deep)')}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;padding:10px;background:rgba(196,96,122,0.07);border-radius:6px;border:1px solid rgba(196,96,122,0.18)">
+            ${htEntBtns}
+          </div>
+          <div style="font-size:11px;color:var(--rose);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between">
+            <span>Growth Stage</span>${openAllBtn(HT_START,'Open all','var(--rose-deep)')}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:10px;background:rgba(196,96,122,0.05);border-radius:6px;border:1px solid rgba(196,96,122,0.14)">${htStartBtns}</div>
         </div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
-          ${htBoardBtns}
+
+        <div class="card" style="border-top:3px solid var(--teal);background:var(--navy-light);">
+          <div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px">🫀 Medtech</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Medical devices, upstream/downstream PM, BSC/MDT ecosystem</div>
+          <div style="font-size:11px;color:var(--teal-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
+            <span>Job boards</span>
+            <button onclick="openAllBoards('mt')" style="font-size:11px;background:var(--teal);color:#fff;border-color:var(--teal);padding:3px 10px">Open all ↗</button>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+            ${mtBoardBtns}
+          </div>
+          <div style="font-size:11px;color:var(--teal-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between">
+            <span>Enterprise</span>${openAllBtn(MT_ENT,'Open all','var(--teal)')}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;padding:10px;background:rgba(42,181,160,0.07);border-radius:6px;border:1px solid rgba(42,181,160,0.18)">
+            ${mtEntBtns}
+          </div>
+          <div style="font-size:11px;color:var(--teal-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between">
+            <span>Growth Stage</span>${openAllBtn(MT_START,'Open all','var(--teal)')}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:10px;background:rgba(42,181,160,0.05);border-radius:6px;border:1px solid rgba(42,181,160,0.14)">${mtStartBtns}</div>
         </div>
-        <div style="font-size:11px;color:var(--rose);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between">
-          <span>Enterprise</span>${openAllBtn(HT_ENT,'Open all','var(--rose-deep)')}
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;padding:10px;background:rgba(196,96,122,0.07);border-radius:6px;border:1px solid rgba(196,96,122,0.18)">
-          ${htEntBtns}
-        </div>
-        <div style="font-size:11px;color:var(--rose);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between">
-          <span>Growth / Startup</span>${openAllBtn(HT_START,'Open all','var(--rose-deep)')}
-        </div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap">${htStartBtns}</div>
+
       </div>
 
-      <div class="card" style="border-top:3px solid var(--teal);background:var(--navy-light);">
-        <div style="font-size:14px;font-weight:600;color:var(--tx);margin-bottom:2px">🫀 Medtech</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Medical devices, upstream/downstream PM, BSC/MDT ecosystem</div>
-        <div style="font-size:11px;color:var(--teal-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
-          <span>Job boards</span>
-          <button onclick="openAllBoards('mt')" style="font-size:11px;background:var(--teal);color:#fff;border-color:var(--teal);padding:3px 10px">Open all ↗</button>
+      <div class="card" style="padding:14px 16px;border-top:3px solid var(--sky-blue)">
+        <div style="font-size:13px;font-weight:600;color:var(--sky-blue-light);letter-spacing:.03em;margin-bottom:2px">🔍 LinkedIn Search Builder</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Compose and launch a targeted LinkedIn search from your criteria</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+          <div>${lbl('Keywords')}${inp('li-keywords','senior product manager digital health','keywords')}</div>
+          <div>${lbl('Location')}${inp('li-location','Minneapolis, MN','location')}</div>
+          <div>${lbl('Date posted')}${sel('li-time',[{v:'month',l:'Past month'},{v:'week',l:'Past week'},{v:'24h',l:'Past 24h'},{v:'any',l:'Any time'}],'month')}</div>
+          <div>${lbl('Experience')}${sel('li-exp',[{v:'senior',l:'Senior / Director'},{v:'mid',l:'Mid-Senior'},{v:'director',l:'Director'},{v:'any',l:'Any level'}],'senior')}</div>
         </div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
-          ${mtBoardBtns}
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="amber" onclick="openLinkedIn()" style="flex:1;padding:7px 0;font-size:12px;background:var(--sky-blue);border-color:var(--sky-blue)">Open LinkedIn search ↗</button>
+          <button onclick="copyLinkedInURL()" style="font-size:11px">Copy URL</button>
         </div>
-        <div style="font-size:11px;color:var(--teal-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between">
-          <span>Enterprise</span>${openAllBtn(MT_ENT,'Open all','var(--teal)')}
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px;padding:10px;background:rgba(42,181,160,0.07);border-radius:6px;border:1px solid rgba(42,181,160,0.18)">
-          ${mtEntBtns}
-        </div>
-        <div style="font-size:11px;color:var(--teal-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between">
-          <span>Growth / Smaller</span>${openAllBtn(MT_START,'Open all','var(--teal)')}
-        </div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap">${mtStartBtns}</div>
+        <div id="li-url-preview" style="font-size:10px;color:var(--faint);margin-top:6px;word-break:break-all">${esc(liURL)}</div>
       </div>
 
-    </div>
-
-    <div class="card" style="padding:14px 16px">
-      <div style="font-size:12px;font-weight:600;color:var(--tx);letter-spacing:.03em;text-transform:uppercase;margin-bottom:10px">LinkedIn search builder</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-        <div>${lbl('Keywords')}${inp('li-keywords','senior product manager digital health','keywords')}</div>
-        <div>${lbl('Location')}${inp('li-location','Minneapolis, MN','location')}</div>
-        <div>${lbl('Date posted')}${sel('li-time',[{v:'month',l:'Past month'},{v:'week',l:'Past week'},{v:'24h',l:'Past 24h'},{v:'any',l:'Any time'}],'month')}</div>
-        <div>${lbl('Experience')}${sel('li-exp',[{v:'senior',l:'Senior / Director'},{v:'mid',l:'Mid-Senior'},{v:'director',l:'Director'},{v:'any',l:'Any level'}],'senior')}</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="amber" onclick="openLinkedIn()" style="flex:1;padding:7px 0;font-size:12px;background:var(--sky-blue);border-color:var(--sky-blue)">Open LinkedIn search ↗</button>
-        <button onclick="copyLinkedInURL()" style="font-size:11px">Copy URL</button>
-      </div>
-      <div id="li-url-preview" style="font-size:10px;color:var(--faint);margin-top:6px;word-break:break-all">${esc(liURL)}</div>
     </div>
   `;
 
@@ -1939,7 +2023,7 @@ function renderTracker(el) {
 
   // ── Top priority strip — same card format as main tracker cards ────────────
   const priorityStrip = topPriority.length ? `
-    <div style="margin-bottom:16px">
+    <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--navy-border)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <div style="font-size:10px;color:var(--amber);letter-spacing:.09em;text-transform:uppercase;font-weight:600">⭐ High Priority (${topPriority.length}/10)</div>
         ${topPriority.length>=10 ? `<span style="font-size:11px;color:var(--red);font-weight:500">⚑ At limit</span>` : ''}
@@ -1948,30 +2032,28 @@ function renderTracker(el) {
         const isExp = state.appExpanded && state.appExpanded['top_'+a.id];
         const borderCol = {Saved:'var(--teal)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--green)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[a.stage]||'var(--amber)';
         const cardBg = STAGE_CARD_BG[a.stage]||'var(--card-default)';
-        const details = [a.salary&&pill(a.salary),a.location&&pill(a.location),a.date&&pill('applied: '+a.date),a.fit&&pill('fit: '+a.fit+'/10')].filter(Boolean).join('');
+        const details = [a.salary&&pill(a.salary),a.location&&pill(a.location),a.date&&pill('applied: '+a.date),fitPill(a)].filter(Boolean).join('');
         const nextLine = [a.nextStep,a.nextDate].filter(s=>s&&s!=='—').map(esc).join(' → ');
         const keyReqs = a.keyReqs&&a.keyReqs!=='—'?a.keyReqs:'';
         const gaps = a.gaps||a.notes||'';
-        return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid ${borderCol};border-left:3px solid var(--amber);background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid var(--navy-border);border-left:3px solid var(--amber);background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
+          <div class="app-card-inner" style="display:flex;flex-direction:column;gap:8px">
             <div style="flex:1;min-width:0">
               <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
                 <span style="font-size:14px;font-weight:600;color:var(--tx)">${esc(a.company)}</span>
                 ${badge(a.stage,STAGE_COL[a.stage]||'amber')}
               </div>
               <div style="color:var(--muted);margin-bottom:5px;font-size:12px">${esc(a.role||'')}</div>
-              ${details?`<div style="margin-bottom:5px">${details}</div>`:''}
+              ${details?`<div style="margin-bottom:5px;display:flex;flex-wrap:wrap;gap:2px">${details}</div>`:''}
               ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:3px">→ ${nextLine}</div>`:''}
             </div>
-            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+            <div class="app-card-actions" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">
               ${sel('stg-top-'+a.id,STAGES,a.stage)}
-              <div class="row" style="gap:4px">
-                <button onclick="setAppStage(${a.id},document.getElementById('stg-top-${a.id}').value)" style="font-size:11px">↑ Move</button>
-                <button onclick="toggleHighPriority(${a.id})" title="Remove from high priority" style="font-size:11px;color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)">⭐</button>
-                <button onclick="openProfilePanel(${a.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢</button>
-                <button onclick="state.appEditing=${a.id};render('tracker')" style="font-size:11px">Edit</button>
-                <button onclick="toggleExpandTop(${a.id})" style="font-size:11px;color:var(--muted)">${isExp?'▴':'▾'}</button>
-              </div>
+              <button onclick="setAppStage(${a.id},document.getElementById('stg-top-${a.id}').value)" style="font-size:11px">↑ Move</button>
+              <button onclick="toggleHighPriority(${a.id})" title="Remove from high priority" style="font-size:11px;color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)">⭐</button>
+              <button onclick="openProfilePanel(${a.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢</button>
+              <button onclick="state.appEditing=${a.id};render('tracker')" style="font-size:11px">Edit</button>
+              <button onclick="toggleExpandTop(${a.id})" style="font-size:11px;color:var(--muted)">${isExp?'▴':'▾'}</button>
             </div>
           </div>
           ${isExp && (keyReqs||gaps) ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
@@ -1982,23 +2064,21 @@ function renderTracker(el) {
       }).join('')}
     </div>` : '';
 
-  // ── View toggle buttons ────────────────────────────────────────────────────
-  const VIEW_BTNS = [
-    {v:'all',        l:`All active (${activeCount})`},
-    {v:'recent',     l:'Recent (14d)'},
-    {v:'healthtech', l:'Healthtech'},
-    {v:'medtech',    l:'Medtech'},
-    {v:'priority',   l:'Med / Low priority'},
-    {v:'archived',   l:`Ghosted / Rejected (${archivedCount})`},
-  ];
-  const filterBtns = VIEW_BTNS.map(b=>
-    `<button class="tag ${state.appFilter===b.v?'on':''}" onclick="setAppFilter('${b.v}')">${b.l}</button>`
-  ).join('');
-
-  // Stage sub-filter (shown when not in archived view)
-  const stageBtns = STAGES.filter(s=>!HIDDEN_STAGES.includes(s)).map(s=>
-    `<button class="tag ${state.appFilter===s?'on':''}" onclick="setAppFilter('${s}')" style="font-size:10px">${s} (${STAGE_COUNTS[s]||0})</button>`
-  ).join('');
+  // ── Unified filter row: All + stages with entries + category filters + Archived ──
+  const PIPELINE_STAGES = STAGES.filter(s => !HIDDEN_STAGES.includes(s));
+  const unifiedBtns = [
+    // All active
+    `<button class="tag ${state.appFilter==='all'?'on':''}" onclick="setAppFilter('all')">All active (${activeCount})</button>`,
+    // Pipeline stages — only show if count > 0, or currently active filter
+    ...PIPELINE_STAGES
+      .filter(s => STAGE_COUNTS[s] > 0 || state.appFilter === s)
+      .map(s => `<button class="tag ${state.appFilter===s?'on':''}" onclick="setAppFilter('${s}')" style="font-size:10px">${s} (${STAGE_COUNTS[s]||0})</button>`),
+    // Category filters
+    `<button class="tag ${state.appFilter==='healthtech'?'on':''}" onclick="setAppFilter('healthtech')" style="font-size:10px">Healthtech</button>`,
+    `<button class="tag ${state.appFilter==='medtech'?'on':''}" onclick="setAppFilter('medtech')" style="font-size:10px">Medtech</button>`,
+    // Archived — always shown
+    `<button class="tag ${state.appFilter==='archived'?'on':''}" onclick="setAppFilter('archived')" style="font-size:10px">Archived (${archivedCount})</button>`,
+  ].join('');
 
   const sortBtns = [{v:'updated',l:'Updated'},{v:'date',l:'Date applied'},{v:'priority',l:'Priority'}].map(s=>
     `<button class="tag ${state.appSort===s.v?'on':''}" onclick="state.appSort='${s.v}';render('tracker')" style="font-size:10px">${s.l}</button>`
@@ -2035,7 +2115,7 @@ function renderTracker(el) {
       app.salary && pill(esc(app.salary)),
       app.location && pill(esc(app.location)),
       app.date && pill('applied: '+app.date),
-      app.fit && pill('fit: '+app.fit+'/10')
+      app.fit && fitPill(app)
     ].filter(Boolean).join('');
     const contactLine  = [app.contact,app.netContact].filter(s=>s&&s!=='—')
       .map(s => isGuest() ? `<span class="redacted">${esc(s)}</span>` : esc(s)).join(' · ');
@@ -2083,7 +2163,7 @@ function renderTracker(el) {
         ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint)"><span style="color:var(--muted)">notes:</span> ${isGuest()?'<span class="redacted">'+esc(gaps)+'</span>':esc(gaps)}</div>`:''}
       </div>` : '';
 
-    return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid ${borderCol};border-left:3px solid ${borderCol};background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
+    return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid var(--navy-border);border-left:3px solid ${borderCol};background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
       ${condensed}${expanded}
     </div>`;
   }).join('');
@@ -2134,18 +2214,29 @@ function renderTracker(el) {
     </div>
   </div>`;
 
-  const appSecHead = secHead('JobQuest Application Development System', 'Track, analyze, and prioritize your search', 'Applications');
+  const appSecHead = `
+  <div style="margin-bottom:20px;border-radius:12px;overflow:hidden;border:1px solid rgba(91,160,210,0.20)">
+    <div style="background:linear-gradient(135deg,#0D2033 0%,#1C3A50 100%);padding:18px 22px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden">
+      <svg width="54" height="54" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:14px;right:16px;filter:drop-shadow(2px 2px 0px #C4607A);opacity:0.9;pointer-events:none">
+        <polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#F4F8FC"/>
+      </svg>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <span style="display:inline-block;width:12px;height:1px;background:var(--rose-deep)"></span>pipeline · tracker · analyzer
+        </div>
+        <div style="font-size:46px;font-weight:400;color:#F4F8FC;line-height:1;letter-spacing:-.02em;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Applications</div>
+        <div style="font-size:12px;color:#B8D4E8;margin-top:6px;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Track, analyze, and prioritize your search</div>
+      </div>
+    </div>
+  </div>`;
 
   el.innerHTML = appSecHead + miniTimerWidget() + dashAndJD + `
     ${priorityStrip}
-    <div class="stage-filters" style="margin-bottom:6px">
-      ${filterBtns}
-      ${isGuest() ? '' : `<button class="amber" onclick="state.appShowAdd=!state.appShowAdd;render('tracker')" style="margin-left:auto">+ Add</button>`}
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <div class="stage-filters" style="margin-bottom:0;flex:1;min-width:0">${unifiedBtns}</div>
+      ${isGuest() ? '' : `<button class="amber" onclick="state.appShowAdd=!state.appShowAdd;render('tracker')" style="flex-shrink:0;align-self:flex-start">+ Add</button>`}
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center">
-      <span style="font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase">By stage:</span>${stageBtns}
-    </div>
-    <div style="display:flex;gap:6px;margin-bottom:14px;align-items:center">
+    <div style="display:flex;gap:6px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
       <span style="font-size:11px;color:var(--faint)">Sort:</span>${sortBtns}
     </div>
     ${addForm}
@@ -2298,50 +2389,134 @@ function copyProfile() {
 // ── POMODORO ──────────────────────────────────────────────────────────────────
 
 function renderPomodoro(el) {
-  const cur = [{key:'focus',label:'Focus',mins:25,col:'var(--amber)'},{key:'short',label:'Short break',mins:5,col:'var(--green)'},{key:'long',label:'Long break',mins:15,col:'var(--blue)'}][state.pomMode];
-  const R=80, Circ=2*Math.PI*R, pct=state.pomSecs/state.pomTotal;
-  const mm=String(Math.floor(state.pomSecs/60)).padStart(2,'0'), ss=String(state.pomSecs%60).padStart(2,'0');
-
-  const taskBtns = POM_TASKS.map(t => `<button class="tag ${state.pomTask===t&&!state.pomCustomTask?'on':''}" onclick="setPomTask('${esc(t)}')">${esc(t)}</button>`).join('');
+  const MODES = [
+    {key:'focus',  label:'Focus',       mins:25, col:'var(--amber)', pale:'rgba(201,138,14,0.10)', brd:'rgba(201,138,14,0.35)', countUp:false},
+    {key:'short',  label:'Short break', mins:5,  col:'var(--green)', pale:'rgba(42,155,122,0.10)', brd:'rgba(42,155,122,0.30)', countUp:true},
+    {key:'long',   label:'Long break',  mins:15, col:'var(--blue)',  pale:'rgba(74,159,212,0.10)', brd:'rgba(74,159,212,0.30)', countUp:false},
+  ];
+  const cur = MODES[state.pomMode];
+  const R=80, Circ=2*Math.PI*R;
+  // count-up: ring fills as time passes (cap visual at 10min); countdown: drains normally
+  const pct = cur.countUp
+    ? Math.min(state.pomSecs / (10*60), 1)
+    : state.pomSecs/state.pomTotal;
+  const displaySecs = state.pomSecs;
+  const mm=String(Math.floor(displaySecs/60)).padStart(2,'0'), ss=String(displaySecs%60).padStart(2,'0');
+  const timeDisplay = cur.countUp ? `+${mm}:${ss}` : `${mm}:${ss}`;
+  const ds = getDailyTaskState();
 
   const logRows = state.pomLog.slice(-6).reverse().map(l =>
-    `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--brd);font-size:12px"><span>${esc(l.task)}</span><span style="color:var(--faint)">${l.time} · ${l.mins}m</span></div>`
+    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--brd);font-size:12px">
+      <span style="color:var(--muted)">${esc(l.task)}</span>
+      <span style="color:var(--faint);font-family:var(--mono);font-size:11px">${l.time} · ${l.mins}m</span>
+    </div>`
   ).join('');
 
-  const dots = [...Array(4)].map((_,i) => `<div style="width:14px;height:14px;border-radius:50%;background:${i<(state.pomSessions%4)?'var(--amber)':'var(--surf)'};border:1px solid var(--brd)"></div>`).join('');
+  const dots = [...Array(4)].map((_,i) =>
+    `<div style="width:12px;height:12px;border-radius:50%;background:${i<(state.pomSessions%4)?'var(--amber)':'rgba(255,255,255,0.06)'};border:1px solid ${i<(state.pomSessions%4)?'rgba(201,138,14,0.5)':'rgba(255,255,255,0.10)'}"></div>`
+  ).join('');
 
-  el.innerHTML = secHead('Focus timer') + `
-    <div class="row" style="margin-bottom:20px">
-      ${[{l:'Focus',c:'var(--amber)'},{l:'Short break',c:'var(--green)'},{l:'Long break',c:'var(--blue)'}].map((m,i)=>`<button onclick="switchPomMode(${i})" style="flex:1;color:${state.pomMode===i?m.c:'var(--muted)'};border-color:${state.pomMode===i?m.c:'var(--brd)'}">${m.l}</button>`).join('')}
-    </div>
-    <div style="display:flex;justify-content:center;margin-bottom:20px">
-      <div style="position:relative;width:200px;height:200px">
-        <svg id="pom-svg" width="200" height="200">
-          <circle cx="100" cy="100" r="${R}" fill="none" stroke="var(--surf)" stroke-width="8"/>
-          <circle cx="100" cy="100" r="${R}" fill="none" stroke="${cur.col}" stroke-width="8" stroke-dasharray="${Circ}" stroke-dashoffset="${Circ*(1-pct)}" stroke-linecap="round" style="transition:${state.pomRunning?'stroke-dashoffset 1s linear':'none'}"/>
+  el.innerHTML = `
+  <!-- ═══════ FOCUS TIMER ═══════ -->
+  <div style="margin-bottom:20px">
+
+    <!-- Identity bar — mirrors HQ hero -->
+    <div style="border-radius:12px 12px 0 0;overflow:hidden;border:1px solid rgba(91,160,210,0.20);border-bottom:none">
+      <div style="background:linear-gradient(135deg,#0D2033 0%,#1C3A50 100%);padding:18px 22px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden">
+        <svg width="54" height="54" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:14px;right:16px;filter:drop-shadow(2px 2px 0px rgba(255,255,255,0.4));opacity:0.9;pointer-events:none">
+          <polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#F5A623"/>
         </svg>
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div class="pom-countdown-display" style="font-size:42px;font-weight:500;letter-spacing:-2px;color:var(--tx)">${mm}:${ss}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">${cur.label}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;color:var(--amber);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+            <span style="display:inline-block;width:12px;height:1px;background:var(--amber)"></span>deep work · stay in flow
+          </div>
+          <div style="font-size:46px;font-weight:400;color:#F4F8FC;line-height:1;letter-spacing:-.02em;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Focus</div>
+          <div style="font-size:12px;color:#B8D4E8;margin-top:6px;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Pomodoro timer · session log · daily cadence</div>
         </div>
       </div>
+
+      <!-- Mode strip -->
+      <div style="background:rgba(8,18,30,0.85);border-top:1px solid rgba(91,160,210,0.12);display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid rgba(91,160,210,0.10)">
+        ${MODES.map((m,i) => `
+          <div onclick="switchPomMode(${i})" style="padding:10px 6px;text-align:center;cursor:pointer;border-right:1px solid rgba(255,255,255,0.05);background:${state.pomMode===i?m.pale:'transparent'};border-bottom:${state.pomMode===i?`2px solid ${m.col}`:'2px solid transparent'};transition:all .15s" onmouseover="this.style.background='${m.pale}'" onmouseout="this.style.background='${state.pomMode===i?m.pale:'transparent'}'">
+            <div style="font-size:15px;font-weight:700;color:${state.pomMode===i?m.col:'var(--faint)'};line-height:1;font-family:'DM Mono',monospace">${m.countUp ? '↑' : [25,5,15][i]+'m'}</div>
+            <div style="font-size:9px;color:${state.pomMode===i?m.col:'var(--faint)'};margin-top:3px;letter-spacing:.04em;text-transform:uppercase">${m.label}</div>
+          </div>`).join('')}
+      </div>
     </div>
-    <div class="row" style="justify-content:center;margin-bottom:16px">
-      <button class="${state.pomRunning?'':'amber'}" style="min-width:90px;font-size:13px" onclick="togglePom()">${state.pomRunning?'Pause':state.pomSecs===state.pomTotal?'Start':'Resume'}</button>
-      <button style="font-size:13px" onclick="resetPom()">Reset</button>
+
+    <!-- Timer + controls panel -->
+    <div style="border:1px solid rgba(91,160,210,0.20);border-top:none;border-radius:0 0 12px 12px;background:var(--navy-mid);overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+
+        <!-- Left: ring + controls -->
+        <div style="padding:24px 20px;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;gap:16px">
+          <div style="position:relative;width:200px;height:200px">
+            <svg id="pom-svg" width="200" height="200">
+              <circle cx="100" cy="100" r="${R}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+              <circle cx="100" cy="100" r="${R}" fill="none" stroke="${cur.col}" stroke-width="8" stroke-dasharray="${Circ}" stroke-dashoffset="${Circ*(1-pct)}" stroke-linecap="round" style="transition:${state.pomRunning?'stroke-dashoffset 1s linear':'none'}"/>
+            </svg>
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div class="pom-countdown-display" style="font-size:42px;font-weight:500;letter-spacing:-2px;color:var(--tx);font-family:'DM Mono',monospace">${timeDisplay}</div>
+              <div style="font-size:11px;color:${cur.col};margin-top:4px;letter-spacing:.04em;text-transform:uppercase">${cur.countUp ? 'on break' : cur.label}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;width:100%">
+            <button style="flex:1;font-size:13px;background:${state.pomRunning?'rgba(255,255,255,0.06)':cur.pale};border-color:${state.pomRunning?'var(--brd2)':cur.brd};color:${state.pomRunning?'var(--tx)':cur.col};font-weight:600" onclick="togglePom()">${state.pomRunning?'Pause':state.pomSecs===0||state.pomSecs===state.pomTotal?'Start':'Resume'}</button>
+            <button style="font-size:13px" onclick="resetPom()">Reset</button>
+          </div>
+          <div style="display:flex;gap:8px;width:100%;align-items:center">
+            ${inp('pom-custom',state.pomCustomMins,'Custom mins','flex:1')}
+            <button onclick="applyPomCustom()" style="white-space:nowrap">Set</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${dots}
+            <span style="font-size:11px;color:var(--muted)">${state.pomSessions} session${state.pomSessions!==1?'s':''} today</span>
+          </div>
+        </div>
+
+        <!-- Right: task + log -->
+        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="font-size:10px;color:var(--amber);letter-spacing:.09em;text-transform:uppercase;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:14px;height:1px;display:inline-block;background:var(--amber)"></span>Daily tasks</div>
+            <div style="margin-bottom:12px">
+              ${DAILY_TASKS_DEF.map(task => {
+                const done = ds.done[task.id];
+                const isActive = state.pomTask === task.label && !state.pomCustomTask;
+                const isStretch = !!task.stretch;
+                return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05);${isStretch?'opacity:0.75':''}">
+                  <button onclick="launchDailyTaskById('${task.id}')" style="flex-shrink:0;font-size:10px;white-space:nowrap;padding:3px 8px;background:${done?'rgba(255,255,255,0.04)':isActive?'rgba(201,138,14,0.22)':'rgba(201,138,14,0.10)'};border-color:${done?'rgba(255,255,255,0.08)':isActive?'rgba(201,138,14,0.55)':'rgba(201,138,14,0.28)'};color:${done?'var(--faint)':isActive?'#E8C97A':'rgba(232,201,122,0.65)'};font-weight:600">⏱ ${task.pomMins}m</button>
+                  <div onclick="setPomTask('${esc(task.label)}')" style="flex:1;min-width:0;cursor:pointer">
+                    <div style="font-size:11px;font-weight:${isActive?'600':'500'};color:${done?'var(--faint)':isActive?'var(--tx)':'var(--muted)'};${done?'text-decoration:line-through':''}">${task.icon} ${task.label}${isStretch?' <span style="font-size:9px;color:var(--faint);font-weight:400">stretch</span>':''}</div>
+                  </div>
+                  <button onclick="setDailyTaskDone('${task.id}',${!done});render('pomodoro')" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;font-size:11px;${done?'background:var(--green);border-color:var(--green);color:#fff':'background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.12);color:var(--faint)'}" title="${done?'Mark incomplete':'Mark done'}">${done?'✓':'○'}</button>
+                </div>`;
+              }).join('')}
+            </div>
+            <div style="font-size:10px;color:var(--sky-blue-light);letter-spacing:.09em;text-transform:uppercase;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:14px;height:1px;display:inline-block;background:var(--sky-blue)"></span>Other tasks</div>
+            <div style="margin-bottom:10px">
+              ${POM_TASKS.map(t => {
+                const isActive = state.pomTask === t && !state.pomCustomTask;
+                return `<div onclick="setPomTask('${esc(t)}')" style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;background:${isActive?'rgba(91,158,201,0.12)':'transparent'};border:1px solid ${isActive?'var(--sky-blue-mid)':'transparent'};transition:all .12s" onmouseover="if(!${isActive})this.style.background='rgba(255,255,255,0.04)'" onmouseout="if(!${isActive})this.style.background='transparent'">
+                  <div style="width:6px;height:6px;border-radius:50%;flex-shrink:0;background:${isActive?'var(--sky-blue)':'rgba(255,255,255,0.18)'}"></div>
+                  <span style="font-size:11px;color:${isActive?'var(--sky-blue-light)':'var(--muted)'};font-weight:${isActive?'600':'400'}">${esc(t)}</span>
+                </div>`;
+              }).join('')}
+            </div>
+            ${inp('pom-task-custom',state.pomCustomTask,'Or type a custom task…')}
+          </div>
+          ${state.pomLog.length ? `
+          <div>
+            <div style="font-size:10px;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="width:14px;height:1px;display:inline-block;background:var(--faint)"></span>Today's log</div>
+            <div style="background:rgba(8,18,30,0.4);border:1px solid var(--navy-border);border-radius:8px;padding:4px 10px">${logRows}</div>
+          </div>` : ''}
+        </div>
+
+      </div>
     </div>
-    <div class="row" style="margin-bottom:16px">
-      ${inp('pom-custom',state.pomCustomMins,'Custom duration (mins)','flex:1')}
-      <button onclick="applyPomCustom()">Set</button>
-    </div>
-    <div class="card" style="margin-bottom:12px">
-      ${lbl('Current task')}
-      <div class="tag-row" style="margin-top:8px">${taskBtns}</div>
-      ${inp('pom-task-custom',state.pomCustomTask,'Or type a custom task…')}
-    </div>
-    <div class="row" style="margin-bottom:${state.pomLog.length?'12px':'0'}">${dots}<span style="font-size:12px;color:var(--muted)">${state.pomSessions} session${state.pomSessions!==1?'s':''} today</span></div>
-    ${state.pomLog.length?`<div class="card">${lbl('Today\'s log')}${logRows}</div>`:''}
-  `;
+
+  </div>`;
+
   document.getElementById('pom-custom').addEventListener('input',e=>state.pomCustomMins=e.target.value);
   document.getElementById('pom-task-custom').addEventListener('input',e=>{ state.pomCustomTask=e.target.value; if(e.target.value) state.pomTask=''; });
 }
@@ -2349,7 +2524,9 @@ function renderPomodoro(el) {
 function switchPomMode(i) {
   clearInterval(pomInterval); pomInterval=null;
   const mins=[25,5,15][i];
-  state.pomMode=i; state.pomRunning=false; state.pomTotal=mins*60; state.pomSecs=mins*60;
+  const countUp = i===1; // short break is count-up
+  state.pomMode=i; state.pomRunning=false; state.pomTotal=mins*60;
+  state.pomSecs = countUp ? 0 : mins*60;
   render('pomodoro');
 }
 
@@ -2357,23 +2534,32 @@ function togglePom() {
   if(state.pomRunning) { clearInterval(pomInterval); pomInterval=null; state.pomRunning=false; }
   else {
     state.pomRunning=true;
+    const countUp = state.pomMode===1;
     pomInterval=setInterval(()=>{
-      state.pomSecs--;
-      if(state.pomSecs<=0) {
-        clearInterval(pomInterval); pomInterval=null; state.pomRunning=false;
-        if(state.pomMode===0) {
-          state.pomSessions++;
-          state.pomLog.push({task:state.pomCustomTask||state.pomTask,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),mins:[25,5,15][state.pomMode]});
-        }
-        state.pomSecs=0;
-        render('pomodoro');
-        updateMiniTimer();
-      } else {
-        // Only update the countdown display elements — no full re-render
+      if(countUp) {
+        state.pomSecs++;
+        // Just update display — no auto-stop for count-up
         const m=Math.floor(state.pomSecs/60), s=state.pomSecs%60;
-        const timeStr=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        const timeStr=`+${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         document.querySelectorAll('.pom-countdown-display').forEach(el=>el.textContent=timeStr);
         updateMiniTimer();
+      } else {
+        state.pomSecs--;
+        if(state.pomSecs<=0) {
+          clearInterval(pomInterval); pomInterval=null; state.pomRunning=false;
+          if(state.pomMode===0) {
+            state.pomSessions++;
+            state.pomLog.push({task:state.pomCustomTask||state.pomTask,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),mins:[25,5,15][state.pomMode]});
+          }
+          state.pomSecs=0;
+          render('pomodoro');
+          updateMiniTimer();
+        } else {
+          const m=Math.floor(state.pomSecs/60), s=state.pomSecs%60;
+          const timeStr=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+          document.querySelectorAll('.pom-countdown-display').forEach(el=>el.textContent=timeStr);
+          updateMiniTimer();
+        }
       }
     },1000);
   }
@@ -2385,11 +2571,14 @@ function resetPom() { clearInterval(pomInterval); pomInterval=null; state.pomRun
 function updateMiniTimer() {
   const widgets = document.querySelectorAll('.mini-timer-widget');
   if(!widgets.length) return;
-  const active = state.pomRunning || state.pomSecs < state.pomTotal;
+  const active = state.pomRunning || state.pomSecs > 0;
   if(!active) { widgets.forEach(w=>w.style.display='none'); return; }
+  const countUp = state.pomMode===1;
   const m=Math.floor(state.pomSecs/60), s=state.pomSecs%60;
-  const timeStr=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  const task=state.pomCustomTask||state.pomTask||'Focus session';
+  const timeStr = countUp
+    ? `+${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const task = countUp ? 'Short break' : (state.pomCustomTask||state.pomTask||'Focus session');
   const modeColors=['var(--amber)','var(--green)','var(--blue)'];
   const col=modeColors[state.pomMode]||'var(--amber)';
   widgets.forEach(w=>{
@@ -2516,17 +2705,6 @@ function renderNetwork(el) {
   const tileClick = (view) => `state.netFilter.view='${view}';render('network')`;
   const activeTile = (view) => filt.view===view;
 
-  // Dashboard tiles
-  const tiles = [
-    {label:'Total',     val:total,  col:'var(--sky-blue)',  bg:'var(--sky-blue-pale)',  brd:'var(--sky-blue-mid)', view:'all'},
-    {label:'Warm',      val:warm,   col:'var(--teal)',      bg:'var(--teal-pale)',       brd:'var(--teal-border)',  view:'warm'},
-    {label:'Nudge',     val:nudge,  col:'var(--amber)',     bg:'var(--gold-pale)',       brd:'var(--gold-border)',  view:'nudge'},
-    {label:'Cold',      val:cold,   col:'var(--faint)',     bg:'rgba(255,255,255,0.04)', brd:'var(--brd)',          view:'cold'},
-  ].map(t=>`<div onclick="${tileClick(t.view)}" style="background:${t.bg};border:1px solid ${activeTile(t.view)?t.col:t.brd};border-radius:8px;padding:10px 12px;text-align:center;cursor:pointer;transition:all .15s;${activeTile(t.view)?`box-shadow:0 0 0 2px ${t.col};`:''}flex:1" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-    <div style="font-size:22px;font-weight:600;color:${t.col};line-height:1">${t.val}</div>
-    <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.04em">${t.label}</div>
-  </div>`).join('');
-
   // Contact form
   const contactForm = (prefix, c={}, isEdit=false) => `
     <div class="card" style="border-top:2px solid var(--sky-blue);margin-bottom:12px">
@@ -2574,23 +2752,17 @@ function renderNetwork(el) {
 
     const isExpanded = state.netExpanded && state.netExpanded[c.id];
 
-    // Right column — Log activity (opens editor), Nudge/Update prompts, Edit
-    const rightCol = `<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;width:128px" onclick="event.stopPropagation()">
-      <button onclick="openActivityEditor(${c.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:5px 0;text-align:center;font-weight:600">➕ Log activity</button>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">
-        <button onclick="copyNetPrompt('nudge','${c.id}')" style="font-size:10px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:3px 0;text-align:center">💬 Nudge</button>
-        <button onclick="copyNetPrompt('update','${c.id}')" style="font-size:10px;padding:3px 0;text-align:center">📋 Update</button>
-      </div>
-      <button onclick="state.netEditing=${c.id};state.netShowAdd=false;render('network')" style="font-size:10px;color:var(--muted);padding:3px 0;width:100%;text-align:center">✏️ Edit</button>
+    // Right column — tag-style buttons matching sort row
+    const rightCol = `<div class="net-col-right" style="display:flex;flex-direction:column;gap:0;flex-shrink:0;width:128px" onclick="event.stopPropagation()">
     </div>`;
 
     // Middle column — Last contact + last activity chip
-    const midCol = `<div style="flex:0 0 116px;padding:0 10px;display:flex;flex-direction:column;gap:4px;justify-content:center;border-left:1px solid var(--brd);border-right:1px solid var(--brd)">
-      <div style="font-size:11px;color:var(--muted)">
-        <span style="color:var(--faint);font-size:10px;letter-spacing:.04em;text-transform:uppercase">Last</span><br>
+    const midCol = `<div class="net-col-mid" style="flex:0 0 116px;padding:0 10px;display:flex;flex-direction:column;gap:3px;justify-content:center;border-left:1px solid var(--brd);border-right:1px solid var(--brd)">
+      <div style="font-size:9px;color:var(--faint);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">Last</div>
+      <div style="font-size:11px;color:var(--tx)">
         ${isGuest()
           ? `<span class="redacted">${esc(fmtDate(c.last))}</span>`
-          : `<span style="color:var(--tx)">${fmtDate(c.last)}</span>${days!==null?`<span style="color:var(--faint);font-size:10px"> · ${days}d</span>`:''}`}
+          : `${fmtDate(c.last)}${days!==null?`<span style="color:var(--faint);font-size:10px"> · ${days}d</span>`:''}`}
       </div>
       ${isGuest() ? '' : lastChip}
       ${c.source&&!isGuest()?`<div style="font-size:10px;color:var(--faint)">via ${esc(c.source)}</div>`:''}
@@ -2602,8 +2774,8 @@ function renderNetwork(el) {
     const nextOverdue = nextDays !== null && nextDays > 0;
     const nextSoon = nextDays !== null && nextDays <= 0 && nextDays >= -3;
     const hasNext = !!(c.next || (c.nextType && c.nextType!==''));
-    const nextCol = `<div style="flex:0 0 118px;padding:0 10px;display:flex;flex-direction:column;gap:2px;justify-content:center;border-right:1px solid var(--brd)" onclick="event.stopPropagation()">
-      <span style="color:var(--faint);font-size:10px;letter-spacing:.04em;text-transform:uppercase">Next</span>
+    const nextCol = `<div class="net-col-next" style="flex:0 0 118px;padding:0 10px;display:flex;flex-direction:column;gap:2px;justify-content:center;border-right:1px solid var(--brd)" onclick="event.stopPropagation()">
+      <div style="font-size:9px;color:var(--faint);letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px">Next</div>
       ${hasNext ? `
         <div style="font-size:11px;color:${nextOverdue?'var(--rose)':nt.col};font-weight:500">${nt.icon||'•'} ${isGuest()?`<span class="redacted">${c.next?fmtDate(c.next):'—'}</span>`:(c.next?fmtDate(c.next):'—')}</div>
         ${isGuest()?'':(nextOverdue?`<span style="font-size:9px;color:var(--rose)">⚠ ${nextDays}d overdue</span>`:nextSoon?`<span style="font-size:9px;color:var(--amber)">${nextDays===0?'today':'in '+(-nextDays)+'d'}</span>`:'')}
@@ -2612,36 +2784,45 @@ function renderNetwork(el) {
       ` : (isGuest()?`<span style="font-size:10px;color:var(--faint)">—</span>`:`<button onclick="openActivityEditor(${c.id})" style="font-size:10px;color:var(--amber);background:var(--gold-pale);border:1px solid var(--gold-border);border-radius:5px;padding:3px 0;text-align:center">+ set</button>`)}
     </div>`;
 
-    // Activity log (expanded only)
+    // Activity log — condensed rows, pencil edit per entry
     const actLog = (c.activityLog||[]).slice(0,8).map((entry, i)=>{
       const at = ACTIVITY_TYPES.find(a=>a.key===entry.type)||{icon:'·',col:'var(--faint)',label:entry.type};
-      return `<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--brd)">
-        <span style="font-size:13px;flex-shrink:0">${at.icon}</span>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:11px;color:${at.col};font-weight:500">${at.label}
-            ${entry.note
-              ? `<span style="color:var(--muted);font-weight:400"> — ${esc(entry.note)}</span>${isGuest()?'':` <button onclick="openNoteEdit(${c.id},${i})" style="font-size:10px;color:var(--faint);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline">edit</button>`}`
-              : (isGuest()?'':`<button onclick="openNoteEdit(${c.id},${i})" style="font-size:10px;color:var(--faint);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;margin-left:6px">+ add note</button>`)}
-          </div>
-        </div>
-        <div style="font-size:10px;color:var(--faint);flex-shrink:0">${fmtDate(entry.date)}</div>
+      return `<div style="display:flex;gap:6px;align-items:baseline;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+        <span style="font-size:11px;flex-shrink:0">${at.icon}</span>
+        <span style="font-size:11px;color:${at.col};flex-shrink:0">${at.label}</span>
+        ${entry.note ? `<span style="font-size:11px;color:var(--faint);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"> — ${esc(entry.note)}</span>` : `<span style="flex:1"></span>`}
+        <span style="font-size:10px;color:var(--faint);flex-shrink:0;white-space:nowrap">${fmtDate(entry.date)}</span>
+        ${isGuest()?'':`<button onclick="openNoteEdit(${c.id},${i})" style="font-size:10px;color:var(--faint);background:none;border:none;padding:0 0 0 2px;cursor:pointer;flex-shrink:0" title="Edit note">✏</button>`}
       </div>`;
     }).join('');
 
     const expandedContent = isExpanded ? `
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
-        ${c.notes?`<div style="font-size:11px;color:var(--faint);margin-bottom:10px;line-height:1.5;padding:7px 10px;background:rgba(255,255,255,0.03);border-radius:5px">📝 ${isGuest()?'<span class="redacted">'+esc(c.notes)+'</span>':esc(c.notes)}</div>`:''}
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="font-size:10px;color:var(--sky-blue-light);letter-spacing:.07em;text-transform:uppercase;font-weight:600">Activity Log</div>
-          ${isGuest()?'':`<button onclick="openActivityEditor(${c.id})" style="font-size:10px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:2px 10px">➕ Log activity</button>`}
+      <div style="margin-top:10px;padding-top:0;display:flex;flex-direction:column;gap:0">
+
+        ${c.notes ? `
+        <div style="padding:8px 0;border-top:1px solid var(--brd)">
+          <div style="font-size:9px;color:var(--faint);letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px">Notes</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6">${isGuest()?'<span class="redacted">'+esc(c.notes)+'</span>':esc(c.notes)}</div>
+        </div>` : ''}
+
+        <div style="padding:8px 0;border-top:1px solid var(--brd)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-size:9px;color:var(--faint);letter-spacing:.07em;text-transform:uppercase">Activity</div>
+            ${isGuest()?'':`<button onclick="state.netEditing=${c.id};state.netShowAdd=false;render('network')" style="font-size:10px;color:var(--faint);background:none;border:none;padding:0;cursor:pointer">edit contact</button>`}
+          </div>
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:3px;margin-bottom:6px" onclick="event.stopPropagation()">
+            <button onclick="openActivityEditor(${c.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:5px 12px;font-weight:600;border-radius:6px;white-space:nowrap">+ Log</button>
+            <button onclick="copyNetPrompt('nudge','${c.id}')" class="tag" style="font-size:10px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale);padding:4px 4px;text-align:center;border-radius:20px">Nudge</button>
+            <button onclick="copyNetPrompt('update','${c.id}')" class="tag" style="font-size:10px;padding:4px 4px;text-align:center;border-radius:20px">Update</button>
+            <button onclick="copyNetPrompt('referral','${c.id}')" class="tag" style="font-size:10px;color:var(--rose);border-color:var(--rose-border);background:var(--rose-pale);padding:4px 4px;text-align:center;border-radius:20px">Ask</button>
+          </div>
+          ${actLog || `<div style="font-size:11px;color:var(--faint);font-style:italic">No activity yet.</div>`}
         </div>
-        ${actLog || `<div style="font-size:11px;color:var(--faint);padding:6px 0">No activity logged yet — use “Log activity” to record your first touch.</div>`}
-        <div style="margin-top:10px;display:flex;gap:6px">
-          <button onclick="copyNetPrompt('referral','${c.id}')" style="font-size:11px;color:var(--rose);border-color:var(--rose-border);background:var(--rose-pale)">✨ Referral ask</button>
-        </div>
+
       </div>` : '';
 
-    return `<div class="card" style="margin-bottom:7px;border-left:3px solid ${hm.col};border-radius:0 10px 10px 0;padding:10px 12px;opacity:${isCold?'0.62':'1'}">
+
+    return `<div class="card net-card${isExpanded?' net-card-expanded':''}" style="margin-bottom:7px;border-left:3px solid ${hm.col};border-radius:0 10px 10px 0;padding:10px 12px;opacity:${isCold?'0.62':'1'}">
       <div class="net-row" style="display:flex;gap:0;align-items:stretch">
         <!-- LEFT: who -->
         <div style="flex:1;min-width:0;padding-right:10px;cursor:pointer" onclick="state.netExpanded=state.netExpanded||{};state.netExpanded[${c.id}]=!state.netExpanded[${c.id}];render('network')">
@@ -2651,52 +2832,81 @@ function renderNetwork(el) {
             ${badge(c.rel, REL_COL[c.rel]||'blue')}
           </div>
           <div style="color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${isGuest() ? [c.role&&`<span class="redacted">${esc(c.role)}</span>`,c.company&&esc(c.company)].filter(Boolean).join(' · ') : [c.role,c.company].filter(Boolean).map(esc).join(' · ')}</div>
-          <div style="margin-top:3px;font-size:10px;color:var(--faint)">${isExpanded?'▲ collapse':'▼ expand'}</div>
+          <div style="margin-top:4px;font-size:11px;color:var(--sky-blue);font-weight:500">${isExpanded?'▲ collapse':'▼ expand'}</div>
         </div>
         <!-- MIDDLE: last contact -->
         ${midCol}
         <!-- NEXT: planned next action -->
         ${nextCol}
-        <!-- RIGHT: actions -->
-        ${isGuest() ? '' : rightCol}
       </div>
       ${expandedContent}
     </div>`;
   }).join('');
 
-  el.innerHTML = secHead('Networking', 'Contacts, warm outreach &amp; referral pipeline', 'Networking') +
-    miniTimerWidget() + `
-    <div style="display:flex;gap:8px;margin-bottom:12px">${tiles}</div>
+  // Overdue contacts — next action date is in the past
+  const overdue = withHeat.filter(c => {
+    const d = c.next ? Math.floor((Date.now() - new Date(c.next+'T00:00:00')) / 86400000) : -1;
+    return d > 0;
+  }).length;
+  const warmPct = total > 0 ? Math.round((warm / total) * 100) : 0;
 
+  const netHero = `
+  <div style="margin-bottom:20px;border-radius:12px;overflow:hidden;border:1px solid rgba(42,181,160,0.22)">
+    <div style="background:linear-gradient(135deg,#0D2033 0%,#1C3A50 100%);padding:18px 22px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden">
+      <svg width="54" height="54" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:14px;right:16px;filter:drop-shadow(2px 2px 0px rgba(42,181,160,0.5));opacity:0.9;pointer-events:none">
+        <polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#2AB5A0"/>
+      </svg>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10px;color:var(--teal);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <span style="display:inline-block;width:12px;height:1px;background:var(--teal)"></span>outreach · warm pipeline · referrals
+        </div>
+        <div style="font-size:46px;font-weight:400;color:#F4F8FC;line-height:1;letter-spacing:-.02em;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Network</div>
+        <div style="font-size:12px;color:#B8D4E8;margin-top:6px;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Contacts, warm outreach &amp; referral pipeline</div>
+      </div>
+    </div>
+    <div style="background:rgba(8,18,30,0.85);border-top:1px solid rgba(42,181,160,0.14);display:grid;grid-template-columns:repeat(4,1fr)">
+      ${[
+        {label:'Warm %',  val:warmPct+'%', col:'var(--teal)',    rest:'rgba(42,181,160,0.08)',  hover:'rgba(42,181,160,0.18)',  onclick:tileClick('warm')},
+        {label:'Warm',    val:warm,        col:'var(--teal)',    rest:'rgba(42,181,160,0.06)',  hover:'rgba(42,181,160,0.14)',  onclick:tileClick('warm')},
+        {label:'Nudge',   val:nudge,       col:'var(--amber)',   rest:'rgba(201,138,14,0.07)',  hover:'rgba(201,138,14,0.16)',  onclick:tileClick('nudge')},
+        {label:'Overdue', val:overdue,     col:overdue>0?'var(--rose)':'var(--faint)', rest:overdue>0?'rgba(196,96,122,0.07)':'rgba(255,255,255,0.03)', hover:overdue>0?'rgba(196,96,122,0.15)':'rgba(255,255,255,0.07)', onclick:"state.netFilter.view='all';render('network')"},
+      ].map(d=>`<div onclick="${d.onclick}" style="padding:10px 6px;text-align:center;cursor:pointer;border-right:1px solid rgba(255,255,255,0.05);background:${d.rest};transition:background .15s" onmouseover="this.style.background='${d.hover}'" onmouseout="this.style.background='${d.rest}'">
+        <div style="font-size:18px;font-weight:700;color:${d.col};line-height:1;font-family:'DM Mono',monospace">${d.val}</div>
+        <div style="font-size:9px;color:var(--faint);margin-top:3px;letter-spacing:.04em;text-transform:uppercase">${d.label}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+
+  el.innerHTML = netHero + miniTimerWidget() + `
     ${total > 0 ? (() => {
-      const warmPct  = Math.round((warm  / total) * 100);
       const nudgePct = Math.round((nudge / total) * 100);
       const coldPct  = Math.max(0, 100 - warmPct - nudgePct);
-      return `<div style="margin-bottom:16px">
+      return `<div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="display:flex;gap:12px">
+            <span style="font-size:10px;color:var(--teal)">● ${warmPct}% warm</span>
+            <span style="font-size:10px;color:var(--amber)">● ${nudgePct}% nudge</span>
+            <span style="font-size:10px;color:${overdue>0?'var(--rose)':'var(--faint)'}">● ${coldPct}% overdue</span>
+          </div>
+          ${isGuest() ? '' : `<button style="background:var(--teal);color:#fff;border-color:var(--teal);font-size:11px" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>`}
+        </div>
         <div style="display:flex;height:6px;border-radius:4px;overflow:hidden;gap:2px">
           ${warmPct  > 0 ? `<div style="flex:${warmPct};background:var(--teal);border-radius:4px 0 0 4px;transition:flex .4s" title="${warm} Warm (${warmPct}%)"></div>` : ''}
           ${nudgePct > 0 ? `<div style="flex:${nudgePct};background:var(--amber);transition:flex .4s" title="${nudge} Nudge (${nudgePct}%)"></div>` : ''}
-          ${coldPct  > 0 ? `<div style="flex:${coldPct};background:var(--faint);opacity:.35;border-radius:0 4px 4px 0;transition:flex .4s" title="${cold} Cold (${coldPct}%)"></div>` : ''}
-        </div>
-        <div style="display:flex;gap:12px;margin-top:5px">
-          <span style="font-size:10px;color:var(--teal)">● ${warmPct}% warm</span>
-          <span style="font-size:10px;color:var(--amber)">● ${nudgePct}% nudge</span>
-          <span style="font-size:10px;color:var(--faint)">● ${coldPct}% cold</span>
+          ${coldPct  > 0 ? `<div style="flex:${coldPct};background:${overdue>0?'var(--rose)':'var(--faint)'};opacity:${overdue>0?'0.7':'0.35'};border-radius:0 4px 4px 0;transition:flex .4s" title="${Math.round(coldPct/100*total)} Overdue (${coldPct}%)"></div>` : ''}
         </div>
       </div>`;
     })() : ''}
 
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
-      <span style="font-size:10px;color:var(--faint);letter-spacing:.04em;text-transform:uppercase">Sort</span>
-      <select onchange="state.netFilter.sort=this.value;render('network')" style="font-size:11px;padding:4px 8px;flex:0 0 auto">
-        <option value="smart" ${(filt.sort||'smart')==='smart'?'selected':''}>Smart (warmth)</option>
-        <option value="name"  ${filt.sort==='name'?'selected':''}>A–Z by name</option>
-      </select>
-      ${sources.length ? `<select onchange="state.netFilter.source=this.value;render('network')" style="font-size:11px;padding:4px 8px;flex:0 0 auto">
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase">Sort:</span>
+      <button class="tag ${(filt.sort||'smart')==='smart'?'on':''}" onclick="state.netFilter.sort='smart';render('network')" style="font-size:10px">Warmth</button>
+      <button class="tag ${filt.sort==='name'?'on':''}" onclick="state.netFilter.sort='name';render('network')" style="font-size:10px">A–Z</button>
+      ${sources.length ? `<select onchange="state.netFilter.source=this.value;render('network')" style="font-size:11px;padding:4px 8px;flex:0 0 auto;margin-left:4px">
         <option value="">All sources</option>
         ${sources.map(s=>`<option value="${esc(s)}" ${filt.source===s?'selected':''}>${esc(s)}</option>`).join('')}
       </select>` : ''}
-      ${isGuest() ? '' : `<button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue);font-size:11px;margin-left:auto" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>`}
+      ${!total && !isGuest() ? `<button style="background:var(--teal);color:#fff;border-color:var(--teal);font-size:11px;margin-left:auto" onclick="state.netShowAdd=!state.netShowAdd;state.netEditing=null;render('network')">+ Add contact</button>` : ''}
     </div>
 
     ${state.netShowAdd ? contactForm('net') : ''}
@@ -4200,6 +4410,7 @@ function saveAnalyzedCard() {
     salary:     r.salary || '',
     location:   r.location || '',
     fit:        r.fitScore ? String(r.fitScore) : '',
+    fitSource:  r.fitScore ? 'claude' : '',
     keyReqs:    r.matchCriteria || '',
     gaps:       notes,
     stage:      'Saved',
