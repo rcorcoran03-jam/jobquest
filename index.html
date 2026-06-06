@@ -549,10 +549,18 @@
     #main { margin: 8px; padding: 14px; border-radius: 10px; }
 
     /* App cards: stack content above actions on mobile */
-    .app-card-inner { flex-direction: column !important; }
-    .app-card-inner > div:last-child { align-items: flex-start !important; flex-direction: row !important; flex-wrap: wrap !important; gap: 4px !important; }
-    .app-card-inner > div:last-child > * { flex-shrink: 0; }
-    /* Pills: allow full width on mobile so text isn't cut too short */
+    .app-card-inner { flex-direction: column !important; gap: 8px !important; }
+    .app-card-actions {
+      flex-shrink: 1 !important;
+      width: 100% !important;
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
+      gap: 4px !important;
+    }
+    .app-card-actions > * { flex-shrink: 0; }
+    /* Pills: full width, allow wrapping on mobile */
     .pill { max-width: 100% !important; white-space: normal !important; }
     /* Job boards grid: stack to single column on mobile */
     .job-boards-grid { grid-template-columns: 1fr !important; }
@@ -2065,7 +2073,7 @@ function renderTracker(el) {
           ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:3px;font-weight:500">→ ${nextLine}</div>`:''}
           ${updatedLabel?`<div style="font-size:10px;color:var(--faint);margin-top:2px">${updatedLabel}</div>`:''}
         </div>
-        <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div class="app-card-actions" style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
           ${isGuest()
             ? `<button onclick="toggleExpand(${app.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴ Less':'▾ More'}</button>`
             : `${sel(`stg-${app.id}`,STAGES,app.stage)}
