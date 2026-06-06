@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v4.8  (2026-06-06)                                               ║
+║  CURRENT:  v4.9  (2026-06-06)                                               ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,7 +16,21 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  v4.8   2026-06-06  DAILY TASKS REWORK + FOCUS TAB HQ TREATMENT            ║
+║  v4.9.1 2026-06-06  TIMER DEFAULT TASK CLEAR                               ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + FOCUS: pomTask default '' (was POM_TASKS[0]) — nothing pre-highlighted  ║
+║  Based on: v4.9                                                             ║
+║                                                                             ║
+║  v4.9   2026-06-06  FOCUS TAB MOBILE STACK FIX                              ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + FOCUS: two-column layout (ring left, tasks right) collapses to single    ║
+║    column on ≤640px — timer ring stacks above daily tasks                   ║
+║  + FOCUS: added .focus-layout / .focus-ring-col / .focus-tasks-col classes  ║
+║    for clean mobile overrides (replaces brittle inline-style selectors)     ║
+║  + FOCUS: ring col border-right → border-bottom separator on mobile         ║
+║  + FOCUS: both columns get full-width padding reset on mobile               ║
+║  Based on: v4.8                                                             ║
+║                                                                             ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + TASKS: dt1 → "Save 1 strong fit" · "Evaluate, score with Claude…"       ║
 ║  + TASKS: dt2 → "Backlog review" · "Advance stages, log next steps…"       ║
@@ -199,7 +213,7 @@
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
-<meta name="jq-version" content="4.6">
+<meta name="jq-version" content="4.9">
 <meta name="jq-base" content="18">
 <meta name="jq-date" content="2026-05-29">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -620,6 +634,24 @@
 
     /* Two-column form grids collapse to one column for easier tapping */
     .g2 { grid-template-columns: 1fr; }
+
+    /* ── Focus tab: stack timer above daily tasks on mobile ── */
+    .focus-layout {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .focus-ring-col {
+      border-right: none !important;
+      border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+      padding: 20px 16px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .focus-tasks-col {
+      padding: 16px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
 
     /* Hero identity bar: stack identity text and link buttons vertically */
     .hero-identity-bar {
@@ -1069,7 +1101,7 @@ let state = {
   coverCo: '', coverTone: 'professional', coverJD: '', coverOut: '', coverLoading: false,
   intRole: '', intCo: '', intQtype: 'behavioral', intQs: [], intAns: {}, intFb: {}, intLoading: false, intFbLoading: {},
   pomMode: 0, pomSecs: 25*60, pomTotal: 25*60, pomRunning: false,
-  pomSessions: 0, pomTask: POM_TASKS[0], pomCustomTask: '', pomCustomMins: '', pomLog: [],
+  pomSessions: 0, pomTask: '', pomCustomTask: '', pomCustomMins: '', pomLog: [],
   netShowAdd: false, netEditing: null, netExpanded: {}, netFilter: {view:'all', source:'', sort:'smart'}, netDraft: '', netDraftFor: null, netDraftLoading: false,
   tasks: JSON.parse(localStorage.getItem('tasks')||'null') || [
     {id:1,  text:'Import full application history via CSV',           done:false, cat:'today',   due:'2026-05-05', priority:'high'},
@@ -2447,10 +2479,10 @@ function renderPomodoro(el) {
 
     <!-- Timer + controls panel -->
     <div style="border:1px solid rgba(91,160,210,0.20);border-top:none;border-radius:0 0 12px 12px;background:var(--navy-mid);overflow:hidden">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+      <div class="focus-layout" style="display:grid;grid-template-columns:1fr 1fr;gap:0">
 
         <!-- Left: ring + controls -->
-        <div style="padding:24px 20px;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;gap:16px">
+        <div class="focus-ring-col" style="padding:24px 20px;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;gap:16px">
           <div style="position:relative;width:200px;height:200px">
             <svg id="pom-svg" width="200" height="200">
               <circle cx="100" cy="100" r="${R}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
@@ -2476,7 +2508,7 @@ function renderPomodoro(el) {
         </div>
 
         <!-- Right: task + log -->
-        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div class="focus-tasks-col" style="padding:20px;display:flex;flex-direction:column;gap:14px">
           <div>
             <div style="font-size:10px;color:var(--amber);letter-spacing:.09em;text-transform:uppercase;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="width:14px;height:1px;display:inline-block;background:var(--amber)"></span>Daily tasks</div>
             <div style="margin-bottom:12px">
