@@ -1,3 +1,18 @@
+// JobQuest — Cloudflare Pages Function
+// Path:  functions/api/claude.js
+// Route: /api/claude  (POST)
+//
+// Deployment:
+//   1. Place this file at functions/api/claude.js in the GitHub repo root.
+//   2. In Cloudflare Pages → jobs.ryan-corcoran.com → Settings → Environment variables
+//      add:  ANTHROPIC_API_KEY = sk-ant-...
+//   3. Redeploy. Guests on jobs.ryan-corcoran.com will hit this proxy —
+//      no client-side key needed.
+//
+// Key priority:
+//   1. x-user-api-key header  (owner calls with their own key)
+//   2. ANTHROPIC_API_KEY env  (guest calls — key lives on the server)
+
 export async function onRequest(context) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -21,10 +36,10 @@ export async function onRequest(context) {
       || '';
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'No API key. Add it in the Excel sync tab.' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({ error: { message: 'API key not configured. Set ANTHROPIC_API_KEY in Cloudflare Pages environment variables.' } }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -45,9 +60,9 @@ export async function onRequest(context) {
     });
 
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: { message: err.message } }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 }

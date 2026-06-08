@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v4.9  (2026-06-06)                                               ║
+║  CURRENT:  v4.9.2  (2026-06-08)                                             ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,6 +16,23 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
+║  v4.9.2 2026-06-08  GUEST UX — COMPACT NAV CHIP + WELCOME REDESIGN         ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + GUEST: full-width rose banner above nav removed; replaced with compact  ║
+║    #nav-guest-chip pill in navbar upper-right (name + sign-out)            ║
+║  + GUEST: chip is hidden while hero welcome card is in viewport; appears   ║
+║    automatically via IntersectionObserver once user scrolls below hero     ║
+║  + GUEST: JD Analyzer enabled for guests — UI fully open (textarea + btn)  ║
+║    Routes to /api/claude (same-origin CF Pages Function — no CORS needed)  ║
+║    Deploy functions/api/claude.js; set ANTHROPIC_API_KEY in CF Pages env   ║
+║  + GUEST: "Save to Tracker" hidden in result modal (save is no-op anyway)  ║
+║  + GUEST: hero identity bar: Portfolio/Apps/Network buttons removed —      ║
+║    redundant (guest came from portfolio; nav tabs cover Apps/Network)      ║
+║  + GUEST: hero welcome card redesigned — rose gradient, DM Serif heading,  ║
+║    eyebrow label, Portfolio + Get in Touch CTAs, star watermark            ║
+║  + GUEST: setupGuestScrollChip() wires IntersectionObserver per render     ║
+║  Based on: v4.9.1                                                           ║
+║                                                                             ║
 ║  v4.9.1 2026-06-06  TIMER DEFAULT TASK CLEAR                               ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + FOCUS: pomTask default '' (was POM_TASKS[0]) — nothing pre-highlighted  ║
@@ -213,7 +230,7 @@
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 -->
-<meta name="jq-version" content="4.9">
+<meta name="jq-version" content="4.9.2">
 <meta name="jq-base" content="18">
 <meta name="jq-date" content="2026-05-29">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -553,16 +570,41 @@
   .auth-guest-hint { font-size:11px; color:var(--faint); text-align:center; margin-top:14px; }
   .auth-guest-hint a { color:var(--sky-blue); cursor:pointer; text-decoration:underline; }
 
-  /* v18: Guest banner */
-  #guest-banner {
-    background: linear-gradient(90deg, rgba(196,96,122,0.10), rgba(196,96,122,0.06));
-    border-bottom: 1px solid rgba(196,96,122,0.22);
-    padding: 6px 24px;
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 11px; color: var(--rose); letter-spacing: .03em;
-  }
-  #guest-banner.hidden { display: none; }
+  /* v4.9.2: Guest banner deprecated — replaced by compact nav chip */
+  #guest-banner { display: none !important; }
   .guest-badge { background: var(--rose-pale); border: 1px solid var(--rose-border); border-radius: 4px; padding: 2px 8px; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; font-weight: 600; margin-right: 6px; }
+
+  /* v4.9.2: Compact guest chip — lives in navbar upper-right */
+  #nav-guest-chip {
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(196,96,122,0.11);
+    border: 1px solid rgba(196,96,122,0.28);
+    border-radius: 20px;
+    padding: 3px 5px 3px 9px;
+    font-size: 10px; color: var(--rose);
+    letter-spacing: .04em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: center;
+    transition: opacity .3s, transform .3s;
+  }
+  #nav-guest-chip.hidden { display: none; }
+  #nav-guest-chip .chip-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--rose-deep); flex-shrink: 0;
+    box-shadow: 0 0 4px rgba(196,96,122,0.6);
+  }
+  #nav-guest-chip .chip-name { font-weight: 600; color: var(--rose); }
+  #nav-guest-chip .chip-sep { color: rgba(244,192,209,0.28); margin: 0 1px; }
+  #nav-guest-chip .chip-out {
+    font-size: 9px; color: var(--faint);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 10px; padding: 2px 7px;
+    cursor: pointer; margin-left: 2px;
+    letter-spacing: .03em; transition: all .15s;
+  }
+  #nav-guest-chip .chip-out:hover { color: var(--tx); background: rgba(255,255,255,0.11); }
 
   /* v18: Redacted data */
   .redacted { filter: blur(5px); user-select: none; pointer-events: none; border-radius: 3px; }
@@ -595,14 +637,9 @@
     #nav .tabs::-webkit-scrollbar { display: none; }
     #nav .tabs button { padding: 0 12px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
 
-    /* Guest banner: stack so its buttons never overflow under the nav */
-    #guest-banner {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-      padding: 8px 14px;
-      line-height: 1.45;
-    }
+    /* Guest chip: tighten on mobile */
+    #nav-guest-chip { font-size: 9px; padding: 2px 4px 2px 7px; }
+    #nav-guest-chip .chip-name { max-width: 72px; overflow: hidden; text-overflow: ellipsis; }
 
     /* Stats strip: 5 across over two rows instead of 10 squeezed cells */
     .kpi-strip { grid-template-columns: repeat(5, 1fr); }
@@ -781,6 +818,12 @@
       <button onclick="showTab('sync')" id="tab-sync">Sync</button>
     </div>
     <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" class="portfolio-link">Portfolio ↗</a>
+    <div id="nav-guest-chip" class="hidden">
+      <span class="chip-dot"></span>
+      <span class="chip-name" id="nav-guest-chip-name">Guest</span>
+      <span class="chip-sep">·</span>
+      <button class="chip-out" onclick="authLogout()">Sign out</button>
+    </div>
   </div>
 </div>
 
@@ -879,25 +922,16 @@ function authLogout() { authClearSession(); location.reload(); }
 // ── Guest UI setup ────────────────────────────────────────────────────────────
 
 function setupGuestUI() {
-  const banner = document.getElementById('guest-banner');
   if (isGuest()) {
-    banner.classList.remove('hidden');
-    const label = document.getElementById('guest-badge-label');
-    const msg   = document.getElementById('guest-welcome-msg');
-    if (currentUser.type === 'named') {
-      label.textContent = currentUser.name;
-      msg.textContent   = currentUser.greeting
-        ? currentUser.greeting
-        : `Hi ${currentUser.name}! You're viewing a curated snapshot of Ryan's job search. Questions? ryan@ryan-corcoran.com`;
-    } else {
-      label.textContent = 'Guest View';
-      msg.textContent   = "You're viewing a read-only snapshot of Ryan's 2026 JobSearch HQ. KPI figures are adjusted and application/network content is blurred for privacy.";
+    // Populate nav chip — visibility managed by setupGuestScrollChip()
+    const chipName = document.getElementById('nav-guest-chip-name');
+    if (chipName) {
+      chipName.textContent = currentUser.type === 'named' ? currentUser.name : 'Guest View';
     }
     // Hide sync tab for guests
     const syncTab = document.getElementById('tab-sync');
     if (syncTab) syncTab.style.display = 'none';
   } else {
-    banner.classList.add('hidden');
     addOwnerNavButtons();
   }
 }
@@ -905,6 +939,34 @@ function setupGuestUI() {
 function addOwnerNavButtons() {
   // Guest manager has moved to the Sync tab (administrative home).
   // No owner-specific buttons remain in the navbar for now.
+}
+
+// ── v4.9.2: Guest scroll chip — appear once welcome card leaves viewport ─────
+let _guestChipObs = null;
+function setupGuestScrollChip() {
+  if (!isGuest()) return;
+  const chip = document.getElementById('nav-guest-chip');
+  if (!chip) return;
+
+  // Disconnect any previous observer
+  if (_guestChipObs) { _guestChipObs.disconnect(); _guestChipObs = null; }
+
+  const welcome = document.getElementById('guest-hero-welcome');
+  if (!welcome) {
+    // No welcome card on this pane — show chip immediately
+    chip.classList.remove('hidden');
+    return;
+  }
+
+  // Start hidden (welcome card is visible on load)
+  chip.classList.add('hidden');
+
+  // rootMargin top offset = sticky nav height (52px)
+  _guestChipObs = new IntersectionObserver(([entry]) => {
+    chip.classList.toggle('hidden', entry.isIntersecting);
+  }, { threshold: 0.05, rootMargin: '-52px 0px 0px 0px' });
+
+  _guestChipObs.observe(welcome);
 }
 
 // ── Guest redaction helpers ───────────────────────────────────────────────────
@@ -1314,6 +1376,12 @@ function showTab(tab) {
     if (el) el.style.display = t === tab ? '' : 'none';
   });
   render(tab);
+  // v4.9.2: on non-board tabs, chip should show immediately (no hero card)
+  if (isGuest() && tab !== 'board') {
+    if (_guestChipObs) { _guestChipObs.disconnect(); _guestChipObs = null; }
+    const chip = document.getElementById('nav-guest-chip');
+    if (chip) chip.classList.remove('hidden');
+  }
 }
 
 function render(tab) {
@@ -1356,6 +1424,20 @@ const fmtSal = j => { if(!j.salary_min&&!j.salary_max) return null; const f=n=>n
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const ON_GITHUB_PAGES = true; // always use direct API mode
 function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
+
+// v4.9.2: Guest analyze routing
+// Guests have no localStorage key. Route their calls through the Cloudflare
+// Pages Function at /api/claude (same origin — no CORS needed).
+// Deploy functions/api/claude.js and set ANTHROPIC_API_KEY in CF Pages env vars.
+const GUEST_CLAUDE_URL = '/api/claude';
+function getAnalyzeUrl()  { return isGuest() ? GUEST_CLAUDE_URL : CLAUDE_URL; }
+function getAnalyzeHeaders(key) {
+  if (isGuest()) {
+    // Proxy handles auth; no x-api-key header needed
+    return { 'Content-Type': 'application/json' };
+  }
+  return buildClaudeHeaders(key);
+}
 
 function buildClaudeHeaders(key, extra={}) {
   if (ON_GITHUB_PAGES) {
@@ -1636,11 +1718,44 @@ function renderHQHero() {
   <div style="margin-bottom:20px">
 
     ${isGuest() ? `
-    <div style="background:rgba(91,158,201,0.07);border:1px solid rgba(91,158,201,0.22);border-radius:10px;padding:14px 18px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.75">
-      <span style="font-size:13px;font-weight:600;color:var(--sky-blue-light)">👋 ${currentUser?.type==='named'?`Hey ${currentUser.name} —`:'Welcome!'}</span>
-      ${currentUser?.type==='named' && currentUser?.greeting
-        ? ` ${esc(currentUser.greeting)}`
-        : " You're viewing a live, read-only snapshot of Ryan's 2026 JobSearch HQ app. KPI figures are intentionally adjusted — application and network content is blurred for privacy."}
+    <!-- v4.9.2: Redesigned guest welcome card -->
+    <div id="guest-hero-welcome" style="
+      position:relative;overflow:hidden;
+      background:linear-gradient(135deg, rgba(196,96,122,0.13) 0%, rgba(15,32,53,0.96) 55%);
+      border:1px solid rgba(196,96,122,0.30);
+      border-left:3px solid var(--rose-deep);
+      border-radius:12px;
+      padding:20px 22px 18px;
+      margin-bottom:16px;
+    ">
+      <!-- Watermark star -->
+      <svg width="100" height="100" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"
+        style="position:absolute;top:-14px;right:-12px;opacity:0.055;pointer-events:none;transform:rotate(12deg)">
+        <polygon points="16,2 18.2,10.5 26,7.5 21.5,14.5 30,16 21.5,17.5 26,24.5 18.2,21.5 16,30 13.8,21.5 6,24.5 10.5,17.5 2,16 10.5,14.5 6,7.5 13.8,10.5" fill="#F4C0D1"/>
+      </svg>
+      <!-- Eyebrow -->
+      <div style="font-size:10px;color:var(--rose);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        <span style="display:inline-block;width:12px;height:1px;background:var(--rose-deep)"></span>Guest View · Read-Only
+      </div>
+      <!-- Serif headline -->
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;font-style:italic;color:#F4F8FC;line-height:1.2;margin-bottom:9px">
+        ${currentUser?.type==='named' ? `Hey ${esc(currentUser.name)}` : 'Welcome to Ryan\'s Job Search HQ'}
+      </div>
+      <!-- Body text -->
+      <div style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:16px;max-width:540px">
+        ${currentUser?.type==='named' && currentUser?.greeting
+          ? esc(currentUser.greeting)
+          : `You're viewing a live, read-only snapshot of Ryan's 2026 job search. KPI figures are intentionally adjusted — application details and network contacts are blurred for privacy.`}
+      </div>
+      <!-- CTAs -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank"
+           style="font-size:11px;color:var(--rose);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;border:0.5px solid rgba(244,192,209,0.35);padding:5px 13px;border-radius:5px;background:rgba(196,96,122,0.10);white-space:nowrap;transition:background .15s"
+           onmouseover="this.style.background='rgba(196,96,122,0.18)'" onmouseout="this.style.background='rgba(196,96,122,0.10)'">Portfolio ↗</a>
+        <a href="mailto:ryan@ryan-corcoran.com"
+           style="font-size:11px;color:var(--sky-blue);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;border:0.5px solid var(--sky-blue-mid);padding:5px 13px;border-radius:5px;background:rgba(91,158,201,0.08);white-space:nowrap;transition:background .15s"
+           onmouseover="this.style.background='rgba(91,158,201,0.16)'" onmouseout="this.style.background='rgba(91,158,201,0.08)'">Get in Touch ↗</a>
+      </div>
     </div>` : ''}
 
     <!-- Top identity bar -->
@@ -1656,11 +1771,7 @@ function renderHQHero() {
           <div style="font-size:46px;font-weight:400;color:#F4F8FC;line-height:1;letter-spacing:-.02em;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Job Search HQ</div>
           <div class="hero-subtitle" style="font-size:12px;color:#B8D4E8;margin-top:6px;font-style:italic;font-family:'DM Serif Display',Georgia,serif">Ryan Corcoran · Senior PM / Director · Digital Health · Care Navigation · Medtech</div>
         </div>
-        ${isGuest() ? `<div class="hero-links" style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:nowrap">
-          <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" style="font-size:10px;color:var(--rose);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;border:0.5px solid var(--rose-border);padding:5px 12px;border-radius:4px;white-space:nowrap">Portfolio ↗</a>
-          <button onclick="showTab('tracker')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(91,158,201,0.12);border-color:var(--sky-blue-mid);color:var(--sky-blue);white-space:nowrap">Apps ↗</button>
-          <button onclick="showTab('network')" style="font-size:10px;letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;background:rgba(42,181,160,0.10);border-color:var(--teal-border);color:var(--teal);white-space:nowrap">Network ↗</button>
-        </div>` : ''}
+
       </div>
 
       <!-- KPI strip -->
@@ -1692,18 +1803,16 @@ function renderHQHero() {
     <!-- Bottom row: Analyze JD + Daily Focus -->
     <div class="board-hero-split" style="display:grid;border:1px solid rgba(91,160,210,0.20);border-top:none;border-radius:0 0 12px 12px;overflow:hidden;background:var(--navy-mid)">
 
-      <!-- Analyze JD — owner only; guests see a placeholder -->
+      <!-- Analyze JD — open to guests via portfolio proxy -->
       <div style="background:rgba(10,22,36,0.6);padding:16px 20px;border-right:1px solid rgba(255,255,255,0.06)">
         <div style="font-size:11px;font-weight:700;color:#E8C97A;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px">
           <span style="width:20px;height:1px;display:inline-block;background:var(--gold)"></span>✦ Analyze a Job Description
         </div>
-        ${isGuest()
-          ? `<div style="font-size:12px;color:var(--faint);line-height:1.7;padding:4px 0">AI-powered JD scoring and fit analysis — available in owner view.<br><span style="font-size:10px;color:rgba(201,150,26,0.5)">powered by claude · fit score, red flags, comp check</span></div>`
-          : `<textarea id="board-jd-quick" rows="3" placeholder="Paste a job description here — Claude will score fit, surface red flags, and let you save it to your tracker…" style="flex:1;font-size:12px;background:rgba(201,150,26,0.07);border:1px solid rgba(201,138,14,0.35);border-radius:6px;color:var(--tx);padding:8px 11px;resize:none;line-height:1.45;width:100%;margin-bottom:8px"></textarea>
+        <textarea id="board-jd-quick" rows="3" placeholder="Paste a job description here — Claude will score fit, surface red flags, and check comp…" style="flex:1;font-size:12px;background:rgba(201,150,26,0.07);border:1px solid rgba(201,138,14,0.35);border-radius:6px;color:var(--tx);padding:8px 11px;resize:none;line-height:1.45;width:100%;margin-bottom:8px"></textarea>
         <div style="display:flex;gap:8px">
           <button onclick="openAnalyzeModalWithText(document.getElementById('board-jd-quick').value)" style="flex:1;font-size:12px;background:var(--gold);color:#fff;border-color:var(--gold);padding:8px 0;font-weight:600">⚡ Analyze JD</button>
         </div>
-        <div style="font-size:10px;color:rgba(201,150,26,0.5);margin-top:6px;letter-spacing:.03em">powered by claude · fit score, red flags, comp check · ~15 sec</div>`}
+        <div style="font-size:10px;color:rgba(201,150,26,0.5);margin-top:6px;letter-spacing:.03em">powered by claude · fit score, red flags, comp check · ~15 sec</div>
       </div>
 
       <!-- Daily Focus Tasks -->
@@ -1876,6 +1985,9 @@ function renderBoard(el) {
   document.getElementById('li-time').addEventListener('change', updateLiPreview);
   document.getElementById('li-exp').addEventListener('change', updateLiPreview);
   updateMiniTimer();
+
+  // v4.9.2: wire up scroll chip for guest view
+  if (isGuest()) setupGuestScrollChip();
 }
 
 
@@ -4303,10 +4415,11 @@ function renderAnalyzeModal() {
       ` : `
         ${renderAnalyzeResult(res)}
         <div style="display:flex;gap:8px;margin-top:16px">
-          <button class="amber" onclick="saveAnalyzedCard()" style="flex:1;padding:9px 0;font-size:13px">💾 Save to Tracker</button>
+          ${isGuest() ? '' : `<button class="amber" onclick="saveAnalyzedCard()" style="flex:1;padding:9px 0;font-size:13px">💾 Save to Tracker</button>`}
           <button onclick="analyzeState.result=null;analyzeState.input='';renderAnalyzeModal()" style="font-size:12px">← Analyze another</button>
           <button onclick="closeAnalyzeModal()" style="font-size:12px">Close</button>
         </div>
+        ${isGuest() ? `<div style="font-size:11px;color:var(--faint);margin-top:8px;text-align:center;letter-spacing:.03em">Sign in as owner to save results to the tracker.</div>` : ''}
       `}
     </div>`;
 }
@@ -4387,8 +4500,8 @@ Job posting input:
 ${input}`;
 
   try {
-    const key = getApiKey();
-    if (!key) { analyzeState.error = 'Add your Anthropic API key in the Excel sync tab first'; analyzeState.loading = false; renderAnalyzeModal(); return; }
+    const key = isGuest() ? null : getApiKey();
+    if (!key && !isGuest()) { analyzeState.error = 'Add your Anthropic API key in the Sync tab first'; analyzeState.loading = false; renderAnalyzeModal(); return; }
     // web_search tool requires server-side proxy; skip on direct browser calls (GitHub Pages)
     const bodyPayload = {
       model: 'claude-sonnet-4-5',
@@ -4396,12 +4509,13 @@ ${input}`;
       system: ANALYZE_SYSTEM,
       messages: [{ role: 'user', content: userPrompt }]
     };
-    if (!ON_GITHUB_PAGES) {
-      bodyPayload.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+    if (!ON_GITHUB_PAGES || isGuest()) {
+      // Guests route through proxy which supports web_search; ON_GITHUB_PAGES direct mode does not
+      if (isGuest()) bodyPayload.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
     }
-    const resp = await fetch(CLAUDE_URL, {
+    const resp = await fetch(getAnalyzeUrl(), {
       method: 'POST',
-      headers: buildClaudeHeaders(key),
+      headers: getAnalyzeHeaders(key),
       body: JSON.stringify(bodyPayload)
     });
     if (!resp.ok) {
@@ -4411,7 +4525,7 @@ ${input}`;
         errMsg = errData?.error?.message || errMsg;
       } catch(e2) {
         const rawText = await resp.text().catch(()=>'');
-        if (rawText.includes('<html')) errMsg = 'Server returned HTML — check your API key is set in the Excel Sync tab.';
+        if (rawText.includes('<html')) errMsg = 'Server returned HTML — check your API key is set in the Sync tab.';
         else errMsg += ': ' + rawText.slice(0, 120);
       }
       throw new Error(errMsg);
@@ -4425,7 +4539,9 @@ ${input}`;
     analyzeState.result = result;
     analyzeState.loading = false;
   } catch(e) {
-    analyzeState.error = 'Analysis failed: ' + e.message;
+    analyzeState.error = isGuest()
+      ? 'Analysis failed — check that ANTHROPIC_API_KEY is set in Cloudflare Pages env vars for jobs.ryan-corcoran.com.'
+      : 'Analysis failed: ' + e.message;
     analyzeState.loading = false;
   }
   renderAnalyzeModal();
