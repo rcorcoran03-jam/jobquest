@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v4.9.2  (2026-06-08)                                             ║
+║  CURRENT:  v4.9.4  (2026-06-09)                                             ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,6 +16,34 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
+║  v4.9.4 2026-06-09  NETWORKING: CHAMPION + STAR PRIORITY + RECENT SORT      ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + NET: Champion flag (🏆) — pins contact to Champions section at top of    ║
+║    smart sort; inline toggle icon on card (faded when off, full when on)   ║
+║  + NET: High Priority flag (⭐) — pins contact to Top Priority section      ║
+║    below Champions (capped at top 10); inline toggle icon on card          ║
+║  + NET: Smart sort now renders three labelled sections: 🏆 Champions →     ║
+║    ⭐ Top Priority → Pipeline (default warmth); section headers show count  ║
+║    + divider rule; Pipeline header only appears when champions/stars exist  ║
+║  + NET: "Recent" sort button added — sorts by addedAt timestamp desc        ║
+║  + NET: addContact() stamps addedAt: ISO timestamp on every new contact    ║
+║  + NET: Contact form adds Champion / High Priority checkboxes               ║
+║  + NET: toggleContactFlag() — inline icon toggle, saves + toasts            ║
+║  + NET: champion/star persisted through saveEditContact() and addContact()  ║
+║  Based on: v4.9.3                                                           ║
+║                                                                             ║
+║  v4.9.3 2026-06-09  NETWORKING LAST DATE BUG FIX                            ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + NET: Fixed addActivityLog() not advancing the Last contact date          ║
+║    Root cause: string comparison `date >= curLast` silently fails when      ║
+║    curLast is a non-ISO-sortable value (e.g. "May 22") — '2' < 'M' in     ║
+║    ASCII so ISO date strings compare less than month-name strings          ║
+║  + NET: Guard now uses Date.getTime() comparison with NaN/empty fallback   ║
+║    so any unparseable curLast is treated as 0 and always allows the update ║
+║  + NET: Last contact field in edit form changed to type="date" to          ║
+║    prevent freeform non-ISO entry that could trigger the bug again         ║
+║  Based on: v4.9.2                                                           ║
+║                                                                             ║
 ║  v4.9.2 2026-06-08  GUEST UX — COMPACT NAV CHIP + WELCOME REDESIGN         ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + GUEST: full-width rose banner above nav removed; replaced with compact  ║
@@ -2798,8 +2826,11 @@ function addActivityLog(contactId, type, note, autoExpand, dateStr) {
   // Keep log newest-first by date
   state.contacts[idx].activityLog.sort((a,b)=> (b.date||'').localeCompare(a.date||''));
   // 'last contact' = most recent touch; never move it backward on a retroactive entry
+  // Use Date parsing (not string compare) so non-ISO values in curLast don't silently block updates
   const curLast = state.contacts[idx].last || '';
-  if(date >= curLast) { state.contacts[idx].last = date; state.contacts[idx].lastActivityType = type; }
+  const curLastMs = curLast ? new Date(curLast).getTime() : 0;
+  const dateMs    = new Date(date + 'T00:00:00').getTime();
+  if(!curLastMs || isNaN(curLastMs) || dateMs >= curLastMs) { state.contacts[idx].last = date; state.contacts[idx].lastActivityType = type; }
   if(autoExpand) { if(!state.netExpanded) state.netExpanded={}; state.netExpanded[contactId]=true; }
   save(); render('network');
   showToast('Activity logged ✓');
@@ -2833,14 +2864,20 @@ function renderNetwork(el) {
   if(filt.view==='cold')  filtered = filtered.filter(c=>c.heat==='cold');
   if(filt.source) filtered = filtered.filter(c=>(c.source||'').toLowerCase().includes(filt.source.toLowerCase()));
 
-  // Sort — 'smart' groups by heat (new→warm→nudge→cold) then name; 'name' is pure A–Z
-  filtered.sort((a,b)=>{
-    if((filt.sort||'smart')==='smart' && filt.view==='all') {
-      const order={new:0,warm:1,nudge:2,cold:3};
-      if(order[a.heat]!==order[b.heat]) return order[a.heat]-order[b.heat];
-    }
+  // Sort — 'smart' sections: Champions → Stars (top 10) → warmth; 'name' A–Z; 'recent' newest-added first
+  const heatOrder = {new:0,warm:1,nudge:2,cold:3};
+  const byHeatThenName = (a,b) => {
+    if(heatOrder[a.heat]!==heatOrder[b.heat]) return heatOrder[a.heat]-heatOrder[b.heat];
     return (a.name||'').localeCompare(b.name||'');
-  });
+  };
+  if(filt.sort==='name') {
+    filtered.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  } else if(filt.sort==='recent') {
+    filtered.sort((a,b)=>((b.addedAt||b.id||0) > (a.addedAt||a.id||0) ? 1 : -1));
+  } else {
+    // smart: sort within each tier, section grouping applied at render time
+    filtered.sort(byHeatThenName);
+  }
 
   // Get all unique sources for filter dropdown
   const sources = [...new Set(contacts.map(c=>c.source).filter(Boolean))];
@@ -2858,7 +2895,7 @@ function renderNetwork(el) {
         ${inp(`${prefix}-role`,   c.role||'',    'Their role')}
         ${inp(`${prefix}-source`, c.source||'',  'Referral source (optional)')}
         ${sel(`${prefix}-rel`,    ['Warm','Alumni','Cold','Recruiter'], c.rel||'Warm')}
-        ${inp(`${prefix}-last`,   c.last||'',    'Last contact (YYYY-MM-DD)')}
+        <input id="${prefix}-last" type="date" value="${esc(c.last||'')}" style="width:100%">
       </div>
       ${inp(`${prefix}-notes`, c.notes||'', 'Notes — context, how you know them')}
       <div style="font-size:10px;color:var(--amber);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin:10px 0 6px">Next action</div>
@@ -2867,6 +2904,14 @@ function renderNetwork(el) {
         ${inp(`${prefix}-next`, c.next||'', 'Next date (YYYY-MM-DD)')}
       </div>
       ${inp(`${prefix}-nextnote`, c.nextNote||'', 'Next-action note (optional)')}
+      <div style="display:flex;gap:16px;margin:10px 0 4px;align-items:center">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);cursor:pointer">
+          <input id="${prefix}-star" type="checkbox" ${c.star?'checked':''} style="width:14px;height:14px;accent-color:var(--sky-blue)"> ⭐ High Priority
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--tx2);cursor:pointer">
+          <input id="${prefix}-champion" type="checkbox" ${c.champion?'checked':''} style="width:14px;height:14px;accent-color:var(--gold)"> 🏆 Champion
+        </label>
+      </div>
       <div class="row" style="margin-top:8px">
         <button style="background:var(--sky-blue);color:#fff;border-color:var(--sky-blue)" onclick="${isEdit?`saveEditContact(${c.id})`:'addContact()'}">${isEdit?'Save changes':'Save contact'}</button>
         <button onclick="${isEdit?`state.netEditing=null;render('network')`:`state.netShowAdd=false;render('network')`}">Cancel</button>
@@ -2878,7 +2923,7 @@ function renderNetwork(el) {
   const fmtDate = d => { if(!d) return '—'; const dt=new Date(d+'T00:00:00'); return isNaN(dt)?d:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'}); };
 
   // Contact cards
-  const cards = filtered.map(c => {
+  const renderCard = c => {
     if(state.netEditing===c.id) return contactForm(`edit-${c.id}`, c, true);
 
     const heat = c.heat;
@@ -2968,12 +3013,14 @@ function renderNetwork(el) {
 
     return `<div class="card net-card${isExpanded?' net-card-expanded':''}" style="margin-bottom:7px;border-left:3px solid ${hm.col};border-radius:0 10px 10px 0;padding:10px 12px;opacity:${isCold?'0.62':'1'}">
       <div class="net-row" style="display:flex;gap:0;align-items:stretch">
-        <!-- LEFT: who -->
+        <!-- LEFT: who -->\
         <div style="flex:1;min-width:0;padding-right:10px;cursor:pointer" onclick="state.netExpanded=state.netExpanded||{};state.netExpanded[${c.id}]=!state.netExpanded[${c.id}];render('network')">
           <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:3px">
             <span style="font-size:13px;font-weight:600;color:var(--tx)">${isGuest() ? guestBlur(esc(c.name)) : esc(c.name)}</span>
             ${heatBadge}
             ${badge(c.rel, REL_COL[c.rel]||'blue')}
+            ${!isGuest() ? `<button onclick="event.stopPropagation();toggleContactFlag(${c.id},'star')" title="${c.star?'Remove High Priority':'Mark High Priority'}" style="font-size:13px;background:none;border:none;padding:0;cursor:pointer;opacity:${c.star?'1':'0.25'};line-height:1;transition:opacity .15s" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='${c.star?'1':'0.25'}'">⭐</button>` : ''}
+            ${!isGuest() ? `<button onclick="event.stopPropagation();toggleContactFlag(${c.id},'champion')" title="${c.champion?'Remove Champion':'Mark as Champion'}" style="font-size:13px;background:none;border:none;padding:0;cursor:pointer;opacity:${c.champion?'1':'0.25'};line-height:1;transition:opacity .15s" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='${c.champion?'1':'0.25'}'">🏆</button>` : ''}
           </div>
           <div style="color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${isGuest() ? [c.role&&`<span class="redacted">${esc(c.role)}</span>`,c.company&&esc(c.company)].filter(Boolean).join(' · ') : [c.role,c.company].filter(Boolean).map(esc).join(' · ')}</div>
           <div style="margin-top:4px;font-size:11px;color:var(--sky-blue);font-weight:500">${isExpanded?'▲ collapse':'▼ expand'}</div>
@@ -2985,7 +3032,28 @@ function renderNetwork(el) {
       </div>
       ${expandedContent}
     </div>`;
-  }).join('');
+  };
+
+  // Build sectioned card list for smart sort (view=all), flat for all other sorts/filters
+  const useSections = (filt.sort||'smart')==='smart' && filt.view==='all' && !isGuest();
+  let cards = '';
+  if(useSections) {
+    const champions  = filtered.filter(c=>c.champion);
+    const stars      = filtered.filter(c=>!c.champion && c.star).slice(0,10);
+    const rest       = filtered.filter(c=>!c.champion && !c.star);
+    const secHeader = (icon, label, count, col) =>
+      `<div style="display:flex;align-items:center;gap:8px;margin:14px 0 6px;padding:0 2px">
+        <span style="font-size:13px;line-height:1">${icon}</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:${col}">${label}</span>
+        <span style="font-size:10px;color:var(--faint);background:rgba(255,255,255,.05);border:0.5px solid var(--brd);padding:1px 7px;border-radius:10px">${count}</span>
+        <span style="flex:1;height:1px;background:var(--brd);margin-left:2px"></span>
+      </div>`;
+    if(champions.length)  cards += secHeader('🏆','Champions', champions.length,'var(--gold)') + champions.map(renderCard).join('');
+    if(stars.length)      cards += secHeader('⭐','Top Priority', stars.length,'var(--sky-blue)') + stars.map(renderCard).join('');
+    if(rest.length)       cards += (champions.length||stars.length ? secHeader('','Pipeline', rest.length,'var(--faint)') : '') + rest.map(renderCard).join('');
+  } else {
+    cards = filtered.map(renderCard).join('');
+  }
 
   // Overdue contacts — next action date is in the past
   const overdue = withHeat.filter(c => {
@@ -3046,6 +3114,7 @@ function renderNetwork(el) {
       <span style="font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase">Sort:</span>
       <button class="tag ${(filt.sort||'smart')==='smart'?'on':''}" onclick="state.netFilter.sort='smart';render('network')" style="font-size:10px">Warmth</button>
       <button class="tag ${filt.sort==='name'?'on':''}" onclick="state.netFilter.sort='name';render('network')" style="font-size:10px">A–Z</button>
+      <button class="tag ${filt.sort==='recent'?'on':''}" onclick="state.netFilter.sort='recent';render('network')" style="font-size:10px">Recent</button>
       ${sources.length ? `<select onchange="state.netFilter.source=this.value;render('network')" style="font-size:11px;padding:4px 8px;flex:0 0 auto;margin-left:4px">
         <option value="">All sources</option>
         ${sources.map(s=>`<option value="${esc(s)}" ${filt.source===s?'selected':''}>${esc(s)}</option>`).join('')}
@@ -3075,6 +3144,9 @@ function addContact() {
     next:     document.getElementById('net-next').value,
     nextType: document.getElementById('net-nexttype').value,
     nextNote: document.getElementById('net-nextnote').value,
+    star:     document.getElementById('net-star')?.checked || false,
+    champion: document.getElementById('net-champion')?.checked || false,
+    addedAt:  new Date().toISOString(),
     activityLog: [],
     lastActivityType: null,
   });
@@ -3100,6 +3172,8 @@ function saveEditContact(id) {
     next:     get('next'),
     nextType: get('nexttype'),
     nextNote: get('nextnote'),
+    star:     document.getElementById(`${prefix}-star`)?.checked || false,
+    champion: document.getElementById(`${prefix}-champion`)?.checked || false,
   };
   state.netEditing = null;
   save(); render('network');
@@ -3206,6 +3280,14 @@ function saveActivityEditor(contactId) {
 }
 
 // v20: clear a completed/cancelled Next action straight from the card
+function toggleContactFlag(contactId, flag) {
+  const idx = state.contacts.findIndex(x=>x.id===contactId); if(idx===-1) return;
+  state.contacts[idx][flag] = !state.contacts[idx][flag];
+  save(); render('network');
+  const label = flag==='champion' ? (state.contacts[idx][flag]?'Champion set 🏆':'Champion removed') : (state.contacts[idx][flag]?'High Priority set ⭐':'High Priority removed');
+  showToast(label);
+}
+
 function clearNextAction(contactId) {
   const idx = state.contacts.findIndex(x=>x.id===contactId); if(idx===-1) return;
   state.contacts[idx].next = ''; state.contacts[idx].nextType=''; state.contacts[idx].nextNote='';
