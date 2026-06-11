@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v4.9.4  (2026-06-09)                                             ║
+║  CURRENT:  v4.9.6  (2026-06-10)                                             ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,6 +16,30 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
+║  v4.9.6 2026-06-10  APP CARD ACTION BUTTON REDESIGN                         ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + TRACKER: "↑ Move" → "→ Stage" — removes up-only implication, clarifies  ║
+║    that button applies the stage dropdown selection                          ║
+║  + TRACKER: Company profile button 🏢 teal → "✦ Profile" gold AI treatment  ║
+║  + TRACKER: Prep prompt button 📋 blue → "✦ Prep" gold AI treatment         ║
+║  + TRACKER: Expand ▾ → "▾ Details" / "▴ Details" — labeled, sky-blue       ║
+║  + TRACKER: "…" archive button → "Archive" explicit label                   ║
+║  + Same button updates applied to priority strip cards                       ║
+║  Based on: v4.9.5                                                            ║
+║                                                                             ║
+║  v4.9.5 2026-06-10  APP REQ # + SAVED-AT LOG + HEAT TAG                     ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + TRACKER: new "Req #" field (reqNum) in APP_FORM_FIELDS, APP_COLS/KEYS,  ║
+║    JD analyzer JSON output, and saveAnalyzedCard()                          ║
+║  + TRACKER: savedAt stamp — set on addApp/saveAnalyzedCard when stage is   ║
+║    Saved; updated by setAppStage when moving to Saved                       ║
+║  + TRACKER: per-app actLog [{date,note}] — created on add/save; entry      ║
+║    pushed on every setAppStage and saveEdit stage change                    ║
+║  + TRACKER: heat tag pill on Saved cards — "⏰ Nd saved" in amber/orange   ║
+║    after 28 days; deep orange after 56 days                                 ║
+║  + TRACKER: actLog rendered in expanded card view (last 5 entries)          ║
+║  Based on: v4.9.4                                                           ║
+║                                                                             ║
 ║  v4.9.4 2026-06-09  NETWORKING: CHAMPION + STAR PRIORITY + RECENT SORT      ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + NET: Champion flag (🏆) — pins contact to Champions section at top of    ║
@@ -2105,6 +2129,7 @@ const APP_FORM_FIELDS = [
   {key:'priority',   label:'Priority',               type:'priority',                  half:true},
   {key:'fit',        label:'Fit Score (1–10)',        ph:'e.g. 8',                      half:true},
   {key:'source',     label:'Link / Source',          ph:'e.g. LinkedIn, Lever',        half:true},
+  {key:'reqNum',     label:'Req #',                  ph:'e.g. R00288690',              half:true},
   {key:'contact',    label:'Recruiter / Contact',    ph:'Name, email or phone',        half:true},
   {key:'netContact', label:'Networking Contact',     ph:'e.g. Clare MesserSchmidt',    half:true},
   {key:'netRel',     label:'Relationship / Status',  ph:'e.g. Warm – Networking',      half:true},
@@ -2221,16 +2246,25 @@ function renderTracker(el) {
             </div>
             <div class="app-card-actions" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">
               ${sel('stg-top-'+a.id,STAGES,a.stage)}
-              <button onclick="setAppStage(${a.id},document.getElementById('stg-top-${a.id}').value)" style="font-size:11px">↑ Move</button>
+              <button onclick="setAppStage(${a.id},document.getElementById('stg-top-${a.id}').value)" style="font-size:11px">→ Stage</button>
               <button onclick="toggleHighPriority(${a.id})" title="Remove from high priority" style="font-size:11px;color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)">⭐</button>
-              <button onclick="openProfilePanel(${a.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢</button>
+              <button onclick="openProfilePanel(${a.id})" style="font-size:11px;color:var(--gold);border-color:var(--gold-border);background:var(--gold-pale);font-weight:600">✦ Profile</button>
               <button onclick="state.appEditing=${a.id};render('tracker')" style="font-size:11px">Edit</button>
-              <button onclick="toggleExpandTop(${a.id})" style="font-size:11px;color:var(--muted)">${isExp?'▴':'▾'}</button>
+              <button onclick="toggleExpandTop(${a.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExp?'▴ Details':'▾ Details'}</button>
             </div>
           </div>
-          ${isExp && (keyReqs||gaps) ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
+          ${isExp && (keyReqs||gaps||(a.actLog&&a.actLog.length)) ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
             ${keyReqs?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">match:</span> ${esc(keyReqs)}</div>`:''}
-            ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint)"><span style="color:var(--muted)">notes:</span> ${esc(gaps)}</div>`:''}
+            ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint);margin-bottom:6px"><span style="color:var(--muted)">notes:</span> ${esc(gaps)}</div>`:''}
+            ${(a.actLog&&a.actLog.length) ? `
+              <div style="padding-top:6px;border-top:1px solid var(--navy-border)">
+                <div style="font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px">Activity</div>
+                ${a.actLog.slice(-5).reverse().map(e=>`
+                  <div style="display:flex;gap:8px;font-size:10px;color:var(--faint);margin-bottom:2px">
+                    <span style="color:var(--muted);white-space:nowrap">${e.date||''}</span>
+                    <span>${esc(e.note||'')}</span>
+                  </div>`).join('')}
+              </div>` : ''}
           </div>` : ''}
         </div>`;
       }).join('')}
@@ -2283,11 +2317,25 @@ function renderTracker(el) {
     const isExpanded   = state.appExpanded && state.appExpanded[app.id];
     const borderCol    = {Saved:'var(--teal)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--green)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[app.stage]||'var(--brd2)';
     const cardBg       = STAGE_CARD_BG[app.stage]||'var(--card-default)';
+
+    // Heat tag: saved role sitting >28 days
+    let heatTag = '';
+    if(app.stage === 'Saved' && app.savedAt) {
+      const daysSaved = Math.floor((Date.now() - new Date(app.savedAt).getTime()) / 86400000);
+      if(daysSaved >= 28) {
+        const heatCol = daysSaved >= 56 ? '#E85D3A' : 'var(--amber)';
+        const heatBg  = daysSaved >= 56 ? 'rgba(232,93,58,0.12)' : 'var(--amber-bg)';
+        const heatBrd = daysSaved >= 56 ? 'rgba(232,93,58,0.35)' : 'var(--amber-dim)';
+        heatTag = `<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:${heatBg};border:1px solid ${heatBrd};color:${heatCol};font-weight:600;white-space:nowrap">⏰ ${daysSaved}d saved</span>`;
+      }
+    }
+
     const details      = [
       app.salary && pill(esc(app.salary)),
       app.location && pill(esc(app.location)),
       app.date && pill('applied: '+app.date),
-      app.fit && fitPill(app)
+      app.fit && fitPill(app),
+      heatTag
     ].filter(Boolean).join('');
     const contactLine  = [app.contact,app.netContact].filter(s=>s&&s!=='—')
       .map(s => isGuest() ? `<span class="redacted">${esc(s)}</span>` : esc(s)).join(' · ');
@@ -2317,22 +2365,32 @@ function renderTracker(el) {
         </div>
         <div class="app-card-actions" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">
           ${isGuest()
-            ? `<button onclick="toggleExpand(${app.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴ Less':'▾ More'}</button>`
+            ? `<button onclick="toggleExpand(${app.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴ Details':'▾ Details'}</button>`
             : `${sel(`stg-${app.id}`,STAGES,app.stage)}
-            <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">↑ Move</button>
+            <button onclick="setAppStage(${app.id},document.getElementById('stg-${app.id}').value)" style="font-size:11px">→ Stage</button>
             <button onclick="toggleHighPriority(${app.id})" style="font-size:11px;${isHigh?'color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)':'color:var(--faint)'}" title="${isHigh?'Unpin':'Pin priority'}">⭐</button>
-            <button onclick="openProfilePanel(${app.id})" style="font-size:11px;color:var(--teal);border-color:var(--teal-dim)">🏢</button>
-            <button onclick="copyPrepPrompt(${app.id})" style="font-size:11px;color:var(--blue);border-color:var(--blue-bg)">📋</button>
+            <button onclick="openProfilePanel(${app.id})" style="font-size:11px;color:var(--gold);border-color:var(--gold-border);background:var(--gold-pale);font-weight:600">✦ Profile</button>
+            <button onclick="copyPrepPrompt(${app.id})" style="font-size:11px;color:var(--gold);border-color:var(--gold-border);background:var(--gold-pale);font-weight:600">✦ Prep</button>
             <button onclick="state.appEditing=${app.id};render('tracker')" style="font-size:11px">Edit</button>
-            <button onclick="toggleExpand(${app.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴':'▾'}</button>
-            <button onclick="delApp(${app.id})" style="font-size:11px;color:var(--muted);border-color:var(--brd)">…</button>`}
+            <button onclick="toggleExpand(${app.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExpanded?'▴ Details':'▾ Details'}</button>
+            <button onclick="delApp(${app.id})" style="font-size:11px;color:var(--muted);border-color:var(--brd)">Archive</button>`}
         </div>
       </div>`;
 
     const expanded = isExpanded ? `
       <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
+        ${app.reqNum&&app.reqNum!=='—'?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">req #:</span> ${esc(app.reqNum)}</div>`:''}
         ${keyReqs?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">match:</span> ${esc(keyReqs)}</div>`:''}
-        ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint)"><span style="color:var(--muted)">notes:</span> ${isGuest()?'<span class="redacted">'+esc(gaps)+'</span>':esc(gaps)}</div>`:''}
+        ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint);margin-bottom:6px"><span style="color:var(--muted)">notes:</span> ${isGuest()?'<span class="redacted">'+esc(gaps)+'</span>':esc(gaps)}</div>`:''}
+        ${(app.actLog&&app.actLog.length) ? `
+          <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--navy-border)">
+            <div style="font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px">Activity</div>
+            ${app.actLog.slice(-5).reverse().map(e=>`
+              <div style="display:flex;gap:8px;font-size:10px;color:var(--faint);margin-bottom:2px">
+                <span style="color:var(--muted);white-space:nowrap">${e.date||''}</span>
+                <span>${esc(e.note||'')}</span>
+              </div>`).join('')}
+          </div>` : ''}
       </div>` : '';
 
     return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid var(--navy-border);border-left:3px solid ${borderCol};background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
@@ -2447,7 +2505,13 @@ function toggleExpandTop(id) {
 function setAppFilter(f) { state.appFilter=f; state.appEditing=null; render('tracker'); }
 
 function setAppStage(id,stage) {
-  state.apps=state.apps.map(a=>a.id===id?{...a,stage,updatedAt:new Date().toISOString()}:a);
+  const now = new Date().toISOString();
+  state.apps = state.apps.map(a => {
+    if(a.id !== id) return a;
+    const actLog = [...(a.actLog||[]), {date: now.slice(0,10), note: `Stage → ${stage}`}];
+    const savedAt = (stage === 'Saved' && !a.savedAt) ? now.slice(0,10) : (a.savedAt||'');
+    return {...a, stage, savedAt, actLog, updatedAt: now};
+  });
   save(); render('tracker');
 }
 
@@ -2466,13 +2530,34 @@ function delApp(id) {
 function addApp() {
   const fields = readAppForm('add');
   if(!fields.company) return;
-  state.apps.push({ id: Date.now(), ...fields, updatedAt: new Date().toISOString() });
+  const now = new Date().toISOString();
+  const savedAt = fields.stage === 'Saved' ? now.slice(0,10) : '';
+  state.apps.push({
+    id: Date.now(),
+    ...fields,
+    savedAt,
+    actLog: [{date: now.slice(0,10), note: 'Added to tracker'}],
+    updatedAt: now
+  });
   state.appShowAdd=false; save(); render('tracker');
 }
 
 function saveEdit(id) {
   const fields = readAppForm(`e-${id}`);
-  state.apps = state.apps.map(a => a.id===id ? { ...a, ...fields, updatedAt: new Date().toISOString() } : a);
+  const app = state.apps.find(a => a.id === id);
+  const now = new Date().toISOString();
+  const updates = { ...fields, updatedAt: now };
+  if (app) {
+    // Log stage changes
+    if (fields.stage && fields.stage !== app.stage) {
+      updates.actLog = [...(app.actLog||[]), {date: now.slice(0,10), note: `Stage → ${fields.stage}`}];
+    }
+    // Stamp savedAt when first moved to Saved
+    if (fields.stage === 'Saved' && !app.savedAt) {
+      updates.savedAt = now.slice(0,10);
+    }
+  }
+  state.apps = state.apps.map(a => a.id===id ? { ...a, ...updates } : a);
   state.appEditing=null; save(); render('tracker');
 }
 
@@ -3563,8 +3648,8 @@ async function genRefMsg(id) {
   );
   save();
 }
-const APP_COLS  = ['Company','Role Title','Salary Range','Location / Remote','Date Applied','Stage','Priority','Fit Score','Key Requirement Match','Gaps / Notes','Next Step','Next Step Date','Recruiter / Contact','Link / Source','Networking Contact','Relationship / Status'];
-const APP_KEYS  = ['company','role','salary','location','date','stage','priority','fit','keyReqs','gaps','nextStep','nextDate','contact','source','netContact','netRel'];
+const APP_COLS  = ['Company','Role Title','Salary Range','Location / Remote','Date Applied','Stage','Priority','Fit Score','Key Requirement Match','Gaps / Notes','Next Step','Next Step Date','Recruiter / Contact','Link / Source','Req #','Networking Contact','Relationship / Status'];
+const APP_KEYS  = ['company','role','salary','location','date','stage','priority','fit','keyReqs','gaps','nextStep','nextDate','contact','source','reqNum','netContact','netRel'];
 const NET_COLS  = ['Company','Role','Alumni Contact','Relationship','Last Touch','Next Touch','Status','Notes'];
 const NET_KEYS  = ['company','role','name','rel','last','next','status','notes'];
 
@@ -4567,6 +4652,7 @@ async function runAnalyze() {
 {
   "company": "company name",
   "role": "job title",
+  "reqNum": "job requisition / req number if present in the posting (e.g. R00288690, JR-12345), or empty string",
   "salary": "salary range or empty string",
   "location": "location or Remote",
   "matchCriteria": "3-6 key requirements from the JD in brief format, semicolon separated",
@@ -4633,10 +4719,12 @@ function saveAnalyzedCard() {
   const r = analyzeState.result;
   if (!r) return;
   const notes = [r.newsSnapshot, r.compAnalysis].filter(Boolean).join(' | ');
+  const now = new Date().toISOString();
   state.apps.push({
     id: Date.now(),
     company:    r.company || '',
     role:       r.role || '',
+    reqNum:     r.reqNum || '',
     salary:     r.salary || '',
     location:   r.location || '',
     fit:        r.fitScore ? String(r.fitScore) : '',
@@ -4645,8 +4733,10 @@ function saveAnalyzedCard() {
     gaps:       notes,
     stage:      'Saved',
     priority:   r.fitScore >= 8 ? 'High' : r.fitScore >= 6 ? 'Medium' : 'Low',
-    date:       new Date().toISOString().slice(0,10),
-    updatedAt:  new Date().toISOString(),
+    date:       now.slice(0,10),
+    savedAt:    now.slice(0,10),
+    actLog:     [{date: now.slice(0,10), note: 'Saved from JD Analyzer'}],
+    updatedAt:  now,
   });
   save();
   closeAnalyzeModal();
