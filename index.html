@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v4.9.6  (2026-06-10)                                             ║
+║  CURRENT:  v4.9.8  (2026-06-11)                                             ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,6 +16,22 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
+║  v4.9.8 2026-06-11  MOBILE NAV: APPS LABEL + TAB REORDER                    ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + NAV: tab order changed to HQ / Apps / Network / Focus / Sync             ║
+║  + NAV: "Applications" → "Apps" on mobile using span.tab-full/tab-short     ║
+║    (replaces broken font-size:0 + ::after approach from first attempt)       ║
+║  + NAV: .tab-short hidden by default; shown at ≤640px; .tab-full reversed   ║
+║  Based on: v4.9.7                                                            ║
+║                                                                             ║
+║  v4.9.7 2026-06-11  GUEST KPI CORRECTIONS                                   ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + BOARD: guest ghostedCount 38 → 117                                       ║
+║  + BOARD: guest appliedCount 22 → 50, interviewCt 7 → 4 (8% response rate) ║
+║  + BOARD: KPI label "Active Apps" → "Applied" (was showing applied-stage    ║
+║    count, not all active apps — label now matches data)                      ║
+║  Based on: v4.9.6                                                            ║
+║                                                                             ║
 ║  v4.9.6 2026-06-10  APP CARD ACTION BUTTON REDESIGN                         ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + TRACKER: "↑ Move" → "→ Stage" — removes up-only implication, clarifies  ║
@@ -674,6 +690,9 @@
   .board-hero-split { grid-template-columns: 1fr 1fr; }
 
   /* ── v20: Mobile ──────────────────────────────────────────────── */
+  /* Tab label variants — .tab-short only shows at mobile breakpoint */
+  #tab-tracker .tab-short { display: none; }
+
   @media (max-width: 640px) {
     /* Nav: stay one tidy row, let tabs scroll horizontally */
     #nav { padding: 0 10px; gap: 6px; }
@@ -688,6 +707,9 @@
     }
     #nav .tabs::-webkit-scrollbar { display: none; }
     #nav .tabs button { padding: 0 12px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+    /* Mobile: show short "Apps" label, hide full "Applications" */
+    #tab-tracker .tab-full { display: none; }
+    #tab-tracker .tab-short { display: inline; }
 
     /* Guest chip: tighten on mobile */
     #nav-guest-chip { font-size: 9px; padding: 2px 4px 2px 7px; }
@@ -864,9 +886,9 @@
     <span id="sync-status"></span>
     <div class="tabs">
       <button class="active" onclick="showTab('board')" id="tab-board">HQ</button>
-      <button onclick="showTab('tracker')" id="tab-tracker">Applications</button>
-      <button onclick="showTab('pomodoro')" id="tab-pomodoro">Focus</button>
+      <button onclick="showTab('tracker')" id="tab-tracker"><span class="tab-full">Applications</span><span class="tab-short">Apps</span></button>
       <button onclick="showTab('network')" id="tab-network">Network</button>
+      <button onclick="showTab('pomodoro')" id="tab-pomodoro">Focus</button>
       <button onclick="showTab('sync')" id="tab-sync">Sync</button>
     </div>
     <a href="https://ryanpatrick-portfolio.pages.dev" target="_blank" class="portfolio-link">Portfolio ↗</a>
@@ -1731,12 +1753,12 @@ function renderHQHero() {
   // v19: Guest mode — override KPIs with real pipeline numbers for an accurate impression
   if (isGuest()) {
     activeApps    = 44;
-    appliedCount  = 22;
+    appliedCount  = 50;
     savedCount    = 11;
-    interviewCt   = 7;
+    interviewCt   = 4;
     highPriCt     = 7;
     totalApps     = 222;
-    ghostedCount  = 38;
+    ghostedCount  = 117;
     totalContacts = 44;
     warmContacts  = 22;
     nudgeContacts = 11;
@@ -1831,7 +1853,7 @@ function renderHQHero() {
         ${[
           {label:'Response %',  val:responseRate+'%',grp:'app', onclick:"showTab('tracker')"},
           {label:'Active',      val:activeApps,     grp:'app', onclick:"showTab('tracker')"},
-          {label:'Active Apps',     val:appliedCount,   grp:'app', onclick:"showTab('tracker')"},
+          {label:'Applied',          val:appliedCount,   grp:'app', onclick:"showTab('tracker')"},
           {label:'Saved',       val:savedCount,     grp:'app', onclick:"state.appFilter='Saved';showTab('tracker')"},
           {label:'Interviews',  val:interviewCt,    grp:'app', onclick:"state.appFilter='Interview';showTab('tracker')"},
           {label:'High Pri',    val:highPriCt,      grp:'app', onclick:"showTab('tracker')"},
@@ -2408,9 +2430,9 @@ function renderTracker(el) {
   // v19: Guest mode — show real pipeline numbers on the dashboard stats
   if (isGuest()) {
     totalApps    = 222;
-    appliedCount = 22;
+    appliedCount = 50;
     savedCount   = 11;
-    interviewCt  = 7;
+    interviewCt  = 4;
     highPriCt    = 7;
   }
 
