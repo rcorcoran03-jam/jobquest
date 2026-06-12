@@ -8,7 +8,7 @@
 ║  When diffing or building the next version, read this block first.          ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║  CURRENT:  v4.9.8  (2026-06-11)                                             ║
+║  CURRENT:  v4.9.9  (2026-06-12)                                             ║
 ║  Owner:    Ryan Corcoran · rcorcoran03@gmail.com                             ║
 ║  Deployed: https://jobs.ryan-corcoran.com                                    ║
 ║                                                                              ║
@@ -16,6 +16,17 @@
 ║  VERSION HISTORY                                                             ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
+║  v4.9.9 2026-06-12  REL TYPE RENAME + RECENT SORT FIX                        ║
+║  ─────────────────────────────────────────────────────────────────────────  ║
+║  + NET: rel field renamed from Warm/Alumni/Cold/Recruiter to                 ║
+║    Connection/Alumni/Recruiter/Cold Outreach — eliminates collision with      ║
+║    heat badge vocabulary                                                     ║
+║  + NET: REL_COL updated to match new type keys                               ║
+║  + NET: data migration in initApp() converts old rel values on load          ║
+║  + NET: "Recent" sort fixed — now sorts by last-contacted date (desc)        ║
+║    instead of addedAt (date added to CRM) which was rarely populated          ║
+║  Based on: v4.9.8                                                            ║
+║                                                                             ║
 ║  v4.9.8 2026-06-11  MOBILE NAV: APPS LABEL + TAB REORDER                    ║
 ║  ─────────────────────────────────────────────────────────────────────────  ║
 ║  + NAV: tab order changed to HQ / Apps / Network / Focus / Sync             ║
@@ -1182,7 +1193,7 @@ const POM_TASKS = [
   'Workshop a STAR story','Follow up on an application','Review job alerts','Post / LinkedIn activity',
 ];
 
-const REL_COL = {Warm:'amber',Alumni:'blue',Cold:'purple',Recruiter:'green'};
+const REL_COL = {Connection:'amber',Alumni:'blue','Cold Outreach':'purple',Recruiter:'green'};
 
 // ── DEFAULT DATA ──────────────────────────────────────────────────────────────
 
@@ -1202,11 +1213,11 @@ const DEFAULT_APPS = [
 ];
 
 const DEFAULT_CONTACTS = [
-  {id:1,name:'Sarah K.',company:'Philips',role:'Sr. Recruiter – Digital Health',rel:'Warm',last:'2026-05-22',next:'2026-06-05',notes:'Intro call went well. Referred to PM – Digital Health Solutions role.',lastActivityType:'call'},
-  {id:2,name:'Kyle A.',company:'Aegle Capital',role:'Principal',rel:'Warm',last:'2026-05-15',next:'2026-06-01',nextType:'meeting',notes:'VC network. Keeps tabs on digital health portfolio companies.',lastActivityType:'message'},
-  {id:3,name:'Ben R.',company:'Reema Health',role:'Network',rel:'Warm',last:'2026-05-10',next:'2026-05-28',notes:'Minneapolis digital health network. Active at Reema.',lastActivityType:'message'},
-  {id:4,name:'Clare MesserSchmidt',company:'Oasis Health Partners',role:'Recruiter',rel:'Warm',last:'2026-04-26',next:'2026-05-30',notes:'Warm recruiter connection. Phone screen scheduled.',lastActivityType:'call'},
-  {id:5,name:'Dave M.',company:'Reema Health / Gravie',role:'Network',rel:'Warm',last:'2026-04-10',next:'2026-05-20',notes:'Connected to multiple target companies. Minneapolis.',lastActivityType:'message'},
+  {id:1,name:'Sarah K.',company:'Philips',role:'Sr. Recruiter – Digital Health',rel:'Connection',last:'2026-05-22',next:'2026-06-05',notes:'Intro call went well. Referred to PM – Digital Health Solutions role.',lastActivityType:'call'},
+  {id:2,name:'Kyle A.',company:'Aegle Capital',role:'Principal',rel:'Connection',last:'2026-05-15',next:'2026-06-01',nextType:'meeting',notes:'VC network. Keeps tabs on digital health portfolio companies.',lastActivityType:'message'},
+  {id:3,name:'Ben R.',company:'Reema Health',role:'Network',rel:'Connection',last:'2026-05-10',next:'2026-05-28',notes:'Minneapolis digital health network. Active at Reema.',lastActivityType:'message'},
+  {id:4,name:'Clare MesserSchmidt',company:'Oasis Health Partners',role:'Recruiter',rel:'Connection',last:'2026-04-26',next:'2026-05-30',notes:'Warm recruiter connection. Phone screen scheduled.',lastActivityType:'call'},
+  {id:5,name:'Dave M.',company:'Reema Health / Gravie',role:'Network',rel:'Connection',last:'2026-04-10',next:'2026-05-20',notes:'Connected to multiple target companies. Minneapolis.',lastActivityType:'message'},
 ];
 
 // ── VERSION ───────────────────────────────────────────────────────────────────
@@ -1257,10 +1268,10 @@ let state = {
   taskFilter: 'all',
   taskShowAdd: false,
   referrals: JSON.parse(localStorage.getItem('referrals')||'null') || [
-    {id:1, contact:'Clare MesserSchmidt', atCompany:'Oasis Health Partners', targetCo:'Oasis Health Partners', rel:'Warm',   status:'In conversation', notes:'Direct warm contact'},
-    {id:2, contact:'Dave Moen',           atCompany:'Oasis / Reema Health',  targetCo:'Reema Health',          rel:'Warm',   status:'Not yet asked',   notes:'Reach out this week'},
+    {id:1, contact:'Clare MesserSchmidt', atCompany:'Oasis Health Partners', targetCo:'Oasis Health Partners', rel:'Connection',   status:'In conversation', notes:'Direct warm contact'},
+    {id:2, contact:'Dave Moen',           atCompany:'Oasis / Reema Health',  targetCo:'Reema Health',          rel:'Connection',   status:'Not yet asked',   notes:'Reach out this week'},
     {id:3, contact:'Greg Seely',          atCompany:'ABOUT Healthcare',      targetCo:'ABOUT Healthcare',      rel:'Alumni', status:'Outreach sent',   notes:'Sent 3/4/26'},
-    {id:4, contact:'Ben R.',              atCompany:'Reema Health',          targetCo:'Reema Health',          rel:'Warm',   status:'Not yet asked',   notes:'Minneapolis digital health network'},
+    {id:4, contact:'Ben R.',              atCompany:'Reema Health',          targetCo:'Reema Health',          rel:'Connection',   status:'Not yet asked',   notes:'Minneapolis digital health network'},
   ],
   referralShowAdd: false,
   // Company profile panel
@@ -2971,7 +2982,7 @@ function renderNetwork(el) {
   if(filt.view==='cold')  filtered = filtered.filter(c=>c.heat==='cold');
   if(filt.source) filtered = filtered.filter(c=>(c.source||'').toLowerCase().includes(filt.source.toLowerCase()));
 
-  // Sort — 'smart' sections: Champions → Stars (top 10) → warmth; 'name' A–Z; 'recent' newest-added first
+  // Sort — 'smart' sections: Champions → Stars (top 10) → warmth; 'name' A–Z; 'recent' last-contacted desc
   const heatOrder = {new:0,warm:1,nudge:2,cold:3};
   const byHeatThenName = (a,b) => {
     if(heatOrder[a.heat]!==heatOrder[b.heat]) return heatOrder[a.heat]-heatOrder[b.heat];
@@ -2980,7 +2991,7 @@ function renderNetwork(el) {
   if(filt.sort==='name') {
     filtered.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   } else if(filt.sort==='recent') {
-    filtered.sort((a,b)=>((b.addedAt||b.id||0) > (a.addedAt||a.id||0) ? 1 : -1));
+    filtered.sort((a,b)=>(b.last||'').localeCompare(a.last||''));
   } else {
     // smart: sort within each tier, section grouping applied at render time
     filtered.sort(byHeatThenName);
@@ -3001,7 +3012,7 @@ function renderNetwork(el) {
         ${inp(`${prefix}-co`,     c.company||'', 'Company')}
         ${inp(`${prefix}-role`,   c.role||'',    'Their role')}
         ${inp(`${prefix}-source`, c.source||'',  'Referral source (optional)')}
-        ${sel(`${prefix}-rel`,    ['Warm','Alumni','Cold','Recruiter'], c.rel||'Warm')}
+        ${sel(`${prefix}-rel`,    ['Connection','Alumni','Recruiter','Cold Outreach'], c.rel||'Connection')}
         <input id="${prefix}-last" type="date" value="${esc(c.last||'')}" style="width:100%">
       </div>
       ${inp(`${prefix}-notes`, c.notes||'', 'Notes — context, how you know them')}
@@ -3585,7 +3596,7 @@ function renderReferrals(el) {
         <div>${lbl('Contact name')}${inp('ref-contact','','e.g. Jane Smith')}</div>
         <div>${lbl('Their current company')}${inp('ref-atco','','e.g. UnitedHealth Group')}</div>
         <div>${lbl('Target company for referral')}${inp('ref-targetco','','e.g. Optum (leave blank if same)')}</div>
-        <div>${lbl('Relationship')}${sel('ref-rel',['Warm','Alumni','Former colleague','Cold','Other'].map(s=>({v:s,l:s})),'Warm')}</div>
+        <div>${lbl('Relationship')}${sel('ref-rel',['Connection','Alumni','Former colleague','Recruiter','Cold Outreach','Other'].map(s=>({v:s,l:s})),'Connection')}</div>
       </div>
       <div style="margin-bottom:8px">${lbl('Notes')}${inp('ref-notes','','How you know them, context, etc.')}</div>
       <div class="row">
@@ -3651,7 +3662,7 @@ function addReferral() {
     id: Date.now(), contact,
     atCompany: atCo,
     targetCo:  document.getElementById('ref-targetco')?.value.trim()||atCo,
-    rel:       document.getElementById('ref-rel')?.value||'Warm',
+    rel:       document.getElementById('ref-rel')?.value||'Connection',
     status:    'Not yet asked',
     notes:     document.getElementById('ref-notes')?.value.trim()||'',
     draftMsg:  '',
@@ -4042,7 +4053,7 @@ function importContactsCSV(text) {
       id: Date.now()+Math.random(), name,
       company: row['Company']||row['company']||'',
       role: row['Role']||row['role']||'',
-      rel: row['Relationship']||row['rel']||'Warm',
+      rel: row['Relationship']||row['rel']||'Connection',
       last: row['Last Touch']||row['last']||'',
       next: row['Next Touch']||row['next']||'',
       notes: row['Notes']||row['notes']||'',
@@ -4478,6 +4489,11 @@ async function initApp() {
     const syncTab = document.getElementById('tab-sync');
     if (syncTab) syncTab.style.display = 'none';
   }
+
+  // Migrate rel values from old vocabulary (v4.9.8 and earlier)
+  const REL_MIGRATE = {'Warm':'Connection','Cold':'Cold Outreach'};
+  if(state.contacts)  state.contacts.forEach(c=>{ if(REL_MIGRATE[c.rel]) c.rel=REL_MIGRATE[c.rel]; });
+  if(state.referrals) state.referrals.forEach(r=>{ if(REL_MIGRATE[r.rel]) r.rel=REL_MIGRATE[r.rel]; });
 
   render('board');
 }
