@@ -2262,7 +2262,7 @@ function renderTracker(el) {
         const isExp = state.appExpanded && state.appExpanded['top_'+a.id];
         const borderCol = {Saved:'var(--teal)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)','Coffee / Networking':'var(--green)',Applied:'var(--blue)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)'}[a.stage]||'var(--amber)';
         const cardBg = STAGE_CARD_BG[a.stage]||'var(--card-default)';
-        const details = [a.salary&&pill(a.salary),a.location&&pill(a.location),a.date&&pill('applied: '+a.date),fitPill(a)].filter(Boolean).join('');
+        const details = [a.salary&&pill(a.salary),a.location&&pill(a.location),fitPill(a)].filter(Boolean).join('');
         const nextLine = [a.nextStep,a.nextDate].filter(s=>s&&s!=='—').map(esc).join(' → ');
         const keyReqs = a.keyReqs&&a.keyReqs!=='—'?a.keyReqs:'';
         const gaps = a.gaps||a.notes||'';
@@ -2366,7 +2366,6 @@ function renderTracker(el) {
     const details      = [
       app.salary && pill(esc(app.salary)),
       app.location && pill(esc(app.location)),
-      app.date && pill('applied: '+app.date),
       app.fit && fitPill(app),
       heatTag
     ].filter(Boolean).join('');
@@ -2378,7 +2377,11 @@ function renderTracker(el) {
     const keyReqs      = app.keyReqs&&app.keyReqs!=='—'?app.keyReqs:'';
     const gaps         = app.gaps||app.notes||'';
     const netRel       = app.netRel&&app.netRel!=='—'?app.netRel:'';
-    const updatedLabel = app.updatedAt?`updated ${app.updatedAt.slice(0,10)}`:'';
+    const STAGE_CSS_COL = {Saved:'var(--teal)',Applied:'var(--blue)','Coffee / Networking':'var(--green)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)'};
+    const stageColor = STAGE_CSS_COL[app.stage] || 'var(--amber)';
+    const updatedLabel = app.updatedAt
+      ? `<span style="font-weight:600;color:var(--tx2)">${esc(app.stage)}</span> <span style="color:${stageColor}">${app.updatedAt.slice(0,10)}</span>`
+      : '';
     const isHigh       = app.priority==='High';
 
     const condensed = `
@@ -2394,7 +2397,7 @@ function renderTracker(el) {
             ? `<div style="font-size:11px;color:var(--teal);margin-bottom:3px;font-weight:500">🤝 ${isGuest()?'<span class="redacted">'+esc(app.netContact)+'</span>':esc(app.netContact)}${netRel?` <span style="font-weight:400;color:var(--faint)">· ${esc(netRel)}</span>`:''}</div>`
             : (contactLine?`<div style="font-size:11px;color:var(--faint);margin-bottom:3px">👤 ${contactLine}</div>`:'')}
           ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:3px;font-weight:500">→ ${nextLine}</div>`:''}
-          ${updatedLabel?`<div style="font-size:10px;color:var(--faint);margin-top:2px">${updatedLabel}</div>`:''}
+          ${updatedLabel?`<div style="font-size:11px;margin-top:2px">${updatedLabel}</div>`:''}
         </div>
         <div class="app-card-actions" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">
           ${isGuest()
