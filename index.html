@@ -2272,7 +2272,16 @@ function renderTracker(el) {
         const updatedLabelTop = (a.updatedAt || a.date)
           ? '<span style="font-weight:600;color:var(--tx2)">'+esc(a.stage)+'</span> <span style="color:'+stageColorTop+'">'+(a.updatedAt||a.date).slice(0,10)+'</span>'
           : '';
+        const isEditingTop = state.appEditing === ('top_'+a.id);
         return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid var(--navy-border);border-left:3px solid var(--amber);background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
+          ${isEditingTop ? `
+            <div style="font-size:12px;font-weight:500;color:var(--amber);margin-bottom:10px">Editing: ${esc(a.company)}</div>
+            ${appFormHTML('etop-'+a.id, a)}
+            <div class="row" style="margin-top:10px">
+              <button class="amber" onclick="saveEdit(${a.id})">Save changes</button>
+              <button onclick="state.appEditing=null;render('tracker')">Cancel</button>
+            </div>
+          ` : `
           <div class="app-card-inner" style="display:flex;flex-direction:column;gap:8px">
             <div style="flex:1;min-width:0">
               <div class="row" style="margin-bottom:3px;flex-wrap:wrap">
@@ -2280,32 +2289,27 @@ function renderTracker(el) {
                 ${badge(a.stage,STAGE_COL[a.stage]||'amber')}
               </div>
               <div style="color:var(--muted);margin-bottom:5px;font-size:12px">${esc(a.role||'')}</div>
-              ${details?`<div style="margin-bottom:5px;display:flex;flex-wrap:wrap;gap:2px">${details}</div>`:''}
-              ${updatedLabelTop?`<div style="font-size:11px;margin-top:2px;margin-bottom:3px">${updatedLabelTop}</div>`:''}
-              ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:3px">→ ${nextLine}</div>`:''}
+              ${details?'<div style="margin-bottom:5px;display:flex;flex-wrap:wrap;gap:2px">'+details+'</div>':''}
+              ${updatedLabelTop?'<div style="font-size:11px;margin-top:2px;margin-bottom:3px">'+updatedLabelTop+'</div>':''}
+              ${nextLine?'<div style="font-size:11px;color:var(--amber);margin-bottom:3px">→ '+nextLine+'</div>':''}
             </div>
             <div class="app-card-actions" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">
               ${sel('stg-top-'+a.id,STAGES,a.stage)}
               <button onclick="setAppStage(${a.id},document.getElementById('stg-top-${a.id}').value)" style="font-size:11px">Save</button>
               <button onclick="toggleHighPriority(${a.id})" title="Remove from high priority" style="font-size:11px;color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)">⭐</button>
               <button onclick="openProfilePanel(${a.id})" style="font-size:11px;color:var(--gold);border-color:var(--gold-border);background:var(--gold-pale);font-weight:600">✦ Profile</button>
-              <button onclick="state.appEditing=${a.id};render('tracker');setTimeout(()=>{const el=document.getElementById('edit-card-${a.id}');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},50)" style="font-size:11px">Edit</button>
+              <button onclick="state.appEditing='top_'+${a.id};render('tracker')" style="font-size:11px">Edit</button>
               <button onclick="toggleExpandTop(${a.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExp?'▴ Details':'▾ Details'}</button>
             </div>
           </div>
-          ${isExp && (keyReqs||gaps||(a.actLog&&a.actLog.length)) ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
-            ${keyReqs?`<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">match:</span> ${esc(keyReqs)}</div>`:''}
-            ${gaps&&gaps!=='—'?`<div style="font-size:11px;color:var(--faint);margin-bottom:6px"><span style="color:var(--muted)">notes:</span> ${esc(gaps)}</div>`:''}
-            ${(a.actLog&&a.actLog.length) ? `
-              <div style="padding-top:6px;border-top:1px solid var(--navy-border)">
-                <div style="font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px">Activity</div>
-                ${a.actLog.slice(-5).reverse().map(e=>`
-                  <div style="display:flex;gap:8px;font-size:10px;color:var(--faint);margin-bottom:2px">
-                    <span style="color:var(--muted);white-space:nowrap">${e.date||''}</span>
-                    <span>${esc(e.note||'')}</span>
-                  </div>`).join('')}
-              </div>` : ''}
-          </div>` : ''}
+          ${isExp && (keyReqs||gaps||(a.actLog&&a.actLog.length)) ? '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">'+
+            (keyReqs?'<div style="font-size:11px;color:var(--faint);margin-bottom:4px"><span style="color:var(--muted)">match:</span> '+esc(keyReqs)+'</div>':'')+
+            (gaps&&gaps!=='—'?'<div style="font-size:11px;color:var(--faint);margin-bottom:6px"><span style="color:var(--muted)">notes:</span> '+esc(gaps)+'</div>':'')+
+            ((a.actLog&&a.actLog.length) ? '<div style="padding-top:6px;border-top:1px solid var(--navy-border)"><div style="font-size:10px;color:var(--faint);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px">Activity</div>'+
+              a.actLog.slice(-5).reverse().map(e=>'<div style="display:flex;gap:8px;font-size:10px;color:var(--faint);margin-bottom:2px"><span style="color:var(--muted);white-space:nowrap">'+(e.date||'')+'</span><span>'+esc(e.note||'')+'</span></div>').join('')+
+            '</div>' : '')+
+          '</div>' : ''}
+          `}
         </div>`;
       }).join('')}
     </div>` : '';
@@ -2556,6 +2560,7 @@ function setAppStage(id,stage) {
     const savedAt = (stage === 'Saved' && !a.savedAt) ? now.slice(0,10) : (a.savedAt||'');
     return {...a, stage, savedAt, actLog, updatedAt: now};
   });
+  state.appEditing = null;
   save(); render('tracker');
 }
 
@@ -2587,16 +2592,15 @@ function addApp() {
 }
 
 function saveEdit(id) {
-  const fields = readAppForm(`e-${id}`);
+  const prefix = state.appEditing === ('top_'+id) ? `etop-${id}` : `e-${id}`;
+  const fields = readAppForm(prefix);
   const app = state.apps.find(a => a.id === id);
   const now = new Date().toISOString();
   const updates = { ...fields, updatedAt: now };
   if (app) {
-    // Log stage changes
     if (fields.stage && fields.stage !== app.stage) {
       updates.actLog = [...(app.actLog||[]), {date: now.slice(0,10), note: `Stage → ${fields.stage}`}];
     }
-    // Stamp savedAt when first moved to Saved
     if (fields.stage === 'Saved' && !app.savedAt) {
       updates.savedAt = now.slice(0,10);
     }
