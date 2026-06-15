@@ -2270,7 +2270,7 @@ function renderTracker(el) {
         const STAGE_CSS_COL_TOP = {Saved:'var(--teal)',Applied:'var(--blue)','Coffee / Networking':'var(--green)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)'};
         const stageColorTop = STAGE_CSS_COL_TOP[a.stage] || 'var(--amber)';
         const updatedLabelTop = (a.updatedAt || a.date)
-          ? `<span style="font-weight:600;color:var(--tx2)">${esc(a.stage)}</span> <span style="color:${stageColorTop}">${(a.updatedAt||a.date).slice(0,10)}</span>`
+          ? '<span style="font-weight:600;color:var(--tx2)">'+esc(a.stage)+'</span> <span style="color:'+stageColorTop+'">'+(a.updatedAt||a.date).slice(0,10)+'</span>'
           : '';
         return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid var(--navy-border);border-left:3px solid var(--amber);background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
           <div class="app-card-inner" style="display:flex;flex-direction:column;gap:8px">
@@ -2289,7 +2289,7 @@ function renderTracker(el) {
               <button onclick="setAppStage(${a.id},document.getElementById('stg-top-${a.id}').value)" style="font-size:11px">Save</button>
               <button onclick="toggleHighPriority(${a.id})" title="Remove from high priority" style="font-size:11px;color:var(--amber);border-color:var(--amber-dim);background:var(--amber-bg)">⭐</button>
               <button onclick="openProfilePanel(${a.id})" style="font-size:11px;color:var(--gold);border-color:var(--gold-border);background:var(--gold-pale);font-weight:600">✦ Profile</button>
-              <button onclick="state.appEditing=${a.id};render('tracker')" style="font-size:11px">Edit</button>
+              <button onclick="state.appEditing=${a.id};render('tracker');setTimeout(()=>{const el=document.getElementById('edit-card-${a.id}');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},50)" style="font-size:11px">Edit</button>
               <button onclick="toggleExpandTop(${a.id})" style="font-size:11px;color:var(--sky-blue);border-color:var(--sky-blue-mid);background:var(--sky-blue-pale)">${isExp?'▴ Details':'▾ Details'}</button>
             </div>
           </div>
@@ -2344,7 +2344,7 @@ function renderTracker(el) {
   // ── Application cards ──────────────────────────────────────────────────────
   const cards = list.map(app => {
     if(state.appEditing===app.id) {
-      return `<div class="card" style="margin-bottom:8px;border-left:3px solid var(--amber)">
+      return `<div id="edit-card-${app.id}" class="card" style="margin-bottom:8px;border-left:3px solid var(--amber)">
         <div style="font-size:12px;font-weight:500;color:var(--amber);margin-bottom:10px">Editing: ${esc(app.company)}</div>
         ${appFormHTML(`e-${app.id}`,app)}
         <div class="row" style="margin-top:10px">
@@ -2529,6 +2529,7 @@ function toggleHighPriority(id) {
     if(highCount>=10) { showToast('⚑ You have 10 high priority apps — review before adding more'); return; }
   }
   state.apps = state.apps.map(a=>a.id===id?{...a,priority:currentlyHigh?'Medium':'High',updatedAt:new Date().toISOString()}:a);
+  state.appEditing = null;
   save(); render('tracker');
 }
 
