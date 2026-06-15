@@ -1879,7 +1879,7 @@ function renderHQHero() {
           const numCol = isApp ? 'var(--sky-blue-light)' : 'var(--jade)';
           const rest   = isApp ? 'rgba(91,158,201,0.08)'  : 'rgba(111,207,151,0.08)';
           const hover  = isApp ? 'rgba(91,158,201,0.18)'  : 'rgba(111,207,151,0.18)';
-          return `<div onclick="${d.onclick}" style="padding:10px 6px;text-align:center;cursor:pointer;border-right:1px solid rgba(255,255,255,0.05);background:${rest};transition:background .15s" onmouseover="this.style.background='${hover}'" onmouseout="this.style.background='${rest}'">
+          return `<div onclick="${d.onclick}" style="padding:14px 6px;text-align:center;cursor:pointer;border-right:1px solid rgba(255,255,255,0.05);background:${rest};transition:background .15s" onmouseover="this.style.background='${hover}'" onmouseout="this.style.background='${rest}'">
           <div style="font-size:18px;font-weight:700;color:${numCol};line-height:1;font-family:'DM Mono',monospace">${d.val}</div>
           <div style="font-size:9px;color:var(--faint);margin-top:3px;letter-spacing:.04em;text-transform:uppercase">${d.label}</div>
         </div>`;}).join('')}
@@ -1894,7 +1894,7 @@ function renderHQHero() {
         <div style="font-size:11px;font-weight:700;color:#E8C97A;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px">
           <span style="width:20px;height:1px;display:inline-block;background:var(--gold)"></span>✦ Analyze a Job Description
         </div>
-        <textarea id="board-jd-quick" rows="3" placeholder="Paste a job description here — Claude will score fit, surface red flags, and check comp…" style="flex:1;font-size:12px;background:rgba(201,150,26,0.07);border:1px solid rgba(201,138,14,0.35);border-radius:6px;color:var(--tx);padding:8px 11px;resize:none;line-height:1.45;width:100%;margin-bottom:8px"></textarea>
+        <textarea id="board-jd-quick" rows="4" placeholder="Paste a job description here — Claude will score fit, surface red flags, and check comp…" style="flex:1;font-size:12px;background:rgba(201,150,26,0.07);border:1px solid rgba(201,138,14,0.35);border-radius:6px;color:var(--tx);padding:8px 11px;resize:none;line-height:1.45;width:100%;margin-bottom:8px"></textarea>
         <div style="display:flex;gap:8px">
           <button onclick="openAnalyzeModalWithText(document.getElementById('board-jd-quick').value)" style="flex:1;font-size:12px;background:var(--gold);color:#fff;border-color:var(--gold);padding:8px 0;font-weight:600">⚡ Analyze JD</button>
         </div>
@@ -2267,6 +2267,11 @@ function renderTracker(el) {
         const nextLine = [a.nextStep,a.nextDate].filter(s=>s&&s!=='—').map(esc).join(' → ');
         const keyReqs = a.keyReqs&&a.keyReqs!=='—'?a.keyReqs:'';
         const gaps = a.gaps||a.notes||'';
+        const STAGE_CSS_COL_TOP = {Saved:'var(--teal)',Applied:'var(--blue)','Coffee / Networking':'var(--green)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)'};
+        const stageColorTop = STAGE_CSS_COL_TOP[a.stage] || 'var(--amber)';
+        const updatedLabelTop = a.updatedAt
+          ? `<span style="font-weight:600;color:var(--tx2)">${esc(a.stage)}</span> <span style="color:${stageColorTop}">${a.updatedAt.slice(0,10)}</span>`
+          : '';
         return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid var(--navy-border);border-left:3px solid var(--amber);background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
           <div class="app-card-inner" style="display:flex;flex-direction:column;gap:8px">
             <div style="flex:1;min-width:0">
@@ -2276,6 +2281,7 @@ function renderTracker(el) {
               </div>
               <div style="color:var(--muted);margin-bottom:5px;font-size:12px">${esc(a.role||'')}</div>
               ${details?`<div style="margin-bottom:5px;display:flex;flex-wrap:wrap;gap:2px">${details}</div>`:''}
+              ${updatedLabelTop?`<div style="font-size:11px;margin-top:2px;margin-bottom:3px">${updatedLabelTop}</div>`:''}
               ${nextLine?`<div style="font-size:11px;color:var(--amber);margin-bottom:3px">→ ${nextLine}</div>`:''}
             </div>
             <div class="app-card-actions" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px">
