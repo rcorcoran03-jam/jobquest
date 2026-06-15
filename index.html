@@ -2269,8 +2269,8 @@ function renderTracker(el) {
         const gaps = a.gaps||a.notes||'';
         const STAGE_CSS_COL_TOP = {Saved:'var(--teal)',Applied:'var(--blue)','Coffee / Networking':'var(--green)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)'};
         const stageColorTop = STAGE_CSS_COL_TOP[a.stage] || 'var(--amber)';
-        const updatedLabelTop = a.updatedAt
-          ? `<span style="font-weight:600;color:var(--tx2)">${esc(a.stage)}</span> <span style="color:${stageColorTop}">${a.updatedAt.slice(0,10)}</span>`
+        const updatedLabelTop = (a.updatedAt || a.date)
+          ? `<span style="font-weight:600;color:var(--tx2)">${esc(a.stage)}</span> <span style="color:${stageColorTop}">${(a.updatedAt||a.date).slice(0,10)}</span>`
           : '';
         return `<div style="margin-bottom:8px;border-radius:8px;border:1px solid var(--navy-border);border-left:3px solid var(--amber);background:${cardBg};padding:1rem 1.25rem;animation:fadeIn .2s ease">
           <div class="app-card-inner" style="display:flex;flex-direction:column;gap:8px">
@@ -2386,8 +2386,8 @@ function renderTracker(el) {
     const netRel       = app.netRel&&app.netRel!=='—'?app.netRel:'';
     const STAGE_CSS_COL = {Saved:'var(--teal)',Applied:'var(--blue)','Coffee / Networking':'var(--green)','Phone Screen':'var(--amber)',Interview:'var(--amber)','Final Round':'var(--green)',Offer:'var(--green)',Rejected:'var(--red)',Ghosted:'var(--purple)'};
     const stageColor = STAGE_CSS_COL[app.stage] || 'var(--amber)';
-    const updatedLabel = app.updatedAt
-      ? `<span style="font-weight:600;color:var(--tx2)">${esc(app.stage)}</span> <span style="color:${stageColor}">${app.updatedAt.slice(0,10)}</span>`
+    const updatedLabel = (app.updatedAt || app.date)
+      ? `<span style="font-weight:600;color:var(--tx2)">${esc(app.stage)}</span> <span style="color:${stageColor}">${(app.updatedAt||app.date).slice(0,10)}</span>`
       : '';
     const isHigh       = app.priority==='High';
 
@@ -2457,7 +2457,7 @@ function renderTracker(el) {
     highPriCt    = 7;
   }
 
-  const dashAndJD = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;align-items:start">
+  const dashAndJD = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;align-items:stretch">
     <!-- LEFT: stats block -->
     <div>
       <!-- Total tracked — full width top -->
@@ -2479,9 +2479,9 @@ function renderTracker(el) {
       </div>
     </div>
     <!-- RIGHT: Claude JD panel -->
-    <div style="background:rgba(201,138,14,0.07);border:1px solid rgba(201,138,14,0.30);border-top:3px solid var(--gold);border-radius:8px;padding:14px">
+    <div style="background:rgba(201,138,14,0.07);border:1px solid rgba(201,138,14,0.30);border-top:3px solid var(--gold);border-radius:8px;padding:14px;display:flex;flex-direction:column">
       <div style="font-size:11px;font-weight:700;color:#E8C97A;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px">✦ Analyze a Job Description</div>
-      <textarea id="tracker-jd-quick" rows="3" placeholder="Paste JD text here — get fit score, red flags &amp; save to tracker…" style="width:100%;font-size:12px;margin-bottom:8px;background:rgba(201,138,14,0.06);border:1px solid rgba(201,138,14,0.30);border-radius:6px;color:var(--tx);resize:none;padding:7px 10px"></textarea>
+      <textarea id="tracker-jd-quick" placeholder="Paste JD text here — get fit score, red flags &amp; save to tracker…" style="width:100%;flex:1;min-height:80px;font-size:12px;margin-bottom:8px;background:rgba(201,138,14,0.06);border:1px solid rgba(201,138,14,0.30);border-radius:6px;color:var(--tx);resize:none;padding:7px 10px"></textarea>
       <button onclick="openAnalyzeModalWithText(document.getElementById('tracker-jd-quick').value)" style="width:100%;font-size:12px;background:var(--gold);color:#fff;border-color:var(--gold);padding:8px 0;font-weight:600">⚡ Analyze JD</button>
       <div style="font-size:10px;color:rgba(201,150,26,0.6);margin-top:6px;text-align:center;letter-spacing:.02em">powered by claude · ~15 seconds · no data stored</div>
     </div>
